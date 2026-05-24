@@ -1,5 +1,5 @@
 class CrossfireClient < Formula
-  desc "Crossfire is a free, open-source, cooperative multi-player RPG and adventure game."
+  desc "Crossfire is a free, open-source, cooperative multiplayer RPG and adventure game"
   homepage "https://sourceforge.net/projects/crossfire/"
   license "GPL-2.0-only"
   head "https://git.code.sf.net/p/crossfire/crossfire-client.git", branch: "gtk3"
@@ -8,6 +8,7 @@ class CrossfireClient < Formula
   depends_on "vala" => :build
   depends_on "at-spi2-core"
   depends_on "cairo"
+  depends_on "curl"
   depends_on "gdk-pixbuf"
   depends_on "gettext"
   depends_on "glib"
@@ -19,7 +20,6 @@ class CrossfireClient < Formula
   depends_on "pango"
   depends_on "sdl2"
   depends_on "sdl2_mixer"
-  depends_on "curl"
   patch :p1, :DATA
 
   def install
