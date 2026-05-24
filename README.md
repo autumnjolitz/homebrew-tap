@@ -1,16 +1,16 @@
-# Autumnjolitz Tap
+# Autumn Jolitz's Homebrew Tap
 
 ## How do I install these formulae?
 
-`brew install autumnjolitz/tap/<formula>`
+`brew install --git --HEAD autumnjolitz/tap/crossfire-client`
 
-Or `brew tap autumnjolitz/tap` and then `brew install <formula>`.
+Or `brew tap autumnjolitz/tap` and then `brew install crossfire-client`.
 
 Or, in a `brew bundle` `Brewfile`:
 
 ```ruby
 tap "autumnjolitz/tap"
-brew "<formula>"
+brew "crossfire-client"
 ```
 
 ## Documentation
