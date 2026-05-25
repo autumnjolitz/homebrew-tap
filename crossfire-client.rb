@@ -4,10 +4,6 @@ class CrossfireClient < Formula
   license "GPL-2.0-only"
   head "https://git.code.sf.net/p/crossfire/crossfire-client.git", branch: "gtk3"
 
-  resource "crossfire-sounds" do
-    url "git://git.code.sf.net/p/crossfire/crossfire-sounds"
-  end
-
   depends_on "cmake" => :build
   depends_on "vala" => :build
   depends_on "at-spi2-core"
@@ -24,6 +20,11 @@ class CrossfireClient < Formula
   depends_on "pango"
   depends_on "sdl2"
   depends_on "sdl2_mixer"
+
+  resource "crossfire-sounds" do
+    url "git://git.code.sf.net/p/crossfire/crossfire-sounds"
+  end
+
   patch :p1, :DATA
 
   def install
@@ -31,7 +32,7 @@ class CrossfireClient < Formula
     ENV.append_to_cflags "-DHAVE_SDL"
     ENV.append_to_cflags "-DENABLE_NLS"
     ENV.append_to_cflags "-DGETTEXT_PACKAGE=\\\"crossfire-client\\\""
-    ENV.append_to_cflags "-DPACKAGE_LOCALE_DIR=\\\"#{prefix}/share/locale\\\""
+    ENV.append_to_cflags "-DPACKAGE_LOCALE_DIR=\\\"#{share}/locale\\\""
 
     resource("crossfire-sounds").unpack(buildpath/"sounds")
 
