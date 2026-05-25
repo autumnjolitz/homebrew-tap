@@ -4,6 +4,10 @@ class CrossfireClient < Formula
   license "GPL-2.0-only"
   head "https://git.code.sf.net/p/crossfire/crossfire-client.git", branch: "gtk3"
 
+  resource "crossfire-sounds" do
+    url "git://git.code.sf.net/p/crossfire/crossfire-sounds"
+  end
+
   depends_on "cmake" => :build
   depends_on "vala" => :build
   depends_on "at-spi2-core"
@@ -23,6 +27,14 @@ class CrossfireClient < Formula
   patch :p1, :DATA
 
   def install
+    ENV.append_to_cflags "-DHAVE_OPENGL"
+    ENV.append_to_cflags "-DHAVE_SDL"
+    ENV.append_to_cflags "-DENABLE_NLS"
+    ENV.append_to_cflags "-DGETTEXT_PACKAGE=\\\"crossfire-client\\\""
+    ENV.append_to_cflags "-DPACKAGE_LOCALE_DIR=\\\"#{prefix}/share/locale\\\""
+
+    resource("crossfire-sounds").unpack(buildpath/"sounds")
+
     system "cmake", "-S", ".", "-B", "build", *std_cmake_args
     system "cmake", "--build", "build"
     system "cmake", "--install", "build"
@@ -52,3 +64,18 @@ index 155c4e6..c0e97a8 100644
  #else
  #include <gdk/gdkwin32.h>
  #define NoSymbol 0L                     /**< Special KeySym */
+diff --git a/gtk-v2/src/main.c b/gtk-v2/src/main.c
+index ceb3512..67656b0 100644
+--- a/gtk-v2/src/main.c
++++ b/gtk-v2/src/main.c
+@@ -25,7 +25,9 @@
+ #ifndef WIN32
+ #include <signal.h>
+ #endif
+-
++#if defined(__APPLE__) && defined(ENABLE_NLS)
++#include <libintl.h>
++#endif
+ #ifdef HAVE_CAPSICUM
+ #include <sys/capsicum.h>
+ #endif
