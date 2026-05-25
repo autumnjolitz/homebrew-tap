@@ -20,6 +20,7 @@ class CrossfireClient < Formula
   depends_on "pango"
   depends_on "sdl2"
   depends_on "sdl2_mixer"
+  depends_on "lua@5.4"
 
   resource "crossfire-sounds" do
     url "git://git.code.sf.net/p/crossfire/crossfire-sounds"
@@ -36,7 +37,7 @@ class CrossfireClient < Formula
 
     resource("crossfire-sounds").unpack(buildpath/"sounds")
 
-    system "cmake", "-S", ".", "-B", "build", *std_cmake_args
+    system "cmake", "-S", ".", "-B", "build", "-DLUA=ON", *std_cmake_args
     system "cmake", "--build", "build"
     system "cmake", "--install", "build"
   end
