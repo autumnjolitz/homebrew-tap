@@ -1,4 +1,6 @@
-# Autumn Jolitz's Homebrew Tap
+# Crossfire Homebrew Tap
+
+![Alt text](/docs/screenshot1.png?raw=true "session on metalforge.net")
 
 ## How do I install these formulae?
 
