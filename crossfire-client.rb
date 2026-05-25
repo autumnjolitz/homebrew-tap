@@ -17,10 +17,10 @@ class CrossfireClient < Formula
   depends_on "libpng"
   depends_on "libx11"
   depends_on "libxext"
+  depends_on "lua@5.4"
   depends_on "pango"
   depends_on "sdl2"
   depends_on "sdl2_mixer"
-  depends_on "lua@5.4"
 
   resource "crossfire-sounds" do
     url "git://git.code.sf.net/p/crossfire/crossfire-sounds"
