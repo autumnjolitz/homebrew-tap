@@ -14,7 +14,7 @@ Crossfire is a free, open-source, cooperative multiplayer RPG and adventure game
 
 [xsoldier](http://www.interq.or.jp/libra/oohara/xsoldier/index.html) is a shoot 'em up game with the \"not shooting\" bonus.
 
-<img src="/docs/xsoldier.png?raw=true" style="max-width: 70%;">
+<img src="/docs/xsoldier.png?raw=true" width="600">
 
 ## How do I install these formulae?
 
