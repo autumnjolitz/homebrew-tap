@@ -2,6 +2,8 @@
 
 [xsoldier](http://www.interq.or.jp/libra/oohara/xsoldier/index.html) is a shoot 'em up game with the \"not shooting\" bonus.
 
+![Screenshot of xsoldier](/docs/xsoldier.png?raw=true "xsoldier game session")
+
 # Crossfire Homebrew Tap
 
 Crossfire is a free, open-source, cooperative multiplayer RPG and adventure game.
@@ -12,7 +14,7 @@ Crossfire is a free, open-source, cooperative multiplayer RPG and adventure game
 
 [Wiki](https://wiki.cross-fire.org/)
 
-![Alt text](/docs/screenshot1.png?raw=true "session on metalforge.net")
+![Screenshot of crossfire-client-gtk2](/docs/screenshot1.png?raw=true "session on metalforge.net")
 
 ## How do I install these formulae?
 
