@@ -3,7 +3,7 @@ class Xsoldier < Formula
   homepage "http://www.interq.or.jp/libra/oohara/xsoldier/index.html"
   url "http://www.interq.or.jp/libra/oohara/xsoldier/xsoldier-1.8.tar.gz"
   sha256 "4d1a60513a2738e5dc09a25b4ab7bdbcd88705a5cc7ef0ad6f27263b914cdae6"
-  license ""
+  license "GPL-2.0-or-later"
 
   depends_on "autoconf" => :build
   depends_on "automake" => :build
