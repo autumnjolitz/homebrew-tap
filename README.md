@@ -25,5 +25,5 @@ Crossfire is a free, open-source, cooperative multiplayer RPG and adventure game
 
 ### crossfire-client
 
-`brew install --git --HEAD autumnjolitz/tap/crossfire-client`
+`brew install --HEAD autumnjolitz/tap/crossfire-client`
 
