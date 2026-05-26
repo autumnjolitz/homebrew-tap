@@ -1,5 +1,5 @@
 class Xsoldier < Formula
-  desc "A shoot 'em up game with the \"not shooting\" bonus"
+  desc "Space shoot 'em up game with the \"not shooting\" bonus"
   homepage "http://www.interq.or.jp/libra/oohara/xsoldier/index.html"
   url "http://www.interq.or.jp/libra/oohara/xsoldier/xsoldier-1.8.tar.gz"
   sha256 "4d1a60513a2738e5dc09a25b4ab7bdbcd88705a5cc7ef0ad6f27263b914cdae6"
