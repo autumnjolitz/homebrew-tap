@@ -2,7 +2,16 @@ class CrossfireClient < Formula
   desc "Crossfire is a free, open-source, cooperative multiplayer RPG and adventure game"
   homepage "https://sourceforge.net/projects/crossfire/"
   license "GPL-2.0-only"
-  head "https://git.code.sf.net/p/crossfire/crossfire-client.git", branch: "gtk3"
+
+  head do
+    url "https://git.code.sf.net/p/crossfire/crossfire-client.git", branch: "gtk3"
+
+    resource "crossfire-sounds" do
+      url "git://git.code.sf.net/p/crossfire/crossfire-sounds"
+    end
+
+    patch :p1, :DATA
+  end
 
   depends_on "cmake" => :build
   depends_on "vala" => :build
@@ -21,12 +30,6 @@ class CrossfireClient < Formula
   depends_on "pango"
   depends_on "sdl2"
   depends_on "sdl2_mixer"
-
-  resource "crossfire-sounds" do
-    url "git://git.code.sf.net/p/crossfire/crossfire-sounds"
-  end
-
-  patch :p1, :DATA
 
   def install
     ENV.append_to_cflags "-DHAVE_OPENGL"
