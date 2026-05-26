@@ -1,3 +1,7 @@
+# xsoldier Homebrew Tap
+
+[xsoldier](http://www.interq.or.jp/libra/oohara/xsoldier/index.html) is a shoot 'em up game with the \"not shooting\" bonus.
+
 # Crossfire Homebrew Tap
 
 Crossfire is a free, open-source, cooperative multiplayer RPG and adventure game.
@@ -12,17 +16,12 @@ Crossfire is a free, open-source, cooperative multiplayer RPG and adventure game
 
 ## How do I install these formulae?
 
+
+### xsoldier
+
+`brew install --git --HEAD autumnjolitz/tap/xsoldier`
+
+### crossfire-client
+
 `brew install --git --HEAD autumnjolitz/tap/crossfire-client`
 
-Or `brew tap autumnjolitz/tap` and then `brew install crossfire-client`.
-
-Or, in a `brew bundle` `Brewfile`:
-
-```ruby
-tap "autumnjolitz/tap"
-brew "crossfire-client"
-```
-
-## Documentation
-
-`brew help`, `man brew` or check [Homebrew's documentation](https://docs.brew.sh).
