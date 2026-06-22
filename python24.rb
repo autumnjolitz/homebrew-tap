@@ -40,7 +40,14 @@ class Python24 < Formula
   def install
     validate_options
 
-    args = ["--prefix=#{prefix}", "--disable-toolbox-glue"]
+    args = [
+      "--prefix=#{prefix}",
+      "--disable-toolbox-glue",
+      "--enable-unicode=ucs2",
+      "--disable-ipv6",
+      "--with-fpectl",
+      "--mandir=#{man}",
+    ]
 
     if build.with? "universal"
       args << "--enable-universalsdk=/"
@@ -53,10 +60,45 @@ class Python24 < Formula
       args << "--enable-shared"
     end
 
+    ENV.append_to_cflags "-D_DARWIN_C_SOURCE"
     system "./configure", *args
+
+    inreplace "pyconfig.h" do |s|
+      s.gsub!("_POSIX_C_SOURCE", "_DARWIN_C_SOURCE")
+    end
+
+    inreplace "Modules/Setup" do |s|
+      s.gsub!("#*shared*", "*shared*")
+      s.gsub!("#_socket", "_socket")
+      s.gsub!("#grp", "grp")
+      s.gsub!("#select", "select")
+      s.gsub!("#_csv", "_csv")
+      s.gsub!("#mmap", "mmap")
+      s.gsub!("#fcntl", "fcntl")
+      s.gsub!("#unicodedata", "unicodedata")
+      s.gsub!("#readline", "readline")
+      s.gsub!("#array", "array")
+      s.gsub!("#cmath", "cmath")
+      s.gsub!("#math", "math")
+      s.gsub!("#struct", "struct")
+      s.gsub!("#time", "time")
+      s.gsub!("#operator", "operator")
+      s.gsub!("#_weakref", "_weakref")
+      s.gsub!("#_random", "_random")
+      s.gsub!("#collections", "collections")
+      s.gsub!("#itertools", "itertools")
+      s.gsub!("#resource", "resource")
+      s.gsub!("#_locale", "_locale")
+    end
+
+    system "make"
+    # ARJ: make has to run twice in order to build
+    # the expected socket, et al
+    # This is NOT a duplicate line. It literally makes
+    # the difference between a partial and full install
     system "make"
     ENV.deparallelize # Some kinds of installs must be serialized.
-    system "make", "install"
+    system "make", "altinstall"
 
     # Add the Homebrew prefix path to site-packages via a .pth
     prefix_site_packages.mkpath
@@ -105,15 +147,58 @@ class Python24 < Formula
   end
 end
 __END__
+diff --git a/Modules/fcntlmodule.c b/Modules/fcntlmodule.c
+index 0c02ee6..2fdd347 100644
+--- a/Modules/fcntlmodule.c
++++ b/Modules/fcntlmodule.c
+@@ -13,6 +13,8 @@
+ #include <stropts.h>
+ #endif
+ 
++extern int flock(int fd, int operation);
++
+ static int
+ conv_descriptor(PyObject *object, int *target)
+ {
+diff --git a/Modules/getaddrinfo.c b/Modules/getaddrinfo.c
+index 4d19c34..9d5afc8 100644
+--- a/Modules/getaddrinfo.c
++++ b/Modules/getaddrinfo.c
+@@ -57,6 +57,13 @@
+ #include "addrinfo.h"
+ #endif
+ 
++#include <netinet/in.h>
++#include <arpa/inet.h>
++
++typedef unsigned short u_short;
++typedef unsigned long u_long;
++typedef unsigned char u_char;
++
+ #if defined(__KAME__) && defined(ENABLE_IPV6)
+ # define FAITH
+ #endif
 diff --git a/Modules/posixmodule.c b/Modules/posixmodule.c
-index dc7f723..c941309 100644
+index dc7f723..741e310 100644
 --- a/Modules/posixmodule.c
 +++ b/Modules/posixmodule.c
-@@ -155,6 +155,7 @@ corresponding Unix manual entries for more information on calls.");
+@@ -23,6 +23,9 @@
+ #  pragma weak statvfs
+ #  pragma weak fstatvfs
+ 
++#include <sys/types.h>
++#include <sys/disk.h>
++
+ #endif /* __APPLE__ */
+ 
+ #include "Python.h"
+@@ -155,6 +158,9 @@ corresponding Unix manual entries for more information on calls.");
     (default) */
  extern char        *ctermid_r(char *);
  #endif
 +extern int getloadavg(double[], int);
++extern char *ctermid_r(char *buf);
++extern int setgroups(int ngroups, const gid_t *gidset);
  
  #ifndef HAVE_UNISTD_H
  #if defined(PYCC_VACPP)
