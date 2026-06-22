@@ -60,35 +60,33 @@ class Python24 <Formula
   depends_on 'readline' => :optional  # Prefer over OS X's libedit
   depends_on 'gdbm' => :optional
 
-  def options
-    [
-      ["--framework", "Do a 'Framework' build instead of a UNIX-style build."],
-      ["--universal", "Build for both 32 & 64 bit Intel."],
-      ["--static", "Build static libraries."]
-    ]
-  end
+  option "framework", "Do a 'Framework' build instead of a UNIX-style build."
+  option "universal", "Build for both 32 & 64 bit Intel."
+  option "static", "Build static libraries."
+
+  patch :p1, :DATA
 
   # Skip binaries so modules will load; skip lib because it is mostly Python files
   skip_clean ['bin', 'lib']
 
   def site_packages
     # The Cellar location of site-packages
-    if as_framework?
+    if build.with? "framework"
       # If we're installed or installing as a Framework, then use that location.
-      return prefix+"Frameworks/Python.framework/Versions/2.4/lib/python2.4/site-packages"
+      return frameworks / "Python.framework"/"Versions"/"2.4"/"lib"/"python2.4"/"site-packages"
     else
       # Otherwise, use just the lib path.
-      return lib+"python2.4/site-packages"
+      return lib / "python2.4"/"site-packages"
     end
   end
 
   def prefix_site_packages
     # The HOMEBREW_PREFIX location of site-packages
-    HOMEBREW_PREFIX+"lib/python2.4/site-packages"
+    lib/"python2.4"/"site-packages"
   end
 
   def validate_options
-    if build_framework? and ARGV.include? "--static"
+    if build.with? "framework" and build.with? "static"
       onoe "Cannot specify both framework and static."
       exit 99
     end
@@ -97,41 +95,41 @@ class Python24 <Formula
   def install
     validate_options
 
-    args = ["--prefix=#{prefix}"]
+    args = ["--prefix=#{prefix}", "--disable-toolbox-glue"]
 
-    if ARGV.include? '--universal'
+    if build.with? 'universal'
       args << "--enable-universalsdk=/" << "--with-universal-archs=intel"
     end
 
-    if build_framework?
+    if build.with? "framework"
       args << "--enable-framework=#{prefix}/Frameworks"
     else
-      args << "--enable-shared" unless ARGV.include? '--static'
+      args << "--enable-shared" unless build.with? 'static'
     end
 
     system "./configure", *args
     system "make"
-    ENV.j1 # Some kinds of installs must be serialized.
+    ENV.deparallelize # Some kinds of installs must be serialized.
     system "make install"
 
     # Add the Homebrew prefix path to site-packages via a .pth
     prefix_site_packages.mkpath
-    (site_packages+"homebrew.pth").write prefix_site_packages
+    (site_packages/"homebrew.pth").write prefix_site_packages
   end
 
   def caveats
-    framework_caveats = <<-EOS.undent
+    framework_caveats = <<-EOS
       Framework Python was installed to:
-        #{prefix}/Frameworks/Python.framework
+        #{frameworks}/Python.framework
 
       You may want to symlink this Framework to a standard OS X location,
       such as:
         mkdir ~/Frameworks
-        ln -s "#{prefix}/Frameworks/Python.framework" ~/Frameworks
+        ln -s "#{frameworks}/Python.framework" ~/Frameworks
 
     EOS
 
-    site_caveats = <<-EOS.undent
+    site_caveats = <<-EOS
       The site-packages folder for this Python is:
         #{site_packages}
 
@@ -140,7 +138,7 @@ class Python24 <Formula
 
     EOS
 
-    general_caveats = <<-EOS.undent
+    general_caveats = <<-EOS
       You may want to create a "virtual environment" using this Python as a base
       so you can manage multiple independent site-packages. See:
         http://pypi.python.org/pypi/virtualenv
@@ -152,7 +150,20 @@ class Python24 <Formula
     EOS
 
     s = site_caveats+general_caveats
-    s = framework_caveats + s if as_framework?
+    s = framework_caveats + s if build.with? "framework"
     return s
   end
 end
+__END__
+diff --git a/Modules/posixmodule.c b/Modules/posixmodule.c
+index dc7f723..c941309 100644
+--- a/Modules/posixmodule.c
++++ b/Modules/posixmodule.c
+@@ -155,6 +155,7 @@ corresponding Unix manual entries for more information on calls.");
+    (default) */
+ extern char        *ctermid_r(char *);
+ #endif
++extern int getloadavg(double[], int);
+ 
+ #ifndef HAVE_UNISTD_H
+ #if defined(PYCC_VACPP)
