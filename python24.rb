@@ -12,9 +12,6 @@ class Python24 < Formula
   depends_on "readline" => :optional  # Prefer over OS X's libedit
   depends_on "sqlite" => :optional    # Prefer over OS X's older version
 
-  # Skip binaries so modules will load; skip lib because it is mostly Python files
-  skip_clean ["bin", "lib"]
-
   patch :p1, :DATA
 
   def site_packages
