@@ -89,6 +89,7 @@ class Python24 < Formula
       s.gsub!("#itertools", "itertools")
       s.gsub!("#resource", "resource")
       s.gsub!("#_locale", "_locale")
+      s.gsub!("#zlib", "zlib")
     end
 
     system "make"
