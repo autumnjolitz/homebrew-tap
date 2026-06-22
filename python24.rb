@@ -93,6 +93,8 @@ class Python24 < Formula
     end
 
     system "make"
+    # tell python to double check the setup config
+    FileUtils.touch('Modules/Setup')
     # ARJ: make has to run twice in order to build
     # the expected socket, et al
     # This is NOT a duplicate line. It literally makes
