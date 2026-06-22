@@ -16,8 +16,13 @@ Crossfire is a free, open-source, cooperative multiplayer RPG and adventure game
 
 <img src="/docs/xsoldier.png?raw=true" width="600">
 
+# Python 2.4 Homebrew Tap
+
+Python 2.4 is legacy and clearly unmaintained, however older Zope installations require it.
+
 ## How do I install these formulae?
 
+You will need to `brew trust autumnjolitz/tap` first before you can install any of these packages. Don't worry, it's a one time action.
 
 ### xsoldier
 
@@ -26,4 +31,8 @@ Crossfire is a free, open-source, cooperative multiplayer RPG and adventure game
 ### crossfire-client
 
 `brew install --HEAD autumnjolitz/tap/crossfire-client`
+
+### python2.4
+
+`brew install autumnjolitz/tap/python24`
 
