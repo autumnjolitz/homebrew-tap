@@ -220,7 +220,7 @@ EOF
   test do
     system bin / "python2.4", "--help"
     system bin / "python2.4", "-c", "import unicodedata"
-    system bin / "python2.4", "-c", "import locale; print locale.getlocale()"
+    system bin / "python2.4", "-c", "import _locale;_locale.setlocale(0)"
   end
 end
 __END__
