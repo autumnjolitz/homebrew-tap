@@ -42,6 +42,12 @@ class PythonAT24 < Formula
   end
 
   def install
+    # remap ppc to arm64 and i386 to x86_64
+    inreplace "configure" do |s|
+      s.gsub!("ppc", "arm64")
+      s.gsub!("i386", "x86_64")
+    end
+
     args = [
       "--prefix=#{prefix}",
       "--disable-toolbox-glue",
