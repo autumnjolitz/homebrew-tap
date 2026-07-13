@@ -41,6 +41,9 @@ class PythonAT24 < Formula
   end
 
   def install
+    ENV["PYTHONHOME"] = nil
+    ENV["PYTHONPATH"] = nil
+
     # remap ppc to arm64 and i386 to x86_64
     inreplace "configure" do |s|
       s.gsub!("ppc", "arm64")
@@ -136,6 +139,11 @@ class PythonAT24 < Formula
     mv bin / "idle", bin / "idle-2.4"
     mv bin / "pydoc", bin / "pydoc-2.4"
     mv bin / "smtpd.py", bin / "smtpd-2.4.py"
+
+    (libexec / "bin").install_symlink (bin / "idle-2.4").realpath => "idle"
+    (libexec / "bin").install_symlink (bin / "python2.4").realpath => "python"
+    (libexec / "bin").install_symlink (bin / "pydoc-2.4").realpath => "pydoc"
+    (libexec / "bin").install_symlink (bin / "smtpd-2.4.py").realpath => "stmpd.py"
 
     # Add the Homebrew prefix path to site-packages via a .pth
     prefix_site_packages.mkpath
