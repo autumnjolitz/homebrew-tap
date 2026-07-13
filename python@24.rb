@@ -39,7 +39,7 @@ class PythonAT24 < Formula
 
   def prefix_site_packages
     # The HOMEBREW_PREFIX location of site-packages
-    lib/"python2.4"/"site-packages"
+    lib / "python2.4" / "site-packages"
   end
 
   def install
@@ -59,7 +59,6 @@ class PythonAT24 < Formula
       "--disable-ipv6",
       "--with-fpectl",
       "--mandir=#{man}",
-      "--with-pydebug",
     ]
 
     if build.with? "universal"
@@ -141,9 +140,12 @@ class PythonAT24 < Formula
     mv bin / "idle", bin / "idle-2.4"
     mv bin / "pydoc", bin / "pydoc-2.4"
     mv bin / "smtpd.py", bin / "smtpd-2.4.py"
+    rm bin / "python"
 
     (libexec / "bin").install_symlink (bin / "idle-2.4").realpath => "idle"
+    (libexec / "bin").install_symlink (bin / "python2.4").realpath => "python2.4"
     (libexec / "bin").install_symlink (bin / "python2.4").realpath => "python"
+    (libexec / "bin").install_symlink (bin / "python2.4").realpath => "python2"
     (libexec / "bin").install_symlink (bin / "pydoc-2.4").realpath => "pydoc"
     (libexec / "bin").install_symlink (bin / "smtpd-2.4.py").realpath => "stmpd.py"
 
@@ -165,9 +167,7 @@ class PythonAT24 < Formula
 
     cd buildpath / "setuptools" do
       system bin / "python2.4", "setup.py", "build", *package_build_args
-      ["_markerlib", "easy_install.py", "pkg_resources.py", "setuptools"].each do |item|
-        mv buildpath / "setuptools" / "build" / "lib" / item, site_packages / item
-      end
+      system bin / "python2.4", "setup.py", "install", *package_install_args
     end
     cd buildpath / "pip" do
       system bin / "python2.4", "setup.py", "build", *package_build_args
