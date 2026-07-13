@@ -6,11 +6,10 @@ class PythonAT24 < Formula
 
   option "with-framework", "Do a 'Framework' build instead of a UNIX-style build."
   option "with-universal", "Build for both 32 & 64 bit Intel."
-  option "with-ssl", "Build with legacy _ssl module"
 
   depends_on "libtool" => :build
   depends_on "gdbm"
-  depends_on "openssl" => "with-ssl"
+  depends_on "openssl"
   depends_on "readline"
 
   resource "pip" do
@@ -120,12 +119,10 @@ class PythonAT24 < Formula
       s.gsub!("#_locale", "_locale")
       s.gsub!("# -lintl", " -lintl")
       s.gsub!("#zlib", "zlib")
-      if build.with? "ssl"
-        s.gsub!("#SSL=/usr/local/ssl", "SSL=#{HOMEBREW_PREFIX}/opt/openssl")
-        s.gsub!("#_ssl", "_ssl")
-        s.gsub!(%r/^#(\s)*-DUSE_SSL/, " -DUSE_SSL")
-        s.gsub!(%r/^#(\s)*-L\$\(SSL\)\/lib/, " -L$(SSL)/lib")
-      end
+      s.gsub!("#SSL=/usr/local/ssl", "SSL=#{HOMEBREW_PREFIX}/opt/openssl")
+      s.gsub!("#_ssl", "_ssl")
+      s.gsub!(%r/^#(\s)*-DUSE_SSL/, " -DUSE_SSL")
+      s.gsub!(%r/^#(\s)*-L\$\(SSL\)\/lib/, " -L$(SSL)/lib")
     end
 
     system "make"
