@@ -171,16 +171,13 @@ class PythonAT24 < Formula
       system bin / "python2.4", "setup.py", "build", *package_build_args
       system bin / "python2.4", "setup.py", "install", *package_install_args
     end
-    pip_script = <<~PYTHON
-      #!/usr/bin/env #{opt_prefix}/bin/python2.4 -u -x
 
-      from pip import main
-
-      if __name__ == "__main__":
-          main()
-    PYTHON
-    (bin / "pip-2.4").write(pip_script)
-    chmod 0660, bin / "pip-2.4"
+    rm bin / "pip"
+    rm bin / "easy_install"
+    (libexec / "bin").install_symlink (bin / "pip-2.4").realpath => "pip"
+    (libexec / "bin").install_symlink (bin / "pip-2.4").realpath => "pip-2.4"
+    (libexec / "bin").install_symlink (bin / "easy_install-2.4").realpath => "easy_install"
+    (libexec / "bin").install_symlink (bin / "easy_install-2.4").realpath => "easy_install-2.4"
   end
 
   def caveats

@@ -39,6 +39,19 @@ class ZopeAT211 < Formula
 
     chmod 0655, bin / "reindex_catalog.py"
     rm bin / "README.txt"
+    rm bin / "python"
+
+    Dir.entries bin.to_s |file|
+      mv bin / file, libexec / "bin" / file
+      (prefix, suffix) = file.split(".")
+      prefixed_file = "#{prefix}-2.11.#{suffix}"
+      (bin / prefixed_file).write <<~SHELL
+        #!/usr/bin/env sh
+
+        exec #{libexec}/bin/#{file} $@
+      SHELL
+      chmod 0655, bin / prefixed_file
+    end
   end
 
   test do
