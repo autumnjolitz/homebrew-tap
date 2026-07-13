@@ -3,7 +3,7 @@ class ZopeAT211 < Formula
   homepage "https://zopefoundation.github.io"
   url "https://zopefoundation.github.io/Zope/pre-egg-releases/Zope-2.11.8-final.tgz"
   sha256 "98eabf472d2b59ef99f9d0798a0ece10748fb4cd1226cc470ffbb84ff0b84e16"
-  license "ZPL-2.1-or-later"
+  license "ZPL-2.1"
 
   depends_on "autumnjolitz/tap/python@24"
 
