@@ -10,7 +10,7 @@ class PythonAT24 < Formula
 
   depends_on "libtool" => :build
   depends_on "gdbm"
-  depends_on "openssl"
+  depends_on "openssl" => "with-ssl"
   depends_on "readline"
 
   patch :p1, :DATA
