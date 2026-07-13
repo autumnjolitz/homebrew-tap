@@ -55,6 +55,7 @@ class PythonAT24 < Formula
       "--disable-ipv6",
       "--with-fpectl",
       "--mandir=#{man}",
+      "--with-pydebug",
     ]
 
 
@@ -79,7 +80,7 @@ class PythonAT24 < Formula
       args << "--enable-shared"
     end
 
-    ENV.append_to_cflags "-D_DARWIN_C_SOURCE"
+    ENV.append_to_cflags "-D_DARWIN_C_SOURCE -g"
 
     inreplace "Mac/OSX/Makefile.in" do |s|
       s.gsub!("/Library/Frameworks", frameworks.to_s)
@@ -251,20 +252,36 @@ index d125bf6..9f1fde5 100644
  	$(INSTALL) -d -m $(DIRMODE)  \
  		$(PYTHONFRAMEWORKDIR)/Versions/$(VERSION)/Resources/English.lproj
 diff --git a/Modules/_localemodule.c b/Modules/_localemodule.c
-index af6a615..a24d31a 100644
+index af6a615..10caf49 100644
 --- a/Modules/_localemodule.c
 +++ b/Modules/_localemodule.c
-@@ -42,6 +42,10 @@ This software comes with no warranty. Use at your own risk.
- char *strdup(const char *);
- #endif
+@@ -17,6 +17,10 @@ This software comes with no warranty. Use at your own risk.
+ #include <string.h>
+ #include <ctype.h>
  
 +#if defined(__APPLE__)
-+extern char *setlocale(int category, const char *locale);
++#  pragma weak setlocale
 +#endif
 +
- PyDoc_STRVAR(locale__doc__, "Support for POSIX locales.");
+ #ifdef HAVE_LANGINFO_H
+ #include <langinfo.h>
+ #endif
+@@ -166,6 +170,7 @@ PyLocale_setlocale(PyObject* self, PyObject* args)
  
- static PyObject *Error;
+     if (locale) {
+         /* set locale */
++        printf("calling setlocale(%i, %i);\n", category, locale);
+         result = setlocale(category, locale);
+         if (!result) {
+             /* operation failed, no setting was changed */
+@@ -182,6 +187,7 @@ PyLocale_setlocale(PyObject* self, PyObject* args)
+         PyErr_Clear();
+     } else {
+         /* get locale */
++        printf("calling setlocale(%i, NULL);\n", category);
+         result = setlocale(category, NULL);
+         if (!result) {
+             PyErr_SetString(Error, "locale query failed");
 diff --git a/Modules/_ssl.c b/Modules/_ssl.c
 index f90ec13..5ba83c0 100644
 --- a/Modules/_ssl.c
