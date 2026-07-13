@@ -85,8 +85,6 @@ class PythonAT24 < Formula
     end
 
     inreplace "Modules/Setup" do |s|
-      # s.gsub!("-I/usr/local", "-I#{HOMEBREW_PREFIX}")
-      # s.gsub!("-L/usr/local", "-L#{HOMEBREW_PREFIX}")
       s.gsub!("#*shared*", "*shared*")
       s.gsub!("#_socket", "_socket")
       s.gsub!("#grp", "grp")
@@ -109,7 +107,6 @@ class PythonAT24 < Formula
       s.gsub!("#resource", "resource")
       s.gsub!("#_locale", "_locale")
       s.gsub!("#zlib", "zlib")
-      s.gsub!("#gdbm", "gdbm")
       if build.with? "ssl"
         s.gsub!("#SSL=/usr/local/ssl", "SSL=#{HOMEBREW_PREFIX}/opt/openssl")
         s.gsub!("#_ssl", "_ssl")
