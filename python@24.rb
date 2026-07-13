@@ -119,6 +119,13 @@ class PythonAT24 < Formula
     end
 
     system "make"
+    # tell python to double check the setup config
+    FileUtils.touch('Modules/Setup')
+    # ARJ: make has to run twice in order to build
+    # the expected socket, et al
+    # This is NOT a duplicate line. It literally makes
+    # the difference between a partial and full install
+    system "make"
     ENV.deparallelize # Some kinds of installs must be serialized.
     system "make", "altinstall"
 
