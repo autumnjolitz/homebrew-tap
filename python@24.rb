@@ -6,14 +6,23 @@ class Python24 < Formula
 
   option "with-framework", "Do a 'Framework' build instead of a UNIX-style build."
   option "with-universal", "Build for both 32 & 64 bit Intel."
-  option "with-static", "Build static libraries."
 
-  depends_on "gdbm"
-  depends_on "readline"
   depends_on "libtool" => :build
+  depends_on "gdbm"
   depends_on "openssl"
+  depends_on "readline"
 
   patch :p1, :DATA
+
+  resource "pip" do
+    url "https://files.pythonhosted.org/packages/25/57/0d42cf5307d79913a082c5c4397d46f3793bc35e1138a694136d6e31be99/pip-1.1.tar.gz"
+    sha256 "993804bb947d18508acee02141281c77d27677f8c14eaa64d6287a1c53ef01c8"
+  end
+
+  resource "setuptools" do
+    url "https://files.pythonhosted.org/packages/61/3c/8d680267eda244ad6391fb8b211bd39d8b527f3b66207976ef9f2f106230/setuptools-1.4.2.tar.gz"
+    sha256 "263986a60a83aba790a5bffc7d009ac88114ba4e908e5c90e453b3bf2155dbbd"
+  end
 
   def site_packages
     # The Cellar location of site-packages
@@ -31,16 +40,7 @@ class Python24 < Formula
     lib/"python2.4"/"site-packages"
   end
 
-  def validate_options
-    if (build.with? "framework") && (build.with? "static")
-      onoe "Cannot specify both framework and static."
-      exit 99
-    end
-  end
-
   def install
-    validate_options
-
     inreplace "configure" do |s|
       s.gsub!("ppc", "arm64")
       s.gsub!("i386", "x86_64")
@@ -64,17 +64,21 @@ class Python24 < Formula
 
     if build.with? "framework"
       args << "--enable-framework=#{frameworks}"
-    elsif build.without? "static"
+    else
       args << "--enable-shared"
     end
 
     ENV.append_to_cflags "-D_DARWIN_C_SOURCE"
 
     inreplace "Mac/OSX/Makefile.in" do |s|
-      s.gsub!("/Library/Frameworks", "#{frameworks}")
+      s.gsub!("/Library/Frameworks", frameworks.to_s)
     end
-
     system "./configure", *args
+    ["Makefile.pre", "Makefile"].each do |target|
+      inreplace target do |s|
+        s.gsub!("-mno-fused-madd", "-ffp-contract=off")
+      end
+    end
 
     inreplace "pyconfig.h" do |s|
       s.gsub!("_POSIX_C_SOURCE", "_DARWIN_C_SOURCE")
@@ -126,6 +130,41 @@ class Python24 < Formula
     # Add the Homebrew prefix path to site-packages via a .pth
     prefix_site_packages.mkpath
     (site_packages/"homebrew.pth").write prefix_site_packages
+
+    package_build_args = []
+    package_install_args = [
+      "--prefix=#{prefix}",
+      "--exec-prefix=#{prefix}",
+      "--install-scripts=#{bin}",
+    ]
+    mkdir_p buildpath / "setuptools"
+    mkdir_p buildpath / "pip"
+
+    resource("pip").unpack(buildpath / "pip")
+    resource("setuptools").unpack(buildpath / "setuptools")
+
+    cd buildpath / "setuptools" do
+      system bin / "python2.4", "setup.py", "build", *package_build_args
+      ["_markerlib", "easy_install.py", "pkg_resources.py", "setuptools"].each do |item|
+        mv buildpath / "setuptools" / "build" / "lib" / item, site_packages / item
+      end
+    end
+    cd buildpath / "pip" do
+      system bin / "python2.4", "setup.py", "build", *package_build_args
+      system bin / "python2.4", "setup.py", "install", *package_install_args
+    end
+
+    (bin / "pip-2.4").write(<<EOF
+#!/usr/bin/env python2.4 -u -x
+
+from pip import main
+
+if __name__ == "__main__":
+    main()
+
+EOF
+)
+    chmod 0o660, bin / "pip-2.4"
   end
 
   def caveats
@@ -323,7 +362,7 @@ index 5094bf2..7e8f51c 100644
  	rl_completer_word_break_characters =
  		strdup(" \t\n`~!@#$%^&*()-=+[{]}\\|;:'\",<>/?");
 diff --git a/configure.in b/configure.in
-index 2770b1e..2ad9fba 100644
+index 2770b1e..1bc5aa0 100644
 --- a/configure.in
 +++ b/configure.in
 @@ -61,7 +61,7 @@ AC_SUBST(CONFIG_ARGS)
@@ -335,9 +374,12 @@ index 2770b1e..2ad9fba 100644
  [
  	case $enableval in
  	yes)
-@@ -798,7 +798,7 @@ yes)
+@@ -796,9 +796,9 @@ yes)
+ 	    ;;
+ 	# is there any other compiler on Darwin besides gcc?
  	Darwin*)
- 	    BASECFLAGS="$BASECFLAGS -Wno-long-double -no-cpp-precomp -mno-fused-madd"
+-	    BASECFLAGS="$BASECFLAGS -Wno-long-double -no-cpp-precomp -mno-fused-madd"
++	    BASECFLAGS="$BASECFLAGS -Wno-long-double -no-cpp-precomp -ffp-contract=off"
  	    if test "${enable_universalsdk}"; then
 -		BASECFLAGS="-arch ppc -arch i386 -isysroot ${UNIVERSALSDK} ${BASECFLAGS}"
 +		BASECFLAGS="-arch arm64 -arch i386 -isysroot ${UNIVERSALSDK} ${BASECFLAGS}"
