@@ -11,6 +11,7 @@ class Python24 < Formula
   depends_on "gdbm"
   depends_on "readline"
   depends_on "libtool" => :build
+  depends_on "openssl"
 
   patch :p1, :DATA
 
@@ -105,6 +106,10 @@ class Python24 < Formula
       s.gsub!("#_locale", "_locale")
       s.gsub!("#zlib", "zlib")
       s.gsub!("#gdbm", "gdbm")
+      s.gsub!("#SSL=/usr/local/ssl", "SSL=#{HOMEBREW_PREFIX}/opt/openssl")
+      s.gsub!("#_ssl", "_ssl")
+      s.gsub!(/^#(\s)*-DUSE_SSL/, " -DUSE_SSL")
+      s.gsub!(/^#(\s)*-L\$\(SSL\)\/lib/, " -L$(SSL)/lib")
     end
 
     system "make"
@@ -191,6 +196,51 @@ index d125bf6..9f1fde5 100644
  	fi
  	$(INSTALL) -d -m $(DIRMODE)  \
  		$(PYTHONFRAMEWORKDIR)/Versions/$(VERSION)/Resources/English.lproj
+diff --git a/Modules/_ssl.c b/Modules/_ssl.c
+index f90ec13..5ba83c0 100644
+--- a/Modules/_ssl.c
++++ b/Modules/_ssl.c
+@@ -33,13 +33,13 @@ enum py_ssl_error {
+ #endif
+ 
+ /* Include OpenSSL header files */
+-#include "openssl/rsa.h"
+-#include "openssl/crypto.h"
+-#include "openssl/x509.h"
+-#include "openssl/pem.h"
+-#include "openssl/ssl.h"
+-#include "openssl/err.h"
+-#include "openssl/rand.h"
++#include <openssl/rsa.h>
++#include <openssl/crypto.h>
++#include <openssl/x509.h>
++#include <openssl/pem.h>
++#include <openssl/ssl.h>
++#include <openssl/err.h>
++#include <openssl/rand.h>
+ 
+ /* SSL error object */
+ static PyObject *PySSLErrorObject;
+@@ -55,6 +55,10 @@ static PyObject *PySSLErrorObject;
+ # undef HAVE_OPENSSL_RAND
+ #endif
+ 
++#ifdef __APPLE__
++extern int RAND_egd(const char *path);
++#endif
++
+ typedef struct {
+ 	PyObject_HEAD
+ 	PySocketSockObject *Socket;	/* Socket on which we're layered */
+@@ -290,7 +294,7 @@ newPySSLObject(PySocketSockObject *Sock, char *key_file, char *cert_file)
+ 		PySSL_SetError(self, ret);
+ 		goto fail;
+ 	}
+-	self->ssl->debug = 1;
++	// self->ssl->debug = 1;
+ 
+ 	Py_BEGIN_ALLOW_THREADS
+ 	if ((self->server_cert = SSL_get_peer_certificate(self->ssl))) {
 diff --git a/Modules/fcntlmodule.c b/Modules/fcntlmodule.c
 index 0c02ee6..2fdd347 100644
 --- a/Modules/fcntlmodule.c
