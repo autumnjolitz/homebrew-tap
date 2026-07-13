@@ -37,7 +37,7 @@ class ZopeAT211 < Formula
 
     chmod 0655, bin / "reindex_catalog.py"
     rm bin / "README.txt"
-    mv bin / "python", bin / "python2.4"
+    rm bin / "python"
   end
 
   test do
