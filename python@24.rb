@@ -252,62 +252,10 @@ index d125bf6..9f1fde5 100644
  	fi
  	$(INSTALL) -d -m $(DIRMODE)  \
  		$(PYTHONFRAMEWORKDIR)/Versions/$(VERSION)/Resources/English.lproj
-diff --git a/Modules/_localemodule.c b/Modules/_localemodule.c
-index af6a615..10caf49 100644
---- a/Modules/_localemodule.c
-+++ b/Modules/_localemodule.c
-@@ -17,6 +17,10 @@ This software comes with no warranty. Use at your own risk.
- #include <string.h>
- #include <ctype.h>
- 
-+#if defined(__APPLE__)
-+#  pragma weak setlocale
-+#endif
-+
- #ifdef HAVE_LANGINFO_H
- #include <langinfo.h>
- #endif
-@@ -166,6 +170,7 @@ PyLocale_setlocale(PyObject* self, PyObject* args)
- 
-     if (locale) {
-         /* set locale */
-+        printf("calling setlocale(%i, %i);\n", category, locale);
-         result = setlocale(category, locale);
-         if (!result) {
-             /* operation failed, no setting was changed */
-@@ -182,6 +187,7 @@ PyLocale_setlocale(PyObject* self, PyObject* args)
-         PyErr_Clear();
-     } else {
-         /* get locale */
-+        printf("calling setlocale(%i, NULL);\n", category);
-         result = setlocale(category, NULL);
-         if (!result) {
-             PyErr_SetString(Error, "locale query failed");
 diff --git a/Modules/_ssl.c b/Modules/_ssl.c
-index f90ec13..5ba83c0 100644
+index f90ec13..3bdac05 100644
 --- a/Modules/_ssl.c
 +++ b/Modules/_ssl.c
-@@ -33,13 +33,13 @@ enum py_ssl_error {
- #endif
- 
- /* Include OpenSSL header files */
--#include "openssl/rsa.h"
--#include "openssl/crypto.h"
--#include "openssl/x509.h"
--#include "openssl/pem.h"
--#include "openssl/ssl.h"
--#include "openssl/err.h"
--#include "openssl/rand.h"
-+#include <openssl/rsa.h>
-+#include <openssl/crypto.h>
-+#include <openssl/x509.h>
-+#include <openssl/pem.h>
-+#include <openssl/ssl.h>
-+#include <openssl/err.h>
-+#include <openssl/rand.h>
- 
- /* SSL error object */
- static PyObject *PySSLErrorObject;
 @@ -55,6 +55,10 @@ static PyObject *PySSLErrorObject;
  # undef HAVE_OPENSSL_RAND
  #endif
