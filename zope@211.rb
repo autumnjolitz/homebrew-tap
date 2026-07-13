@@ -48,7 +48,11 @@ class ZopeAT211 < Formula
       (bin / prefixed_file).write <<~SHELL
         #!/usr/bin/env sh
 
-        exec #{libexec}/bin/#{file} $@
+        set -x
+
+        export SOFTWARE_HOME="${SOFTWARE_HOME:-#{lib}/python}"
+
+        exec #{libexec}/bin/#{file} "$@"
       SHELL
       chmod 0655, bin / prefixed_file
     end
