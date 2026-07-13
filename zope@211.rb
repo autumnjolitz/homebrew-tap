@@ -30,16 +30,14 @@ class ZopeAT211 < Formula
       prefix.to_s,
       "-p1",
       "-i",
-      buildpath / "post-install" / "zope211.patch"
+      buildpath / "post-install" / "zope211.patch",
     ]
 
     system "patch", *patch_args
 
     mkdir_p libexec
 
-    Dir.entries(bin.to_s).reject {
-      |f| File.directory?(f)
-    }.each do |file|
+    Dir.entries(bin.to_s).reject {|f| File.directory?(f)}.each do |file|
       mv bin / file, libexec / file
       (prefix, suffix) = file.split(".")
       prefixed_file = "#{prefix}-2.11.#{suffix}"
