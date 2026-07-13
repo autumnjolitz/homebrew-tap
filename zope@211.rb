@@ -19,9 +19,7 @@ class ZopeAT211 < Formula
 
     mkdir_p buildpath / "post-install"
     resource("post-install").unpack(buildpath / "post-install")
-    cd buildpath / "post-install" do
-        system "patch", "-d", "#{prefix}", "-p1", "-i", buildpath / "post-install" / "patches" / "zope211.patch"
-    end
+    system "patch", "-d", "#{prefix}", "-p1", "-i", buildpath / "post-install" / "zope211.patch"
   end
 
   test do
