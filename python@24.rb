@@ -122,6 +122,10 @@ class PythonAT24 < Formula
     system "make"
     system "make", "altinstall"
 
+    mv bin / "idle", bin / "idle-2.4"
+    mv bin / "pydoc", bin / "pydoc-2.4"
+    mv bin / "smtpd.py", bin / "smtpd-2.4.py"
+
     # Add the Homebrew prefix path to site-packages via a .pth
     prefix_site_packages.mkpath
     (site_packages/"homebrew.pth").write prefix_site_packages
