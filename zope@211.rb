@@ -26,6 +26,10 @@ class ZopeAT211 < Formula
     mkdir_p buildpath / "post-install"
     resource("post-install").unpack(buildpath / "post-install")
     system "patch", "-d", "#{prefix}", "-p1", "-i", buildpath / "post-install" / "zope211.patch"
+
+    chmod 0655, bin / "reindex_catalog.py"
+    rm bin / "README.txt"
+    mv bin / "python", bin / "python2.4"
   end
 
   test do
