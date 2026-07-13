@@ -41,7 +41,7 @@ class ZopeAT211 < Formula
     rm bin / "README.txt"
     rm bin / "python"
 
-    Dir.entries bin.to_s |file|
+    Dir.entries bin.to_s do |file|
       mv bin / file, libexec / "bin" / file
       (prefix, suffix) = file.split(".")
       prefixed_file = "#{prefix}-2.11.#{suffix}"
