@@ -43,10 +43,10 @@ class PythonAT24 < Formula
 
   def install
     # remap ppc to arm64 and i386 to x86_64
-    inreplace "configure" do |s|
-      s.gsub!("ppc", "arm64")
-      s.gsub!("i386", "x86_64")
-    end
+    # inreplace "configure" do |s|
+    #   s.gsub!("ppc", "arm64")
+    #   s.gsub!("i386", "x86_64")
+    # end
 
     args = [
       "--prefix=#{prefix}",
@@ -85,8 +85,8 @@ class PythonAT24 < Formula
     end
 
     inreplace "Modules/Setup" do |s|
-      s.gsub!("-I/usr/local", "-I#{HOMEBREW_PREFIX}")
-      s.gsub!("-L/usr/local", "-L#{HOMEBREW_PREFIX}")
+      # s.gsub!("-I/usr/local", "-I#{HOMEBREW_PREFIX}")
+      # s.gsub!("-L/usr/local", "-L#{HOMEBREW_PREFIX}")
       s.gsub!("#*shared*", "*shared*")
       s.gsub!("#_socket", "_socket")
       s.gsub!("#grp", "grp")
