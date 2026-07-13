@@ -4,6 +4,8 @@ class PythonAT24 < Formula
   url "https://www.python.org/ftp/python/2.4.6/Python-2.4.6.tar.bz2"
   sha256 "da104139ad3f4534482942ac02cf8f8ed9badd370ffa14f06b07c44914423e08"
 
+  keg_only "Legacy pythons should be called via $(brew --prefix python@24)/bin/python"
+
   option "with-framework", "Do a 'Framework' build instead of a UNIX-style build."
   option "with-universal", "Build for both 32 & 64 bit Intel."
 
@@ -134,7 +136,7 @@ class PythonAT24 < Formula
     # the difference between a partial and full install
     system "make"
     ENV.deparallelize # Some kinds of installs must be serialized.
-    system "make", "altinstall"
+    system "make", "install"
 
     mv bin / "idle", bin / "idle-2.4"
     mv bin / "pydoc", bin / "pydoc-2.4"
