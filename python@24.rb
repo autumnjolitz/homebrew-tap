@@ -13,8 +13,6 @@ class PythonAT24 < Formula
   depends_on "openssl" => "with-ssl"
   depends_on "readline"
 
-  patch :p1, :DATA
-
   resource "pip" do
     url "https://files.pythonhosted.org/packages/25/57/0d42cf5307d79913a082c5c4397d46f3793bc35e1138a694136d6e31be99/pip-1.1.tar.gz"
     sha256 "993804bb947d18508acee02141281c77d27677f8c14eaa64d6287a1c53ef01c8"
@@ -24,6 +22,8 @@ class PythonAT24 < Formula
     url "https://files.pythonhosted.org/packages/61/3c/8d680267eda244ad6391fb8b211bd39d8b527f3b66207976ef9f2f106230/setuptools-1.4.2.tar.gz"
     sha256 "263986a60a83aba790a5bffc7d009ac88114ba4e908e5c90e453b3bf2155dbbd"
   end
+
+  patch :p1, :DATA
 
   def site_packages
     # The Cellar location of site-packages
@@ -43,10 +43,10 @@ class PythonAT24 < Formula
 
   def install
     # remap ppc to arm64 and i386 to x86_64
-    # inreplace "configure" do |s|
-    #   s.gsub!("ppc", "arm64")
-    #   s.gsub!("i386", "x86_64")
-    # end
+    inreplace "configure" do |s|
+      s.gsub!("ppc", "arm64")
+      s.gsub!("i386", "x86_64")
+    end
 
     args = [
       "--prefix=#{prefix}",
@@ -57,9 +57,20 @@ class PythonAT24 < Formula
       "--mandir=#{man}",
     ]
 
+
     if build.with? "universal"
-      args << "--enable-universalsdk=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
-      args << "--with-universal-archs=intel"
+      maybe_sdks = %W[
+        #{MacOS.active_developer_dir}
+        /Library/Developer/CommandLineTools
+        /Applications/Xcode.app/Contents/Developer
+      ]
+      universal_sdk_path = maybe_sdks.uniq.select { |path| File.directory?(path) && File.directory?("#{path}/SDKs/MacOSX.sdk") }.first
+      if universal_sdk_path.nil?
+        odie "Cannot locate any developer SDKs at the following paths: #{maybe_sdks}"
+      end
+
+      args << "--enable-universalsdk=#{universal_sdk_path}/SDKs/MacOSX.sdk"
+      args << "--with-universal-archs=universal2"
     end
 
     if build.with? "framework"
@@ -110,14 +121,14 @@ class PythonAT24 < Formula
       if build.with? "ssl"
         s.gsub!("#SSL=/usr/local/ssl", "SSL=#{HOMEBREW_PREFIX}/opt/openssl")
         s.gsub!("#_ssl", "_ssl")
-        s.gsub!(/^#(\s)*-DUSE_SSL/, " -DUSE_SSL")
-        s.gsub!(/^#(\s)*-L\$\(SSL\)\/lib/, " -L$(SSL)/lib")
+        s.gsub!(%r/^#(\s)*-DUSE_SSL/, " -DUSE_SSL")
+        s.gsub!(%r/^#(\s)*-L\$\(SSL\)\/lib/, " -L$(SSL)/lib")
       end
     end
 
     system "make"
     # tell python to double check the setup config
-    FileUtils.touch('Modules/Setup')
+    touch buildpath / "Modules" / "Setup"
     # ARJ: make has to run twice in order to build
     # the expected socket, et al
     # This is NOT a duplicate line. It literally makes
@@ -166,7 +177,7 @@ if __name__ == "__main__":
     main()
 
 EOF
-)
+    ,)
     chmod 0o660, bin / "pip-2.4"
   end
 
