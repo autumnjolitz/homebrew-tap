@@ -167,8 +167,7 @@ class PythonAT24 < Formula
       system bin / "python2.4", "setup.py", "build", *package_build_args
       system bin / "python2.4", "setup.py", "install", *package_install_args
     end
-
-    (bin / "pip-2.4").write(<<EOF
+    pip_script = <<EOF
 #!/usr/bin/env python2.4 -u -x
 
 from pip import main
@@ -177,7 +176,7 @@ if __name__ == "__main__":
     main()
 
 EOF
-    ,)
+    (bin / "pip-2.4").write(pip_script)
     chmod 0o660, bin / "pip-2.4"
   end
 
