@@ -41,6 +41,8 @@ class ZopeAT211 < Formula
     rm bin / "README.txt"
     rm bin / "python"
 
+    mkdir_p libexec / "bin"
+
     Dir.entries(bin.to_s).each do |file|
       mv bin / file, libexec / "bin" / file
       (prefix, suffix) = file.split(".")
