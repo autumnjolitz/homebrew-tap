@@ -172,7 +172,7 @@ class PythonAT24 < Formula
       system bin / "python2.4", "setup.py", "install", *package_install_args
     end
     pip_script = <<~PYTHON
-      #!/usr/bin/env python2.4 -u -x
+      #!/usr/bin/env #{opt_prefix}/bin/python2.4 -u -x
 
       from pip import main
 
