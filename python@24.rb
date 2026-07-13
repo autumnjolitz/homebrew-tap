@@ -57,27 +57,24 @@ class PythonAT24 < Formula
       "--with-pydebug",
     ]
 
-
     if build.with? "universal"
       maybe_sdks = %W[
         #{MacOS.active_developer_dir}
         /Library/Developer/CommandLineTools
         /Applications/Xcode.app/Contents/Developer
       ]
-      universal_sdk_path = maybe_sdks.uniq.select { |path| File.directory?(path) && File.directory?("#{path}/SDKs/MacOSX.sdk") }.first
-      if universal_sdk_path.nil?
-        odie "Cannot locate any developer SDKs at the following paths: #{maybe_sdks}"
+      universal_sdk_path = maybe_sdks.uniq.find do |path|
+        File.directory?(path) && File.directory?("#{path}/SDKs/MacOSX.sdk")
       end
+
+      odie "Cannot locate any developer SDKs at the following paths: #{maybe_sdks}" if universal_sdk_path.nil?
 
       args << "--enable-universalsdk=#{universal_sdk_path}/SDKs/MacOSX.sdk"
       args << "--with-universal-archs=universal2"
     end
 
-    if build.with? "framework"
-      args << "--enable-framework=#{frameworks}"
-    else
-      args << "--enable-shared"
-    end
+    args << "--enable-shared"
+    args << "--enable-framework=#{frameworks}" if build.with? "framework"
 
     ENV.append_to_cflags "-D_DARWIN_C_SOURCE -g"
 
@@ -121,8 +118,8 @@ class PythonAT24 < Formula
       s.gsub!("#zlib", "zlib")
       s.gsub!("#SSL=/usr/local/ssl", "SSL=#{HOMEBREW_PREFIX}/opt/openssl")
       s.gsub!("#_ssl", "_ssl")
-      s.gsub!(%r/^#(\s)*-DUSE_SSL/, " -DUSE_SSL")
-      s.gsub!(%r/^#(\s)*-L\$\(SSL\)\/lib/, " -L$(SSL)/lib")
+      s.gsub!(%r{/^#(\s)*-DUSE_SSL/}, " -DUSE_SSL")
+      s.gsub!(%r{/^#(\s)*-L\$\(SSL\)/lib/}, " -L$(SSL)/lib")
     end
 
     system "make"
@@ -166,17 +163,16 @@ class PythonAT24 < Formula
       system bin / "python2.4", "setup.py", "build", *package_build_args
       system bin / "python2.4", "setup.py", "install", *package_install_args
     end
-    pip_script = <<EOF
-#!/usr/bin/env python2.4 -u -x
+    pip_script = <<~PYTHON
+      #!/usr/bin/env python2.4 -u -x
 
-from pip import main
+      from pip import main
 
-if __name__ == "__main__":
-    main()
-
-EOF
+      if __name__ == "__main__":
+          main()
+    PYTHON
     (bin / "pip-2.4").write(pip_script)
-    chmod 0o660, bin / "pip-2.4"
+    chmod 0660, bin / "pip-2.4"
   end
 
   def caveats
