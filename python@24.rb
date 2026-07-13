@@ -250,6 +250,21 @@ index d125bf6..9f1fde5 100644
  	fi
  	$(INSTALL) -d -m $(DIRMODE)  \
  		$(PYTHONFRAMEWORKDIR)/Versions/$(VERSION)/Resources/English.lproj
+diff --git a/Modules/_localemodule.c b/Modules/_localemodule.c
+index af6a615..a24d31a 100644
+--- a/Modules/_localemodule.c
++++ b/Modules/_localemodule.c
+@@ -42,6 +42,10 @@ This software comes with no warranty. Use at your own risk.
+ char *strdup(const char *);
+ #endif
+ 
++#if defined(__APPLE__)
++extern char *setlocale(int category, const char *locale);
++#endif
++
+ PyDoc_STRVAR(locale__doc__, "Support for POSIX locales.");
+ 
+ static PyObject *Error;
 diff --git a/Modules/_ssl.c b/Modules/_ssl.c
 index f90ec13..5ba83c0 100644
 --- a/Modules/_ssl.c
@@ -376,3 +391,55 @@ index 5094bf2..7e8f51c 100644
  	/* Set Python word break characters */
  	rl_completer_word_break_characters =
  		strdup(" \t\n`~!@#$%^&*()-=+[{]}\\|;:'\",<>/?");
+diff --git a/configure.in b/configure.in
+index 2770b1e..1bc5aa0 100644
+--- a/configure.in
++++ b/configure.in
+@@ -61,7 +61,7 @@ AC_SUBST(CONFIG_ARGS)
+ CONFIG_ARGS="$ac_configure_args"
+ 
+ AC_ARG_ENABLE(universalsdk,
+-	AC_HELP_STRING(--enable-universalsdk@<:@=SDKDIR@:>@, Build agains Mac OS X 10.4u SDK (ppc/i386)),
++	AC_HELP_STRING(--enable-universalsdk@<:@=SDKDIR@:>@, Build agains Mac OS X 10.4u SDK (arm64/i386)),
+ [
+ 	case $enableval in
+ 	yes)
+@@ -796,9 +796,9 @@ yes)
+ 	    ;;
+ 	# is there any other compiler on Darwin besides gcc?
+ 	Darwin*)
+-	    BASECFLAGS="$BASECFLAGS -Wno-long-double -no-cpp-precomp -mno-fused-madd"
++	    BASECFLAGS="$BASECFLAGS -Wno-long-double -no-cpp-precomp -ffp-contract=off"
+ 	    if test "${enable_universalsdk}"; then
+-		BASECFLAGS="-arch ppc -arch i386 -isysroot ${UNIVERSALSDK} ${BASECFLAGS}"
++		BASECFLAGS="-arch arm64 -arch i386 -isysroot ${UNIVERSALSDK} ${BASECFLAGS}"
+ 	    fi
+ 
+ 	    ;;
+@@ -1315,7 +1315,7 @@ case $ac_sys_system/$ac_sys_release in
+         else
+             LIBTOOL_CRUFT=""
+     fi
+-    LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -lSystem -lSystemStubs -arch_only ppc'
++    LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -lSystem -lSystemStubs -arch_only arm64'
+     LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -install_name $(PYTHONFRAMEWORKINSTALLDIR)/Versions/$(VERSION)/$(PYTHONFRAMEWORK)'
+     LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -compatibility_version $(VERSION) -current_version $(VERSION)';;
+ esac
+@@ -1435,7 +1435,7 @@ then
+ 		if test ${MACOSX_DEPLOYMENT_TARGET-${cur_target}} '>' 10.2
+ 		then
+ 			if test "${enable_universalsdk}"; then
+-				LDFLAGS="-arch i386 -arch ppc -isysroot ${UNIVERSALSDK} ${LDFLAGS}"
++				LDFLAGS="-arch i386 -arch arm64 -isysroot ${UNIVERSALSDK} ${LDFLAGS}"
+ 			fi
+ 			LDSHARED='$(CC) $(LDFLAGS) -bundle -undefined dynamic_lookup'
+ 			BLDSHARED="$LDSHARED"
+@@ -2927,7 +2927,7 @@ AH_VERBATIM([WORDS_BIGENDIAN],
+ 
+     The block below does compile-time checking for endianness on platforms
+     that use GCC and therefore allows compiling fat binaries on OSX by using 
+-    '-arch ppc -arch i386' as the compile flags. The phrasing was choosen
++    '-arch arm64 -arch i386' as the compile flags. The phrasing was choosen
+     such that the configure-result is used on systems that don't use GCC.
+   */
+ #ifdef __BIG_ENDIAN__
