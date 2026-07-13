@@ -118,6 +118,7 @@ class PythonAT24 < Formula
       s.gsub!("#itertools", "itertools")
       s.gsub!("#resource", "resource")
       s.gsub!("#_locale", "_locale")
+      s.gsub!("# -lintl", " -lintl")
       s.gsub!("#zlib", "zlib")
       if build.with? "ssl"
         s.gsub!("#SSL=/usr/local/ssl", "SSL=#{HOMEBREW_PREFIX}/opt/openssl")
