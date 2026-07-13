@@ -79,8 +79,8 @@ class PythonAT24 < Formula
     end
 
     inreplace "Modules/Setup" do |s|
-      s.gsub!("-I/usr/local/include", "-I#{HOMEBREW_PREFIX}/include")
-      s.gsub!("-L/usr/local/lib", "-L#{HOMEBREW_PREFIX}/lib")
+      s.gsub!("-I/usr/local", "-I#{HOMEBREW_PREFIX}")
+      s.gsub!("-L/usr/local", "-L#{HOMEBREW_PREFIX}")
       s.gsub!("#*shared*", "*shared*")
       s.gsub!("#_socket", "_socket")
       s.gsub!("#grp", "grp")
@@ -198,7 +198,8 @@ EOF
   end
 
   test do
-    system "${bin}/python2.4", "--help"
+    system bin / "python2.4", "--help"
+    system bin / "python2.4", "-c", "import unicodedata"
   end
 end
 __END__
