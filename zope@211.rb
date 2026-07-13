@@ -5,8 +5,6 @@ class ZopeAT211 < Formula
   sha256 "98eabf472d2b59ef99f9d0798a0ece10748fb4cd1226cc470ffbb84ff0b84e16"
   license "ZPL-2.1"
 
-  keg_only "Zope binaries use the argv[0] for discovery, making symlinks of python scripts unreliable"
-
   depends_on "autumnjolitz/tap/python@24"
 
   resource "post-install" do
