@@ -54,8 +54,6 @@ class PythonAT24 < Formula
     if build.with? "universal"
       args << "--enable-universalsdk=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
       args << "--with-universal-archs=intel"
-    else
-      args << "--disable-universalsdk"
     end
 
     if build.with? "framework"
@@ -115,6 +113,7 @@ class PythonAT24 < Formula
     end
 
     system "make"
+    ENV.deparallelize # Some kinds of installs must be serialized.
     system "make", "altinstall"
 
     mv bin / "idle", bin / "idle-2.4"
