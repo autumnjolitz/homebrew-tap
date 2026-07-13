@@ -6,6 +6,7 @@ class PythonAT24 < Formula
 
   option "with-framework", "Do a 'Framework' build instead of a UNIX-style build."
   option "with-universal", "Build for both 32 & 64 bit Intel."
+  option "with-ssl", "Build with legacy _ssl module"
 
   depends_on "libtool" => :build
   depends_on "gdbm"
@@ -110,21 +111,15 @@ class PythonAT24 < Formula
       s.gsub!("#_locale", "_locale")
       s.gsub!("#zlib", "zlib")
       s.gsub!("#gdbm", "gdbm")
-      s.gsub!("#SSL=/usr/local/ssl", "SSL=#{HOMEBREW_PREFIX}/opt/openssl")
-      s.gsub!("#_ssl", "_ssl")
-      s.gsub!(/^#(\s)*-DUSE_SSL/, " -DUSE_SSL")
-      s.gsub!(/^#(\s)*-L\$\(SSL\)\/lib/, " -L$(SSL)/lib")
+      if build.with? "ssl"
+        s.gsub!("#SSL=/usr/local/ssl", "SSL=#{HOMEBREW_PREFIX}/opt/openssl")
+        s.gsub!("#_ssl", "_ssl")
+        s.gsub!(/^#(\s)*-DUSE_SSL/, " -DUSE_SSL")
+        s.gsub!(/^#(\s)*-L\$\(SSL\)\/lib/, " -L$(SSL)/lib")
+      end
     end
 
     system "make"
-    # tell python to double check the setup config
-    FileUtils.touch('Modules/Setup')
-    # ARJ: make has to run twice in order to build
-    # the expected socket, et al
-    # This is NOT a duplicate line. It literally makes
-    # the difference between a partial and full install
-    system "make"
-    ENV.deparallelize # Some kinds of installs must be serialized.
     system "make", "altinstall"
 
     # Add the Homebrew prefix path to site-packages via a .pth
