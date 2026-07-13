@@ -13,7 +13,7 @@ class ZopeAT211 < Formula
   end
 
   def install
-    system "./configure", "--prefix=#{prefix}", "--with-python=#{HOMEBREW_PREFIX}/opt/python@2.4/bin/python2.4", "--build-base=#{buildpath}"
+    system "./configure", "--prefix=#{prefix}", "--with-python=#{HOMEBREW_PREFIX}/opt/python@24/bin/python2.4", "--build-base=#{buildpath}"
     system "make"
     system "make", "install"
 
