@@ -149,7 +149,7 @@ index 95aa933..6ad7540 100755
 -exec "$PYTHON" "$ZDCTL" -C "$CONFIG_FILE" "$@"
 +exec "$ZOPE_PYTHON" "$ZDCTL" -C "$CONFIG_FILE" "$@"
 diff --git a/skel/etc/zope.conf.in b/skel/etc/zope.conf.in
-index f17bf6b..0b72ac1 100644
+index f17bf6b..5a82b8d 100644
 --- a/skel/etc/zope.conf.in
 +++ b/skel/etc/zope.conf.in
 @@ -214,7 +214,7 @@ instancehome $INSTANCE
@@ -258,61 +258,38 @@ index f17bf6b..0b72ac1 100644
  # Directives: servers
  #
  # Description:
-@@ -962,21 +976,42 @@ instancehome $INSTANCE
+@@ -962,12 +976,11 @@ instancehome $INSTANCE
  #
  # Default:
  #
 -#     An HTTP server starts on port 8080.
--
--<http-server>
--  # valid keys are "address" and "force-connection-close"
++#     An HTTP server starts on port localhost:8100.
+ 
+ <http-server>
+   # valid keys are "address" and "force-connection-close"
 -  address 8080
 -
--  # force-connection-close on
--  #
--  # You can also use the WSGI interface between ZServer and ZPublisher:
--  # use-wsgi on
--  #
--  # To defer the opening of the HTTP socket until the end of the 
--  # startup phase: 
++  address localhost:8100
+   # force-connection-close on
+   #
+   # You can also use the WSGI interface between ZServer and ZPublisher:
+@@ -975,9 +988,18 @@ instancehome $INSTANCE
+   #
+   # To defer the opening of the HTTP socket until the end of the 
+   # startup phase: 
 -  # fast-listen off
--</http-server>
-+#     An HTTP server starts on port zope.localhost:8080.
-+
-+# <http-server>
-+#   # valid keys are "address" and "force-connection-close"
-+#   address 127.0.0.1:8080
-+#   # force-connection-close on
-+#   #
-+#   # You can also use the WSGI interface between ZServer and ZPublisher:
-+#   # use-wsgi on
-+#   #
-+#   # To defer the opening of the HTTP socket until the end of the 
-+#   # startup phase: 
-+#   fast-listen off
-+# </http-server>
-+
-+# Example: FastCGI for use with nginx server block of
-+# server {
-+#     server_name zope.localhost;
-+#     location / {
-+#         set $nonempty_content_length $content_length;
-+#         if ($nonempty_content_length = "") {
-+#             set $nonempty_content_length "0";
-+#         }
-+#         fastcgi_pass unix:$INSTANCE/var/zope.sock;
-+#         include fastcgi_params;
-+#         fastcgi_param CONTENT_LENGTH $nonempty_content_length;
-+#         fastcgi_pass_header Authorization;
-+#         fastcgi_intercept_errors off;
-+#     }
-+# }
-+<fast-cgi>
-+    # valid key is "address"; the address may be hostname:port, port,
-+    # or a path for a Unix-domain socket
-+    address $INSTANCE/var/zope.sock
-+</fast-cgi>
-+
++  fast-listen off
+ </http-server>
  
++# ARJ: fastcgi is busted - tested with images and it returned 
++# the result of str(fh) lol
++# <fast-cgi>
++#     # valid key is "address"; the address may be hostname:port, port,
++#     # or a path for a Unix-domain socket
++#     address $INSTANCE/var/zope.sock
++# </fast-cgi>
++
++
  # Examples:
  #
+ #  <ftp-server>
