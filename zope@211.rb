@@ -156,7 +156,7 @@ index 95aa933..6ad7540 100755
 -exec "$PYTHON" "$ZDCTL" -C "$CONFIG_FILE" "$@"
 +exec "$ZOPE_PYTHON" "$ZDCTL" -C "$CONFIG_FILE" "$@"
 diff --git a/skel/etc/zope.conf.in b/skel/etc/zope.conf.in
-index f17bf6b..28d3509 100644
+index f17bf6b..ba3a132 100644
 --- a/skel/etc/zope.conf.in
 +++ b/skel/etc/zope.conf.in
 @@ -214,7 +214,7 @@ instancehome $INSTANCE
@@ -164,7 +164,7 @@ index f17bf6b..28d3509 100644
  # Example:
  #
 -#    zserver-threads 10
-+zserver-threads 32768
++zserver-threads 32
  
  
  # Directive: python-check-interval
