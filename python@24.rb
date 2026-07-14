@@ -115,11 +115,11 @@ class PythonAT24 < Formula
       s.gsub!("#resource", "resource")
       s.gsub!(
         "#_locale _localemodule.c  # -lintl",
-        "_locale _localemodule.c -I#{HOMEBREW_PREFIX}/opt/gettext/include -l#{HOMEBREW_PREFIX}/opt/gettext/lib/libintl.a"
+        "_locale _localemodule.c -I#{HOMEBREW_PREFIX}/opt/gettext/include #{HOMEBREW_PREFIX}/opt/gettext/lib/libintl.a"
       )
       s.gsub!(
         "#zlib zlibmodule.c -I$(prefix)/include -L$(exec_prefix)/lib -lz",
-        "zlib zlibmodule.c -I#{HOMEBREW_PREFIX}/opt/zlib/include -l#{HOMEBREW_PREFIX}/opt/zlib/lib/libz.a")
+        "zlib zlibmodule.c -I#{HOMEBREW_PREFIX}/opt/zlib/include #{HOMEBREW_PREFIX}/opt/zlib/lib/libz.a")
       s.gsub!("#SSL=/usr/local/ssl", "SSL=#{HOMEBREW_PREFIX}/opt/openssl")
       s.gsub!("#_ssl", "_ssl")
       s.gsub!(/^#(\s)*-DUSE_SSL/, " -DUSE_SSL")
