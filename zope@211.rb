@@ -35,10 +35,11 @@ class ZopeAT211 < Formula
 
     system "patch", *patch_args
 
-    mkdir_p libexec
+    mkdir_p libexec / "Zope"
+    ln_s prefix / "skel", libexec / "Zope" / "skel"
 
     Dir.entries(bin.to_s).reject { |f| File.directory?(f) }.each do |file|
-      mv bin / file, libexec / file
+      mv bin / file, libexec / "Zope" / file
       (prefix, suffix) = file.split(".")
       prefixed_file = "#{prefix}-2.11.#{suffix}"
       (bin / prefixed_file).write <<~SHELL
@@ -47,10 +48,10 @@ class ZopeAT211 < Formula
         export SOFTWARE_HOME="${SOFTWARE_HOME:-#{lib}/python}"
         export ZOPE_HOME="${ZOPE_HOME:-#{opt_prefix}}"
 
-        exec #{libexec}/#{file} "$@"
+        exec #{libexec}/Zope/#{file} "$@"
       SHELL
       chmod 0555, bin / prefixed_file
-      chmod 0555, "#{libexec}/#{file}"
+      chmod 0555, "#{libexec}/Zope/#{file}"
     end
   end
 
