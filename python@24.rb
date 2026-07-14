@@ -108,7 +108,7 @@ class PythonAT24 < Formula
       s.gsub!("#unicodedata", "unicodedata")
       s.gsub!(
         "#readline readline.c -lreadline -ltermcap",
-        "readline readline.c =I#{HOMEBREW_PREFIX}/opt/readline/include #{static_flags.join " " } #{HOMEBREW_PREFIX}/opt/readline/lib/libreadline.a -ltermcap"
+        "readline readline.c -I#{HOMEBREW_PREFIX}/opt/readline/include #{static_flags.join " " } #{HOMEBREW_PREFIX}/opt/readline/lib/libreadline.a -ltermcap"
       )
       s.gsub!("#array", "array")
       s.gsub!("#cmath", "cmath")
