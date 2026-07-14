@@ -120,7 +120,7 @@ class PythonAT24 < Formula
       s.gsub!("#zlib", "zlib")
       s.gsub!("#SSL=/usr/local/ssl", "SSL=#{HOMEBREW_PREFIX}/opt/openssl")
       s.gsub!("#_ssl", "_ssl")
-      s.gsub!(/^#(\s)*-DUSE_SSL/}, " -DUSE_SSL")
+      s.gsub!(/^#(\s)*-DUSE_SSL/, " -DUSE_SSL")
       s.gsub!(%r{^#(\s)*-L\$\(SSL\)/lib}, " -L$(SSL)/lib")
     end
 
