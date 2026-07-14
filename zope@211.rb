@@ -7,10 +7,7 @@ class ZopeAT211 < Formula
 
   depends_on "autumnjolitz/tap/python@24"
 
-  resource "post-install" do
-    url "https://raw.githubusercontent.com/autumnjolitz/homebrew-tap/refs/heads/main/patches/zope211.patch"
-    sha256 "3296d45a51a2376ae1e17abb1a8055fc3ab1be1b2c501ff8a050d8f055dde75a"
-  end
+  patch :p1, :DATA
 
   def install
     mkdir_p buildpath / "obj"
@@ -24,17 +21,6 @@ class ZopeAT211 < Formula
     system "make", "install"
 
     mkdir_p buildpath / "post-install"
-    resource("post-install").unpack(buildpath / "post-install")
-    patch_args = [
-      "-d",
-      prefix.to_s,
-      "-p1",
-      "-i",
-      buildpath / "post-install" / "zope211.patch",
-    ]
-
-    system "patch", *patch_args
-
     mkdir_p libexec / "Zope"
     ln_s prefix / "skel", libexec / "skel"
 
@@ -59,3 +45,47 @@ class ZopeAT211 < Formula
     system "#{libexec}/Zope/mkzopeinstance.py", "-d", "#{testpath}/zope", "-u", "admin:admin"
   end
 end
+__END__
+diff --git a/lib/python/RestrictedPython/Guards.py b/lib/python/RestrictedPython/Guards.py
+index bcb0aa2..04c659b 100644
+--- a/lib/python/RestrictedPython/Guards.py
++++ b/lib/python/RestrictedPython/Guards.py
+@@ -24,7 +24,7 @@ for name in ['False', 'None', 'True', 'abs', 'basestring', 'bool', 'callable',
+              'chr', 'cmp', 'complex', 'divmod', 'float', 'hash',
+              'hex', 'id', 'int', 'isinstance', 'issubclass', 'len',
+              'long', 'oct', 'ord', 'pow', 'range', 'repr', 'round',
+-             'str', 'tuple', 'unichr', 'unicode', 'xrange', 'zip']:
++             'str', 'tuple', 'unichr', 'unicode', 'xrange', 'zip', 'set', 'frozenset']:
+ 
+     safe_builtins[name] = __builtins__[name]
+ 
+diff --git a/lib/python/zope/tal/talinterpreter.py b/lib/python/zope/tal/talinterpreter.py
+index 9e65be5..d725307 100644
+--- a/lib/python/zope/tal/talinterpreter.py
++++ b/lib/python/zope/tal/talinterpreter.py
+@@ -30,7 +30,6 @@ from zope.tal.taldefs import getProgramVersion, getProgramMode
+ from zope.tal.talgenerator import TALGenerator
+ from zope.tal.translationcontext import TranslationContext
+ 
+-
+ # Avoid constructing this tuple over and over
+ I18nMessageTypes = (Message,)
+ 
+@@ -781,7 +780,7 @@ class TALInterpreter(object):
+ 
+     def insertHTMLStructure(self, text, repldict):
+         from zope.tal.htmltalparser import HTMLTALParser
+-        gen = AltTALGenerator(repldict, self.engine, 0)
++        gen = AltTALGenerator(repldict, self.engine._engine, 0)
+         p = HTMLTALParser(gen) # Raises an exception if text is invalid
+         p.parseString(text)
+         program, macros = p.getCode()
+@@ -789,7 +788,7 @@ class TALInterpreter(object):
+ 
+     def insertXMLStructure(self, text, repldict):
+         from zope.tal.talparser import TALParser
+-        gen = AltTALGenerator(repldict, self.engine, 0)
++        gen = AltTALGenerator(repldict, self.engine._engine, 0)
+         p = TALParser(gen)
+         gen.enable(0)
+         p.parseFragment('<!DOCTYPE foo PUBLIC "foo" "bar"><foo>')
