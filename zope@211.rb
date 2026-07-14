@@ -12,7 +12,7 @@ class ZopeAT211 < Formula
   def install
     mkdir_p buildpath / "obj"
     args = [
-      "--prefix=#{prefix}",
+      "--prefix=#{libexec}/Zope",
       "--with-python=#{HOMEBREW_PREFIX}/opt/python@24/bin/python2.4",
       "--build-base=#{buildpath}/obj",
     ]
@@ -20,21 +20,14 @@ class ZopeAT211 < Formula
     system "make"
     system "make", "install"
 
-    mkdir_p libexec / "Zope"
-    ln_s prefix / "skel", libexec / "skel"
-    ln_s lib, libexec / "lib"
+    ln_s libexec / "Zope" / "skel", prefix / "skel"
 
-    Dir.entries(bin.to_s).reject { |f| File.directory?(f) }.each do |file|
-      mv bin / file, libexec / "Zope" / file
+    Dir.entries(libexec / "Zope" / "bin").reject { |f| File.directory?(f) }.each do |file|
       (prefix, suffix) = file.split(".")
       prefixed_file = "#{prefix}-2.11.#{suffix}"
       (bin / prefixed_file).write <<~SHELL
         #!/usr/bin/env sh
-
-        export SOFTWARE_HOME="${SOFTWARE_HOME:-#{lib}/python}"
-        export ZOPE_HOME="${ZOPE_HOME:-#{opt_prefix}}"
-
-        exec #{libexec}/Zope/#{file} "$@"
+        exec #{libexec}/Zope/bin/#{file} "$@"
       SHELL
       chmod 0555, bin / prefixed_file
       chmod 0555, "#{libexec}/Zope/#{file}"
