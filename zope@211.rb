@@ -30,6 +30,9 @@ class ZopeAT211 < Formula
     apache = buildpath / "apache"
     mkdir_p apache
     resource("apache").unpack(apache)
+    unless File.exist? apache / "docs/conf/mime.types"
+      odie "wtf"
+    end
     mv apache / "docs/conf/mime.types", prefix / "skel" / etc / "mime.types"
 
     Dir.entries(libexec / "Zope" / "bin").reject { |f| File.directory?(f) }.each do |file|
