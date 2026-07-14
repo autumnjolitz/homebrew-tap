@@ -9,7 +9,8 @@ class PythonAT24 < Formula
 
   depends_on "libtool" => :build
   depends_on "gdbm"
-  depends_on "gettext"
+  depends_on "zlib" => :build
+  depends_on "gettext" => :build
   depends_on "openssl@3"
   depends_on "readline"
 
@@ -90,9 +91,9 @@ class PythonAT24 < Formula
     inreplace "pyconfig.h" do |s|
       s.gsub!("_POSIX_C_SOURCE", "_DARWIN_C_SOURCE")
     end
-
+    link_mode = "*shared*"
     inreplace "Modules/Setup" do |s|
-      s.gsub!("#*shared*", "*shared*")
+      s.gsub!("#*shared*", link_mode)
       s.gsub!("#_socket", "_socket")
       s.gsub!("#grp", "grp")
       s.gsub!("#select", "select")
@@ -112,9 +113,17 @@ class PythonAT24 < Formula
       s.gsub!("#collections", "collections")
       s.gsub!("#itertools", "itertools")
       s.gsub!("#resource", "resource")
-      s.gsub!("#_locale", "_locale")
-      s.gsub!("# -lintl", "-I#{HOMEBREW_PREFIX}/opt/gettext/include -L#{HOMEBREW_PREFIX}/opt/gettext/lib -lintl")
-      s.gsub!("#zlib", "zlib")
+      s.gsub!(
+        "#_locale _localemodule.c  # -lintl",
+        "*static*
+_locale _localemodule.c -I#{HOMEBREW_PREFIX}/opt/gettext/include -L#{HOMEBREW_PREFIX}/opt/gettext/lib -lintl
+#{link_mode}"
+      )
+      s.gsub!(
+        "#zlib zlibmodule.c -I$(prefix)/include -L$(exec_prefix)/lib -lz",
+        "*static*
+zlib zlibmodule.c -I#{HOMEBREW_PREFIX}/opt/zlib/include -L#{HOMEBREW_PREFIX}/opt/zlib/lib -lz
+#{link_mode}")
       s.gsub!("#SSL=/usr/local/ssl", "SSL=#{HOMEBREW_PREFIX}/opt/openssl")
       s.gsub!("#_ssl", "_ssl")
       s.gsub!(/^#(\s)*-DUSE_SSL/, " -DUSE_SSL")
