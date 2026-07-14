@@ -37,7 +37,7 @@ class ZopeAT211 < Formula
 
     mkdir_p libexec
 
-    Dir.entries(bin.to_s).reject {|f| File.directory?(f)}.each do |file|
+    Dir.entries(bin.to_s).reject { |f| File.directory?(f) }.each do |file|
       mv bin / file, libexec / file
       (prefix, suffix) = file.split(".")
       prefixed_file = "#{prefix}-2.11.#{suffix}"
