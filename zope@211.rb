@@ -7,6 +7,11 @@ class ZopeAT211 < Formula
 
   depends_on "python@24"
 
+  resource "apache" do
+    url "https://dlcdn.apache.org/httpd/httpd-2.4.68.tar.bz2"
+    sha256 "68c74d4df38c26bed4dfbdb8f3baf1eb532f3872357becc1bba5d136f6b63c06"
+  end
+
   patch :p1, :DATA
 
   def install
@@ -22,6 +27,10 @@ class ZopeAT211 < Formula
 
     mv libexec / "Zope" / "bin" / "README.txt", libexec / "Zope" / "README.txt"
     ln_s libexec / "Zope" / "skel", prefix / "skel"
+    apache = buildpath / "apache"
+    mkdir_p apache
+    resource("apache").unpack(apache)
+    mv apache / "docs/conf/mime.types", prefix / "skel" / etc / "mime.types"
 
     Dir.entries(libexec / "Zope" / "bin").reject { |f| File.directory?(f) }.each do |file|
       (prefix, suffix) = file.split(".")
