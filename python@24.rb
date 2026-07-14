@@ -10,11 +10,12 @@ class PythonAT24 < Formula
   depends_on "libtool" => :build
   depends_on "zlib" => :build
   depends_on "gdbm"
+  depends_on "openssl@3"
+  depends_on "readline"
+
   on_macos do
     depends_on "gettext"
   end
-  depends_on "openssl@3"
-  depends_on "readline"
 
   resource "pip" do
     url "https://files.pythonhosted.org/packages/25/57/0d42cf5307d79913a082c5c4397d46f3793bc35e1138a694136d6e31be99/pip-1.1.tar.gz"
