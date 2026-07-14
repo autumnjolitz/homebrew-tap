@@ -81,7 +81,7 @@ class PythonAT27 < Formula
     ldflags  = []
     cppflags = []
 
-    if MacOS.sdk_path_if_needed
+    unless MacOS.sdk_path.nil?
       # Help Python's build system (setuptools/pip) to build things on SDK-based systems
       # The setup.py looks at "-isysroot" to get the sysroot (and not at --sysroot)
       cflags  << "-isysroot #{MacOS.sdk_path}" << "-I#{MacOS.sdk_path}/usr/include"
