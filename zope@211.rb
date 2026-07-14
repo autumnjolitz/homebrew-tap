@@ -1,8 +1,8 @@
 class ZopeAT211 < Formula
   desc "Zope 2.11"
   homepage "https://zopefoundation.github.io"
-  url "https://zopefoundation.github.io/Zope/pre-egg-releases/Zope-2.11.8-final.tgz"
-  sha256 "98eabf472d2b59ef99f9d0798a0ece10748fb4cd1226cc470ffbb84ff0b84e16"
+  url "https://old.zope.dev/Products/Zope/2.11.8/Zope-2.11.8-final.tgz"
+  sha256 "cdae1f71f8164901bec15d53a11cbedd17731dbb3c00963665a2aaebc44cad26"
   license "ZPL-2.1"
 
   depends_on "autumnjolitz/tap/python@24"
