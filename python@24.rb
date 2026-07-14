@@ -121,13 +121,20 @@ class PythonAT24 < Formula
       s.gsub!("#collections", "collections")
       s.gsub!("#itertools", "itertools")
       s.gsub!("#resource", "resource")
+      locale_cflags = []
+      locale_cflags << "-I#{HOMEBREW_PREFIX}/opt/gettext/include"
+      locale_cflags << "-L#{HOMEBREW_PREFIX}/opt/gettext/lib"
       s.gsub!(
         "#_locale _localemodule.c  # -lintl",
-        "_locale _localemodule.c -I#{HOMEBREW_PREFIX}/opt/gettext/include -L#{HOMEBREW_PREFIX}/opt/gettext/lib -lintl",
+        "_locale _localemodule.c #{locale_cflags.join " "} -lintl",
       )
+      zlib_cflags = []
+      zlib_cflags << "-I#{HOMEBREW_PREFIX}/opt/zlib/include"
+      zlib_cflags << static_flags.join(" ")
+      zlib_cflags << "#{HOMEBREW_PREFIX}/opt/zlib/lib/libz.a"
       s.gsub!(
         "#zlib zlibmodule.c -I$(prefix)/include -L$(exec_prefix)/lib -lz",
-        "zlib zlibmodule.c -I#{HOMEBREW_PREFIX}/opt/zlib/include #{static_flags.join " " } #{HOMEBREW_PREFIX}/opt/zlib/lib/libz.a",
+        "zlib zlibmodule.c #{zlib_cflags.join " "} ",
       )
       s.gsub!("#SSL=/usr/local/ssl", "SSL=#{HOMEBREW_PREFIX}/opt/openssl")
       s.gsub!("#_ssl", "_ssl")
