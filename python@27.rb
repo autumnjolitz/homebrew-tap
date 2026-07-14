@@ -310,10 +310,11 @@ class PythonAT27 < Formula
   end
 end
 __END__
-diff -x *.git -Naur Python-2.7.18/Lib/_osx_support.py Python2/Lib/_osx_support.py
---- Python-2.7.18/Lib/_osx_support.py	2020-04-19 14:13:39
-+++ Python2/Lib/_osx_support.py	2026-07-14 10:44:16
-@@ -476,7 +476,7 @@
+diff --git a/Lib/_osx_support.py b/Lib/_osx_support.py
+index d2aaae7..884e923 100644
+--- a/Lib/_osx_support.py
++++ b/Lib/_osx_support.py
+@@ -476,7 +476,7 @@ def get_platform_osx(_config_vars, osname, release, machine):
                  machine = 'intel'
              elif archs == ('i386', 'ppc', 'x86_64'):
                  machine = 'fat3'
@@ -322,10 +323,11 @@ diff -x *.git -Naur Python-2.7.18/Lib/_osx_support.py Python2/Lib/_osx_support.p
                  machine = 'fat64'
              elif archs == ('i386', 'ppc', 'ppc64', 'x86_64'):
                  machine = 'universal'
-diff -x *.git -Naur Python-2.7.18/Mac/Tools/pythonw.c Python2/Mac/Tools/pythonw.c
---- Python-2.7.18/Mac/Tools/pythonw.c	2020-04-19 14:13:39
-+++ Python2/Mac/Tools/pythonw.c	2026-07-14 10:44:16
-@@ -111,6 +111,9 @@
+diff --git a/Mac/Tools/pythonw.c b/Mac/Tools/pythonw.c
+index 76734c1..b0cf723 100644
+--- a/Mac/Tools/pythonw.c
++++ b/Mac/Tools/pythonw.c
+@@ -111,6 +111,9 @@ setup_spawnattr(posix_spawnattr_t* spawnattr)
  #if defined(__ppc64__)
      cpu_types[0] = CPU_TYPE_POWERPC64;
  
@@ -335,9 +337,10 @@ diff -x *.git -Naur Python-2.7.18/Mac/Tools/pythonw.c Python2/Mac/Tools/pythonw.
  #elif defined(__x86_64__)
      cpu_types[0] = CPU_TYPE_X86_64;
  
-diff -x *.git -Naur Python-2.7.18/README Python2/README
---- Python-2.7.18/README	2020-04-19 14:13:39
-+++ Python2/README	2026-07-14 10:44:16
+diff --git a/README b/README
+index 4afaac0..63bc66d 100644
+--- a/README
++++ b/README
 @@ -1,3 +1,9 @@
 +Build Python2.framework for Arm64 and x86_64 on macOS
 +
@@ -348,10 +351,11 @@ diff -x *.git -Naur Python-2.7.18/README Python2/README
  This is Python version 2.7.18
  =============================
  
-diff -x *.git -Naur Python-2.7.18/configure Python2/configure
---- Python-2.7.18/configure	2020-04-19 14:13:39
-+++ Python2/configure	2026-07-14 10:44:17
-@@ -6128,7 +6128,7 @@
+diff --git a/configure b/configure
+index 63d6753..3c6d1ab 100755
+--- a/configure
++++ b/configure
+@@ -6128,7 +6128,7 @@ $as_echo "$CC" >&6; }
                 ARCH_RUN_32BIT=""
                 ;;
              64-bit)
@@ -360,7 +364,7 @@ diff -x *.git -Naur Python-2.7.18/configure Python2/configure
                 LIPO_32BIT_FLAGS=""
                 ARCH_RUN_32BIT=""
                 ;;
-@@ -8471,8 +8471,8 @@
+@@ -8471,8 +8471,8 @@ fi
      	i386)
      		MACOSX_DEFAULT_ARCH="x86_64"
      		;;
@@ -371,10 +375,11 @@ diff -x *.git -Naur Python-2.7.18/configure Python2/configure
      		;;
      	*)
      		as_fn_error $? "Unexpected output of 'arch' on OSX" "$LINENO" 5
-diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
---- Python-2.7.18/configure.ac	2020-04-19 14:13:39
-+++ Python2/configure.ac	2026-07-14 10:44:17
-@@ -52,7 +52,7 @@
+diff --git a/configure.ac b/configure.ac
+index efe6922..d943e8b 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -52,7 +52,7 @@ dnl can cause trouble.
  dnl Last slash shouldn't be stripped if prefix=/
  if test "$prefix" != "/"; then
      prefix=`echo "$prefix" | sed -e 's/\/$//g'`
@@ -383,7 +388,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
  
  dnl This is for stuff that absolutely must end up in pyconfig.h.
  dnl Please use pyport.h instead, if possible.
-@@ -210,7 +210,7 @@
+@@ -210,7 +210,7 @@ AC_ARG_ENABLE(framework,
                AS_HELP_STRING([--enable-framework@<:@=INSTALLDIR@:>@], [Build (MacOSX|Darwin) framework]),
  [
  	case $enableval in
@@ -392,7 +397,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
  		enableval=/Library/Frameworks
  	esac
  	case $enableval in
-@@ -265,7 +265,7 @@
+@@ -265,7 +265,7 @@ AC_ARG_ENABLE(framework,
  			FRAMEWORKINSTALLAPPSPREFIX="${MDIR}/Applications"
  
  			if test "${prefix}" = "NONE"; then
@@ -401,7 +406,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
  				# --prefix option, but wants to install
  				# the framework in a non-default location,
  				# ensure that the compatibility links get
-@@ -393,7 +393,7 @@
+@@ -393,7 +393,7 @@ if test "$cross_compiling" = yes; then
  	esac
  	_PYTHON_HOST_PLATFORM="$MACHDEP${_host_cpu:+-$_host_cpu}"
  fi
@@ -410,7 +415,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
  # Some systems cannot stand _XOPEN_SOURCE being defined at all; they
  # disable features if it is defined, without any means to access these
  # features as extensions. For these systems, we skip the definition of
-@@ -410,7 +410,7 @@
+@@ -410,7 +410,7 @@ case $ac_sys_system/$ac_sys_release in
    # Reconfirmed for OpenBSD 3.3 by Zachary Hamm, for 3.4 by Jason Ish.
    # In addition, Stefan Krah confirms that issue #1244610 exists through
    # OpenBSD 4.6, but is fixed in 4.7.
@@ -419,7 +424,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
      define_xopen_source=no
      # OpenBSD undoes our definition of __BSD_VISIBLE if _XOPEN_SOURCE is
      # also defined. This can be overridden by defining _BSD_SOURCE
-@@ -448,12 +448,12 @@
+@@ -448,12 +448,12 @@ case $ac_sys_system/$ac_sys_release in
    # with _XOPEN_SOURCE and __BSD_VISIBLE does not re-enable them.
    FreeBSD/4.*)
      define_xopen_source=no;;
@@ -434,7 +439,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
    # has no effect, don't bother defining them
    Darwin/@<:@6789@:>@.*)
      define_xopen_source=no;;
-@@ -479,7 +479,7 @@
+@@ -479,7 +479,7 @@ esac
  
  if test $define_xopen_source = yes
  then
@@ -443,7 +448,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
              Define to the level of X/Open that your system supports)
  
    # On Tru64 Unix 4.0F, defining _XOPEN_SOURCE also requires
-@@ -490,7 +490,7 @@
+@@ -490,7 +490,7 @@ then
     	    Define to activate Unix95-and-earlier features)
  
    AC_DEFINE(_POSIX_C_SOURCE, 200112L, Define to activate features from IEEE Stds 1003.1-2001)
@@ -452,7 +457,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
  fi
  
  #
-@@ -521,11 +521,11 @@
+@@ -521,11 +521,11 @@ AC_MSG_CHECKING(EXTRAPLATDIR)
  if test -z "$EXTRAPLATDIR"
  then
  	case $MACHDEP in
@@ -466,7 +471,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
  		EXTRAPLATDIR=""
  		EXTRAMACHDEPPATH=""
  		;;
-@@ -663,7 +663,7 @@
+@@ -663,7 +663,7 @@ AC_ARG_WITH(cxx_main,
              AS_HELP_STRING([--with-cxx-main=<compiler>],
                             [compile main() and link python executable with C++ compiler]),
  [
@@ -475,7 +480,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
  	case $withval in
  	no)	with_cxx_main=no
  		MAINCC='$(CC)';;
-@@ -790,7 +790,7 @@
+@@ -790,7 +790,7 @@ AC_MSG_RESULT($LIBRARY)
  # systems without shared libraries, LDLIBRARY is the same as LIBRARY
  # (defined in the Makefiles). On Cygwin LDLIBRARY is the import library,
  # DLLLIBRARY is the shared (i.e., DLL) library.
@@ -484,7 +489,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
  # RUNSHARED is used to run shared python without installed libraries
  #
  # INSTSONAME is the name of the shared library that will be use to install
-@@ -812,7 +812,7 @@
+@@ -812,7 +812,7 @@ RUNSHARED=''
  # If CXX is set, and if it is needed to link a main function that was
  # compiled with CXX, LINKCC is CXX instead. Always using CXX is undesirable:
  # python might then depend on the C++ runtime
@@ -493,7 +498,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
  # linking.
  AC_SUBST(LINKCC)
  AC_MSG_CHECKING(LINKCC)
-@@ -859,7 +859,7 @@
+@@ -859,7 +859,7 @@ AC_ARG_ENABLE(shared,
                AS_HELP_STRING([--enable-shared], [disable/enable building shared python library]))
  
  if test -z "$enable_shared"
@@ -502,7 +507,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
    case $ac_sys_system in
    CYGWIN* | atheos*)
      enable_shared="yes";;
-@@ -904,7 +904,7 @@
+@@ -904,7 +904,7 @@ then
    BLDLIBRARY=''
  else
    BLDLIBRARY='$(LDLIBRARY)'
@@ -511,7 +516,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
  
  # Other platforms follow
  if test $enable_shared = "yes"; then
-@@ -1038,14 +1038,14 @@
+@@ -1038,14 +1038,14 @@ fi
  
  # Check for --with-pydebug
  AC_MSG_CHECKING(for --with-pydebug)
@@ -531,7 +536,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
    Py_DEBUG='true'
  else AC_MSG_RESULT(no); Py_DEBUG='false'
  fi],
-@@ -1179,7 +1179,7 @@
+@@ -1179,7 +1179,7 @@ yes)
                 ARCH_RUN_32BIT=""
                 ;;
              64-bit)
@@ -540,7 +545,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
                 LIPO_32BIT_FLAGS=""
                 ARCH_RUN_32BIT=""
                 ;;
-@@ -1589,7 +1589,7 @@
+@@ -1589,7 +1589,7 @@ int main(){
  AC_MSG_RESULT($ac_cv_pthread_is_default)
  
  
@@ -549,7 +554,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
  then
    ac_cv_kpthread=no
  else
-@@ -1688,14 +1688,14 @@
+@@ -1688,14 +1688,14 @@ ac_save_cxx="$CXX"
  
  if test "$ac_cv_kpthread" = "yes"
  then
@@ -566,7 +571,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
    CXX="$CXX -pthread"
    ac_cv_cxx_thread=yes
  fi
-@@ -1814,11 +1814,11 @@
+@@ -1814,11 +1814,11 @@ if test "$use_lfs" = "yes"; then
  # These may affect some typedefs
  case $ac_sys_system/$ac_sys_release in
  AIX*)
@@ -580,7 +585,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
  [This must be defined on some systems to enable large file support.])
  AC_DEFINE(_FILE_OFFSET_BITS, 64,
  [This must be set to 64 on some systems to enable large file support.])
-@@ -1880,7 +1880,7 @@
+@@ -1880,7 +1880,7 @@ AC_CHECK_SIZEOF(pid_t, 4)
  AC_MSG_CHECKING(for long long support)
  have_long_long=no
  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[long long x; x = (long long)0;]])],[
@@ -589,7 +594,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
    have_long_long=yes
  ],[])
  AC_MSG_RESULT($have_long_long)
-@@ -1902,7 +1902,7 @@
+@@ -1902,7 +1902,7 @@ fi
  AC_MSG_CHECKING(for _Bool support)
  have_c99_bool=no
  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[_Bool x; x = (_Bool)0;]])],[
@@ -598,7 +603,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
    have_c99_bool=yes
  ],[])
  AC_MSG_RESULT($have_c99_bool)
-@@ -1910,8 +1910,8 @@
+@@ -1910,8 +1910,8 @@ if test "$have_c99_bool" = yes ; then
  AC_CHECK_SIZEOF(_Bool, 1)
  fi
  
@@ -609,7 +614,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
     [], [#ifdef HAVE_STDINT_H
          #include <stdint.h>
          #endif
-@@ -1930,7 +1930,7 @@
+@@ -1930,7 +1930,7 @@ if test "$have_long_long" = yes
  then
  if test "$ac_cv_sizeof_off_t" -gt "$ac_cv_sizeof_long" -a \
  	"$ac_cv_sizeof_long_long" -ge "$ac_cv_sizeof_off_t"; then
@@ -618,7 +623,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
    [Defined to enable large file support when an off_t is bigger than a long
     and long long is available and at least as big as an off_t. You may need
     to add some flags for configuration and compilation to enable this mode.
-@@ -1981,7 +1981,7 @@
+@@ -1981,7 +1981,7 @@ AC_ARG_ENABLE(toolbox-glue,
                AS_HELP_STRING([--enable-toolbox-glue], [disable/enable MacOSX glue code for extensions]))
  
  if test -z "$enable_toolbox_glue"
@@ -627,7 +632,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
  	case $ac_sys_system/$ac_sys_release in
  	Darwin/*)
  		enable_toolbox_glue="yes";;
-@@ -2006,7 +2006,7 @@
+@@ -2006,7 +2006,7 @@ AC_MSG_RESULT($enable_toolbox_glue)
  
  AC_SUBST(OTHER_LIBTOOL_OPT)
  case $ac_sys_system/$ac_sys_release in
@@ -636,7 +641,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
      OTHER_LIBTOOL_OPT="-prebind -seg1addr 0x10000000"
      ;;
    Darwin/*)
-@@ -2017,7 +2017,7 @@
+@@ -2017,7 +2017,7 @@ esac
  
  AC_SUBST(LIBTOOL_CRUFT)
  case $ac_sys_system/$ac_sys_release in
@@ -645,7 +650,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
      LIBTOOL_CRUFT="-framework System -lcc_dynamic"
      if test "${enable_universalsdk}"; then
  	    :
-@@ -2031,7 +2031,7 @@
+@@ -2031,7 +2031,7 @@ case $ac_sys_system/$ac_sys_release in
      if test ${gcc_version} '<' 4.0
          then
              LIBTOOL_CRUFT="-lcc_dynamic"
@@ -654,7 +659,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
              LIBTOOL_CRUFT=""
      fi
      AC_RUN_IFELSE([AC_LANG_SOURCE([[
-@@ -2045,14 +2045,14 @@
+@@ -2045,14 +2045,14 @@ case $ac_sys_system/$ac_sys_release in
        }
      }
      ]])],[ac_osx_32bit=yes],[ac_osx_32bit=no],[ac_osx_32bit=yes])
@@ -674,7 +679,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
      		;;
      	*)
      		AC_MSG_ERROR([Unexpected output of 'arch' on OSX])
-@@ -2060,11 +2060,11 @@
+@@ -2060,11 +2060,11 @@ case $ac_sys_system/$ac_sys_release in
      	esac
      else
      	case `/usr/bin/arch` in
@@ -690,7 +695,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
      		;;
      	*)
      		AC_MSG_ERROR([Unexpected output of 'arch' on OSX])
-@@ -2082,9 +2082,9 @@
+@@ -2082,9 +2082,9 @@ AC_MSG_CHECKING(for --enable-framework)
  if test "$enable_framework"
  then
  	BASECFLAGS="$BASECFLAGS -fno-common -dynamic"
@@ -702,7 +707,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
           [Define if you want to produce an OpenStep/Rhapsody framework
           (shared library plus accessory files).])
  	AC_MSG_RESULT(yes)
-@@ -2099,7 +2099,7 @@
+@@ -2099,7 +2099,7 @@ fi
  AC_MSG_CHECKING(for dyld)
  case $ac_sys_system/$ac_sys_release in
    Darwin/*)
@@ -711,7 +716,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
          [Define if you want to use the new-style (Openstep, Rhapsody, MacOS)
           dynamic linker (dyld) instead of the old-style (NextStep) dynamic
           linker (rld). Dyld is necessary to support frameworks.])
-@@ -2165,7 +2165,7 @@
+@@ -2165,7 +2165,7 @@ then
  		;;
  	IRIX/5*) LDSHARED="ld -shared";;
  	IRIX*/6*) LDSHARED="ld ${SGI_ABI} -shared -all";;
@@ -720,7 +725,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
  		if test "$GCC" = "yes" ; then
  			LDSHARED='$(CC) -shared'
  			LDCXXSHARED='$(CXX) -shared'
-@@ -2346,7 +2346,7 @@
+@@ -2346,7 +2346,7 @@ then
  	BSD/OS/4*) LINKFORSHARED="-Xlinker -export-dynamic";;
  	Linux*|GNU*) LINKFORSHARED="-Xlinker -export-dynamic";;
  	# -u libsys_s pulls in all symbols in libsys
@@ -729,7 +734,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
  		# -u _PyMac_Error is needed to pull in the mac toolbox glue,
  		# which is
  		# not used by the core itself but which needs to be in the core so
-@@ -2364,7 +2364,7 @@
+@@ -2364,7 +2364,7 @@ then
  	OpenUNIX*|UnixWare*) LINKFORSHARED="-Wl,-Bexport";;
  	SCO_SV*) LINKFORSHARED="-Wl,-Bexport";;
  	ReliantUNIX*) LINKFORSHARED="-W1 -Blargedynsym";;
@@ -738,7 +743,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
  		if [[ "`$CC -dM -E - </dev/null | grep __ELF__`" != "" ]]
  		then
  			LINKFORSHARED="-Wl,--export-dynamic"
-@@ -2624,7 +2624,7 @@
+@@ -2624,7 +2624,7 @@ then
      # Defining _REENTRANT on system with POSIX threads should not hurt.
      AC_DEFINE(_REENTRANT)
      posix_threads=yes
@@ -747,7 +752,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
      if test "$ac_sys_system" = "SunOS"; then
          CFLAGS="$CFLAGS -D_REENTRANT"
      fi
-@@ -2751,7 +2751,7 @@
+@@ -2751,7 +2751,7 @@ pthread_create (NULL, NULL, start_routine, NULL)]])],[
      THREADOBJ="Python/thread.o"
      USE_THREAD_MODULE=""])
  
@@ -756,7 +761,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
        AC_CHECK_LIB(thread, thr_create, [AC_DEFINE(WITH_THREAD)
        LIBS="$LIBS -lthread"
        THREADOBJ="Python/thread.o"
-@@ -2771,7 +2771,7 @@
+@@ -2771,7 +2771,7 @@ fi
  if test "$posix_threads" = "yes"; then
        if test "$unistd_defines_pthreads" = "no"; then
           AC_DEFINE(_POSIX_THREADS, 1,
@@ -765,7 +770,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
            and your system does not define that.])
        fi
  
-@@ -3016,9 +3016,9 @@
+@@ -3016,9 +3016,9 @@ AC_MSG_CHECKING(for --with-tsc)
  AC_ARG_WITH(tsc,
  	    AS_HELP_STRING([--with(out)-tsc],[enable/disable timestamp counter profile]),[
  if test "$withval" != no
@@ -778,7 +783,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
      AC_MSG_RESULT(yes)
  else AC_MSG_RESULT(no)
  fi],
-@@ -3034,7 +3034,7 @@
+@@ -3034,7 +3034,7 @@ then with_pymalloc="yes"
  fi
  if test "$with_pymalloc" != "no"
  then
@@ -787,7 +792,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
       [Define if you want to compile in Python-specific mallocs])
  fi
  AC_MSG_RESULT($with_pymalloc)
-@@ -3054,14 +3054,14 @@
+@@ -3054,14 +3054,14 @@ fi
  
  # Check for --with-wctype-functions
  AC_MSG_CHECKING(for --with-wctype-functions)
@@ -805,7 +810,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
    AC_MSG_RESULT(yes)
  else AC_MSG_RESULT(no)
  fi],
-@@ -3311,12 +3311,12 @@
+@@ -3311,12 +3311,12 @@ dnl before searching for static libraries. setup.py adds -Wl,-search_paths_first
  dnl to revert to a more traditional unix behaviour and make it possible to
  dnl override the system libz with a local static library of libz. Temporarily
  dnl add that flag to our CFLAGS as well to ensure that we check the version
@@ -821,7 +826,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
  	_CUR_CFLAGS="${CFLAGS}"
  	_CUR_LDFLAGS="${LDFLAGS}"
  	CFLAGS="${CFLAGS} -Wl,-search_paths_first"
-@@ -3327,7 +3327,7 @@
+@@ -3327,7 +3327,7 @@ esac
  AC_CHECK_LIB(z, inflateCopy, AC_DEFINE(HAVE_ZLIB_COPY, 1, [Define if the zlib library has inflateCopy]))
  
  case $ac_sys_system/$ac_sys_release in
@@ -830,7 +835,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
  	CFLAGS="${_CUR_CFLAGS}"
  	LDFLAGS="${_CUR_LDFLAGS}"
  	;;
-@@ -3381,14 +3381,14 @@
+@@ -3381,14 +3381,14 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
  
  # check for openpty and forkpty
  
@@ -848,7 +853,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
       [AC_DEFINE(HAVE_FORKPTY) LIBS="$LIBS -lutil"],
       AC_CHECK_LIB(bsd,forkpty, [AC_DEFINE(HAVE_FORKPTY) LIBS="$LIBS -lbsd"])
     )
-@@ -3401,7 +3401,7 @@
+@@ -3401,7 +3401,7 @@ AC_CHECK_FUNCS(memmove)
  AC_CHECK_FUNCS(fseek64 fseeko fstatvfs ftell64 ftello statvfs)
  
  AC_REPLACE_FUNCS(dup2 getcwd strdup)
@@ -857,7 +862,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <unistd.h>]], [[getpgrp(0);]])],
      [AC_DEFINE(GETPGRP_HAVE_ARG, 1, [Define if getpgrp() must be called as getpgrp(0).])],
      [])
-@@ -3411,7 +3411,7 @@
+@@ -3411,7 +3411,7 @@ AC_CHECK_FUNCS(setpgrp,
      [AC_DEFINE(SETPGRP_HAVE_ARG, 1, [Define if setpgrp() must be called as setpgrp(0, 0).])],
      [])
  )
@@ -866,7 +871,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/time.h>]],
    				     [[gettimeofday((struct timeval*)0,(struct timezone*)0);]])],
      [],
-@@ -3441,7 +3441,7 @@
+@@ -3441,7 +3441,7 @@ AC_LINK_IFELSE([AC_LANG_PROGRAM([[
  ])
  
  # On OSF/1 V5.1, getaddrinfo is available, but a define
@@ -875,7 +880,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
  AC_MSG_CHECKING(for getaddrinfo)
  AC_LINK_IFELSE([AC_LANG_PROGRAM([[
  #include <sys/types.h>
-@@ -3603,7 +3603,7 @@
+@@ -3603,7 +3603,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
  ]], [[;]])],[
    AC_DEFINE(SYS_SELECT_WITH_SYS_TIME, 1,
    [Define if  you can safely include both <sys/select.h> and <sys/time.h>
@@ -884,7 +889,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
    was_it_defined=yes
  ],[])
  AC_MSG_RESULT($was_it_defined)
-@@ -3654,8 +3654,8 @@
+@@ -3654,8 +3654,8 @@ AC_MSG_RESULT($works)
  have_prototypes=no
  AC_MSG_CHECKING(for prototypes)
  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[int foo(int x) { return 0; }]], [[return foo(10);]])],
@@ -895,7 +900,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
     have_prototypes=yes],
    []
  )
-@@ -3676,7 +3676,7 @@
+@@ -3676,7 +3676,7 @@ int foo(int x, ...) {
  ]], [[return foo(10, "", 3.14);]])],[
    AC_DEFINE(HAVE_STDARG_PROTOTYPES, 1,
     [Define if your compiler supports variable length function prototypes
@@ -904,7 +909,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
    works=yes
  ],[])
  AC_MSG_RESULT($works)
-@@ -3711,7 +3711,7 @@
+@@ -3711,7 +3711,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
  #include <varargs.h>
  #endif
  ]], [[va_list list1, list2; list1 = list2;]])],[],[
@@ -913,7 +918,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
   va_list_is_array=yes
  ])
  AC_MSG_RESULT($va_list_is_array)
-@@ -3806,9 +3806,9 @@
+@@ -3806,9 +3806,9 @@ AC_ARG_WITH(fpectl,
              AS_HELP_STRING([--with-fpectl], [enable SIGFPE catching]),
  [
  if test "$withval" != no
@@ -925,7 +930,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
    AC_MSG_RESULT(yes)
  else AC_MSG_RESULT(no)
  fi],
-@@ -4123,8 +4123,8 @@
+@@ -4123,8 +4123,8 @@ AC_DEFINE_UNQUOTED(PYLONG_BITS_IN_DIGIT, $enable_big_digits, [Define as the pref
  
  # check for wchar.h
  AC_CHECK_HEADER(wchar.h, [
@@ -936,7 +941,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
    wchar_h="yes"
  ],
  wchar_h="no"
-@@ -4167,10 +4167,10 @@
+@@ -4167,10 +4167,10 @@ then
    [ac_cv_wchar_t_signed=yes])])
    AC_MSG_RESULT($ac_cv_wchar_t_signed)
  fi
@@ -949,7 +954,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
                AS_HELP_STRING([--enable-unicode@<:@=ucs@<:@24@:>@@:>@], [Enable Unicode strings (default is ucs2)]),
                [],
                [enable_unicode=yes])
-@@ -4442,7 +4442,7 @@
+@@ -4442,7 +4442,7 @@ int main()
  	   tm->tm_zone does not exist since it is the alternative way
  	   of getting timezone info.
  
@@ -958,7 +963,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
  	   after New Year's Day.
  	*/
  
-@@ -4455,7 +4455,7 @@
+@@ -4455,7 +4455,7 @@ int main()
  	    exit(1);
  #if HAVE_TZNAME
  	/* For UTC, tzname[1] is sometimes "", sometimes "   " */
@@ -967,7 +972,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
  		(tzname[1][0] != 0 && tzname[1][0] != ' '))
  	    exit(1);
  #endif
-@@ -4580,7 +4580,7 @@
+@@ -4580,7 +4580,7 @@ AC_MSG_RESULT($ac_cv_window_has_flags)
  
  if test "$ac_cv_window_has_flags" = yes
  then
@@ -976,7 +981,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
    [Define if WINDOW in curses.h offers a field _flags.])
  fi
  
-@@ -4871,7 +4871,7 @@
+@@ -4871,7 +4871,7 @@ for dir in $SRCDIRS; do
      fi
  done
  
@@ -985,7 +990,7 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
  # Check for --with-computed-gotos
  AC_MSG_CHECKING(for --with-computed-gotos)
  AC_ARG_WITH(computed-gotos,
-@@ -4879,15 +4879,15 @@
+@@ -4879,15 +4879,15 @@ AC_ARG_WITH(computed-gotos,
                             [Use computed gotos in evaluation loop (enabled by default on supported compilers)]),
  [
  if test "$withval" = yes
@@ -1005,252 +1010,3 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
    AC_MSG_RESULT(no)
  fi
  ],
-diff --git a/Include/pymactoolbox.h b/Include/pymactoolbox.h
-index 92799e9..0cd36c2 100644
---- a/Include/pymactoolbox.h
-+++ b/Include/pymactoolbox.h
-@@ -8,7 +8,6 @@
- #endif
- 
- #include <Carbon/Carbon.h>
--#include <QuickTime/QuickTime.h>
- 
- /*
- ** Helper routines for error codes and such.
-diff --git a/Makefile.pre.in b/Makefile.pre.in
-index d125bf6..9f1fde5 100644
---- a/Makefile.pre.in
-+++ b/Makefile.pre.in
-@@ -375,15 +375,18 @@ $(PYTHONFRAMEWORKDIR)/Versions/$(VERSION)/$(PYTHONFRAMEWORK): \
-                 $(RESSRCDIR)/English.lproj/InfoPlist.strings
- 	$(INSTALL) -d -m $(DIRMODE) $(PYTHONFRAMEWORKDIR)/Versions/$(VERSION)
- 	if test "${UNIVERSALSDK}"; then \
--		$(CC) -o $(LDLIBRARY) -arch i386 -arch ppc -dynamiclib \
-+		$(CC) -o $(LDLIBRARY) -arch i386 -arch arm64 -dynamiclib \
- 			-isysroot "${UNIVERSALSDK}" \
- 			-all_load $(LIBRARY) -Wl,-single_module \
- 			-install_name $(DESTDIR)$(PYTHONFRAMEWORKINSTALLDIR)/Versions/$(VERSION)/Python \
- 			-compatibility_version $(VERSION) \
- 			-current_version $(VERSION); \
-         else \
--		libtool -o $(LDLIBRARY) -dynamic $(OTHER_LIBTOOL_OPT) $(LIBRARY) \
--			@LIBTOOL_CRUFT@ ;\
-+		$(CC) -o $(LDLIBRARY) -dynamiclib \
-+			-all_load $(LIBRARY) -Wl,-single_module \
-+			-install_name $(DESTDIR)$(PYTHONFRAMEWORKINSTALLDIR)/Versions/$(VERSION)/Python \
-+			-compatibility_version $(VERSION) \
-+			-current_version $(VERSION); \
- 	fi
- 	$(INSTALL) -d -m $(DIRMODE)  \
- 		$(PYTHONFRAMEWORKDIR)/Versions/$(VERSION)/Resources/English.lproj
-diff --git a/Modules/_ssl.c b/Modules/_ssl.c
-index f90ec13..3bdac05 100644
---- a/Modules/_ssl.c
-+++ b/Modules/_ssl.c
-@@ -55,6 +55,10 @@ static PyObject *PySSLErrorObject;
- # undef HAVE_OPENSSL_RAND
- #endif
- 
-+#ifdef __APPLE__
-+extern int RAND_egd(const char *path);
-+#endif
-+
- typedef struct {
- 	PyObject_HEAD
- 	PySocketSockObject *Socket;	/* Socket on which we're layered */
-@@ -290,7 +294,7 @@ newPySSLObject(PySocketSockObject *Sock, char *key_file, char *cert_file)
- 		PySSL_SetError(self, ret);
- 		goto fail;
- 	}
--	self->ssl->debug = 1;
-+	// self->ssl->debug = 1;
- 
- 	Py_BEGIN_ALLOW_THREADS
- 	if ((self->server_cert = SSL_get_peer_certificate(self->ssl))) {
-diff --git a/Modules/fcntlmodule.c b/Modules/fcntlmodule.c
-index 0c02ee6..ca10cd4 100644
---- a/Modules/fcntlmodule.c
-+++ b/Modules/fcntlmodule.c
-@@ -12,6 +12,9 @@
- #ifdef HAVE_STROPTS_H
- #include <stropts.h>
- #endif
-+#if defined(__APPLE__)
-+extern int flock(int fd, int operation);
-+#endif
- 
- static int
- conv_descriptor(PyObject *object, int *target)
-diff --git a/Modules/getaddrinfo.c b/Modules/getaddrinfo.c
-index 4d19c34..b40a0d8 100644
---- a/Modules/getaddrinfo.c
-+++ b/Modules/getaddrinfo.c
-@@ -56,6 +56,17 @@
- 
- #include "addrinfo.h"
- #endif
-+#if defined(__APPLE__)
-+#include <netinet/in.h>
-+#include <arpa/inet.h>
-+
-+typedef unsigned short u_short;
-+typedef unsigned long u_long;
-+typedef unsigned char u_char;
-+
-+extern const char *hstrerror(int err);
-+extern int inet_aton(const char *cp, struct in_addr *pin);
-+#endif
- 
- #if defined(__KAME__) && defined(ENABLE_IPV6)
- # define FAITH
-diff --git a/Modules/posixmodule.c b/Modules/posixmodule.c
-index dc7f723..0095643 100644
---- a/Modules/posixmodule.c
-+++ b/Modules/posixmodule.c
-@@ -23,6 +23,12 @@
- #  pragma weak statvfs
- #  pragma weak fstatvfs
- 
-+#include <sys/param.h>
-+#include <unistd.h>
-+
-+#include <sys/types.h>
-+#include <sys/disk.h>
-+
- #endif /* __APPLE__ */
- 
- #include "Python.h"
-@@ -156,6 +162,12 @@ corresponding Unix manual entries for more information on calls.");
- extern char        *ctermid_r(char *);
- #endif
- 
-+#if defined(__APPLE__)
-+extern int getloadavg(double[], int);
-+extern char *ctermid_r(char *buf);
-+extern int setgroups(int ngroups, const gid_t *gidset);
-+#endif
-+
- #ifndef HAVE_UNISTD_H
- #if defined(PYCC_VACPP)
- extern int mkdir(char *);
-diff --git a/Modules/readline.c b/Modules/readline.c
-index 5094bf2..7e8f51c 100644
---- a/Modules/readline.c
-+++ b/Modules/readline.c
-@@ -708,12 +708,12 @@ setup_readline(void)
- 	rl_bind_key_in_map ('\t', rl_complete, emacs_meta_keymap);
- 	rl_bind_key_in_map ('\033', rl_complete, emacs_meta_keymap);
- 	/* Set our hook functions */
--	rl_startup_hook = (Function *)on_startup_hook;
-+	rl_startup_hook = (void *)on_startup_hook;
- #ifdef HAVE_RL_PRE_INPUT_HOOK
--	rl_pre_input_hook = (Function *)on_pre_input_hook;
-+	rl_pre_input_hook = (void *)on_pre_input_hook;
- #endif
- 	/* Set our completion function */
--	rl_attempted_completion_function = (CPPFunction *)flex_complete;
-+	rl_attempted_completion_function = (void *)flex_complete;
- 	/* Set Python word break characters */
- 	rl_completer_word_break_characters =
- 		strdup(" \t\n`~!@#$%^&*()-=+[{]}\\|;:'\",<>/?");
-diff --git a/configure b/configure
-index a6ed9f1..e146787 100755
---- a/configure
-+++ b/configure
-@@ -846,7 +846,7 @@ Optional Features:
-   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
-   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
-   --enable-universalsdk[=SDKDIR]
--                          Build agains Mac OS X 10.4u SDK (ppc/i386)
-+                          Build agains Mac OS X 10.4u SDK (arm64/x86_64)
-   --enable-framework[=INSTALLDIR]
-                           Build (MacOSX|Darwin) framework
-   --enable-shared         disable/enable building shared python library
-@@ -1716,7 +1716,7 @@ else
- 		without_gcc=;;
- 	BeOS*)
- 		case $BE_HOST_CPU in
--		ppc)
-+		arm64)
- 			CC=mwcc
- 			without_gcc=yes
- 			BASECFLAGS="$BASECFLAGS -export pragma"
-@@ -3909,7 +3909,7 @@ echo "${ECHO_T}$ac_cv_no_strict_aliasing_ok" >&6
- 	Darwin*)
- 	    BASECFLAGS="$BASECFLAGS -Wno-long-double -no-cpp-precomp -mno-fused-madd"
- 	    if test "${enable_universalsdk}"; then
--		BASECFLAGS="-arch ppc -arch i386 -isysroot ${UNIVERSALSDK} ${BASECFLAGS}"
-+		BASECFLAGS="-arch arm64 -arch x86_64 -isysroot ${UNIVERSALSDK} ${BASECFLAGS}"
- 	    fi
- 
- 	    ;;
-@@ -10328,7 +10328,7 @@ case $ac_sys_system/$ac_sys_release in
-         else
-             LIBTOOL_CRUFT=""
-     fi
--    LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -lSystem -lSystemStubs -arch_only ppc'
-+    LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -lSystem -lSystemStubs -arch_only arm64'
-     LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -install_name $(PYTHONFRAMEWORKINSTALLDIR)/Versions/$(VERSION)/$(PYTHONFRAMEWORK)'
-     LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -compatibility_version $(VERSION) -current_version $(VERSION)';;
- esac
-@@ -10460,7 +10460,7 @@ then
- 		if test ${MACOSX_DEPLOYMENT_TARGET-${cur_target}} '>' 10.2
- 		then
- 			if test "${enable_universalsdk}"; then
--				LDFLAGS="-arch i386 -arch ppc -isysroot ${UNIVERSALSDK} ${LDFLAGS}"
-+				LDFLAGS="-arch x86_64 -arch arm64 -isysroot ${UNIVERSALSDK} ${LDFLAGS}"
- 			fi
- 			LDSHARED='$(CC) $(LDFLAGS) -bundle -undefined dynamic_lookup'
- 			BLDSHARED="$LDSHARED"
-diff --git a/configure.in b/configure.in
-index 2770b1e..1bc5aa0 100644
---- a/configure.in
-+++ b/configure.in
-@@ -61,7 +61,7 @@ AC_SUBST(CONFIG_ARGS)
- CONFIG_ARGS="$ac_configure_args"
- 
- AC_ARG_ENABLE(universalsdk,
--	AC_HELP_STRING(--enable-universalsdk@<:@=SDKDIR@:>@, Build agains Mac OS X 10.4u SDK (ppc/i386)),
-+	AC_HELP_STRING(--enable-universalsdk@<:@=SDKDIR@:>@, Build agains Mac OS X 10.4u SDK (arm64/i386)),
- [
- 	case $enableval in
- 	yes)
-@@ -796,9 +796,9 @@ yes)
- 	    ;;
- 	# is there any other compiler on Darwin besides gcc?
- 	Darwin*)
--	    BASECFLAGS="$BASECFLAGS -Wno-long-double -no-cpp-precomp -mno-fused-madd"
-+	    BASECFLAGS="$BASECFLAGS -Wno-long-double -no-cpp-precomp -ffp-contract=off"
- 	    if test "${enable_universalsdk}"; then
--		BASECFLAGS="-arch ppc -arch i386 -isysroot ${UNIVERSALSDK} ${BASECFLAGS}"
-+		BASECFLAGS="-arch arm64 -arch i386 -isysroot ${UNIVERSALSDK} ${BASECFLAGS}"
- 	    fi
- 
- 	    ;;
-@@ -1315,7 +1315,7 @@ case $ac_sys_system/$ac_sys_release in
-         else
-             LIBTOOL_CRUFT=""
-     fi
--    LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -lSystem -lSystemStubs -arch_only ppc'
-+    LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -lSystem -lSystemStubs -arch_only arm64'
-     LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -install_name $(PYTHONFRAMEWORKINSTALLDIR)/Versions/$(VERSION)/$(PYTHONFRAMEWORK)'
-     LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -compatibility_version $(VERSION) -current_version $(VERSION)';;
- esac
-@@ -1435,7 +1435,7 @@ then
- 		if test ${MACOSX_DEPLOYMENT_TARGET-${cur_target}} '>' 10.2
- 		then
- 			if test "${enable_universalsdk}"; then
--				LDFLAGS="-arch i386 -arch ppc -isysroot ${UNIVERSALSDK} ${LDFLAGS}"
-+				LDFLAGS="-arch i386 -arch arm64 -isysroot ${UNIVERSALSDK} ${LDFLAGS}"
- 			fi
- 			LDSHARED='$(CC) $(LDFLAGS) -bundle -undefined dynamic_lookup'
- 			BLDSHARED="$LDSHARED"
-@@ -2927,7 +2927,7 @@ AH_VERBATIM([WORDS_BIGENDIAN],
- 
-     The block below does compile-time checking for endianness on platforms
-     that use GCC and therefore allows compiling fat binaries on OSX by using 
--    '-arch ppc -arch i386' as the compile flags. The phrasing was choosen
-+    '-arch arm64 -arch i386' as the compile flags. The phrasing was choosen
-     such that the configure-result is used on systems that don't use GCC.
-   */
- #ifdef __BIG_ENDIAN__
