@@ -113,7 +113,7 @@ class PythonAT24 < Formula
       s.gsub!("#itertools", "itertools")
       s.gsub!("#resource", "resource")
       s.gsub!("#_locale", "_locale")
-      s.gsub!("# -lintl", "-I #{HOMEBREW_PREFIX}/opt/gettext/include -L #{HOMEBREW_PREFIX}/opt/gettext/lib -lintl")
+      s.gsub!("# -lintl", "-I#{HOMEBREW_PREFIX}/opt/gettext/include -L#{HOMEBREW_PREFIX}/opt/gettext/lib -lintl")
       s.gsub!("#zlib", "zlib")
       s.gsub!("#SSL=/usr/local/ssl", "SSL=#{HOMEBREW_PREFIX}/opt/openssl")
       s.gsub!("#_ssl", "_ssl")
