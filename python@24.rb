@@ -7,12 +7,12 @@ class PythonAT24 < Formula
   option "with-framework", "Do a 'Framework' build instead of a UNIX-style build."
   option "with-universal", "Build for both 32 & 64 bit Intel."
 
-  depends_on "gettext" => :build
   depends_on "libtool" => :build
-  depends_on "readline" => :build
   depends_on "zlib" => :build
   depends_on "gdbm"
+  depends_on "gettext"
   depends_on "openssl@3"
+  depends_on "readline"
 
   resource "pip" do
     url "https://files.pythonhosted.org/packages/25/57/0d42cf5307d79913a082c5c4397d46f3793bc35e1138a694136d6e31be99/pip-1.1.tar.gz"
@@ -108,7 +108,7 @@ class PythonAT24 < Formula
       s.gsub!("#unicodedata", "unicodedata")
       s.gsub!(
         "#readline readline.c -lreadline -ltermcap",
-        "readline readline.c -I#{HOMEBREW_PREFIX}/opt/readline/include #{static_flags.join " " } #{HOMEBREW_PREFIX}/opt/readline/lib/libreadline.a -ltermcap"
+        "readline readline.c -lreadline -ltermcap"
       )
       s.gsub!("#array", "array")
       s.gsub!("#cmath", "cmath")
@@ -123,7 +123,7 @@ class PythonAT24 < Formula
       s.gsub!("#resource", "resource")
       s.gsub!(
         "#_locale _localemodule.c  # -lintl",
-        "_locale _localemodule.c -I#{HOMEBREW_PREFIX}/opt/gettext/include #{static_flags.join " " } #{HOMEBREW_PREFIX}/opt/gettext/lib/libintl.a"
+        "_locale _localemodule.c -lintl"
       )
       s.gsub!(
         "#zlib zlibmodule.c -I$(prefix)/include -L$(exec_prefix)/lib -lz",
