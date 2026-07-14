@@ -8,8 +8,8 @@ class PythonAT24 < Formula
   option "with-universal", "Build for both 32 & 64 bit Intel."
 
   depends_on "libtool" => :build
-  depends_on "gettext"
   depends_on "gdbm"
+  depends_on "gettext"
   depends_on "openssl@3"
   depends_on "readline"
 
