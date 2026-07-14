@@ -45,12 +45,6 @@ class PythonAT24 < Formula
     ENV["PYTHONHOME"] = nil
     ENV["PYTHONPATH"] = nil
 
-    # remap ppc to arm64 and i386 to x86_64
-    inreplace "configure" do |s|
-      s.gsub!("ppc", "arm64")
-      s.gsub!("i386", "x86_64")
-    end
-
     args = [
       "--prefix=#{prefix}",
       "--disable-toolbox-glue",
@@ -277,26 +271,28 @@ index f90ec13..3bdac05 100644
  	Py_BEGIN_ALLOW_THREADS
  	if ((self->server_cert = SSL_get_peer_certificate(self->ssl))) {
 diff --git a/Modules/fcntlmodule.c b/Modules/fcntlmodule.c
-index 0c02ee6..2fdd347 100644
+index 0c02ee6..ca10cd4 100644
 --- a/Modules/fcntlmodule.c
 +++ b/Modules/fcntlmodule.c
-@@ -13,6 +13,8 @@
+@@ -12,6 +12,9 @@
+ #ifdef HAVE_STROPTS_H
  #include <stropts.h>
  #endif
- 
++#if defined(__APPLE__)
 +extern int flock(int fd, int operation);
-+
++#endif
+ 
  static int
  conv_descriptor(PyObject *object, int *target)
- {
 diff --git a/Modules/getaddrinfo.c b/Modules/getaddrinfo.c
-index 4d19c34..43a4d91 100644
+index 4d19c34..b40a0d8 100644
 --- a/Modules/getaddrinfo.c
 +++ b/Modules/getaddrinfo.c
-@@ -57,6 +57,16 @@
+@@ -56,6 +56,17 @@
+ 
  #include "addrinfo.h"
  #endif
- 
++#if defined(__APPLE__)
 +#include <netinet/in.h>
 +#include <arpa/inet.h>
 +
@@ -306,10 +302,10 @@ index 4d19c34..43a4d91 100644
 +
 +extern const char *hstrerror(int err);
 +extern int inet_aton(const char *cp, struct in_addr *pin);
-+
++#endif
+ 
  #if defined(__KAME__) && defined(ENABLE_IPV6)
  # define FAITH
- #endif
 diff --git a/Modules/posixmodule.c b/Modules/posixmodule.c
 index dc7f723..0095643 100644
 --- a/Modules/posixmodule.c
