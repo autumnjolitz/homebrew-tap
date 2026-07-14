@@ -93,3 +93,149 @@ index 9e65be5..d725307 100644
          p = TALParser(gen)
          gen.enable(0)
          p.parseFragment('<!DOCTYPE foo PUBLIC "foo" "bar"><foo>')
+diff --git a/skel/bin/runzope.in b/skel/bin/runzope.in
+index 7cf7a69..daaedc2 100755
+--- a/skel/bin/runzope.in
++++ b/skel/bin/runzope.in
+@@ -1,13 +1,17 @@
+-#! /bin/sh
+-
+-PYTHON="<<PYTHON>>"
+-ZOPE_HOME="<<ZOPE_HOME>>"
+-INSTANCE_HOME="<<INSTANCE_HOME>>"
+-CONFIG_FILE="<<INSTANCE_HOME>>/etc/zope.conf"
+-SOFTWARE_HOME="<<SOFTWARE_HOME>>"
+-PYTHONPATH="$SOFTWARE_HOME:$PYTHONPATH"
++#!/usr/bin/env sh
++set -e
++set -u
++(set -o pipefail) && set -o pipefail
++
++ZOPE_PYTHON="${ZOPE_PYTHON:-<<PYTHON>>}"
++ZOPE_HOME="${ZOPE_HOME:-<<ZOPE_HOME>>}"
++INSTANCE_HOME="${ZOPE_INSTANCE_HOME:-<<INSTANCE_HOME>>}"
++CONFIG_FILE="${ZOPE_CONFIG_FILE:-<<INSTANCE_HOME>>/etc/zope.conf}"
++SOFTWARE_HOME="${ZOPE_SOFTWARE_HOME:-<<SOFTWARE_HOME>>}"
++PYTHONPATH="$SOFTWARE_HOME:${PYTHONPATH:-}"
++
+ export PYTHONPATH INSTANCE_HOME SOFTWARE_HOME
+ 
+ ZOPE_RUN="$SOFTWARE_HOME/Zope2/Startup/run.py"
+ 
+-exec "$PYTHON" "$ZOPE_RUN" -C "$CONFIG_FILE" "$@"
++exec "$ZOPE_PYTHON" "$ZOPE_RUN" -C "$CONFIG_FILE" "$@"
+diff --git a/skel/bin/zopectl.in b/skel/bin/zopectl.in
+index 95aa933..6ad7540 100755
+--- a/skel/bin/zopectl.in
++++ b/skel/bin/zopectl.in
+@@ -1,13 +1,17 @@
+-#! /bin/sh
+-
+-PYTHON="<<PYTHON>>"
+-ZOPE_HOME="<<ZOPE_HOME>>"
+-INSTANCE_HOME="<<INSTANCE_HOME>>"
+-CONFIG_FILE="<<INSTANCE_HOME>>/etc/zope.conf"
+-SOFTWARE_HOME="<<SOFTWARE_HOME>>"
+-PYTHONPATH="$SOFTWARE_HOME:$PYTHONPATH"
++#!/usr/bin/env sh
++set -e
++set -u
++(set -o pipefail) && set -o pipefail
++
++ZOPE_PYTHON="${ZOPE_PYTHON:-<<PYTHON>>}"
++ZOPE_HOME="${ZOPE_HOME:-<<ZOPE_HOME>>}"
++INSTANCE_HOME="${ZOPE_INSTANCE_HOME:-<<INSTANCE_HOME>>}"
++CONFIG_FILE="${ZOPE_CONFIG_FILE:-<<INSTANCE_HOME>>/etc/zope.conf}"
++SOFTWARE_HOME="${ZOPE_SOFTWARE_HOME:-<<SOFTWARE_HOME>>}"
++PYTHONPATH="$SOFTWARE_HOME:${PYTHONPATH:-}"
++
+ export PYTHONPATH INSTANCE_HOME SOFTWARE_HOME
+ 
+ ZDCTL="$SOFTWARE_HOME/Zope2/Startup/zopectl.py"
+ 
+-exec "$PYTHON" "$ZDCTL" -C "$CONFIG_FILE" "$@"
++exec "$ZOPE_PYTHON" "$ZDCTL" -C "$CONFIG_FILE" "$@"
+diff --git a/skel/etc/zope.conf.in b/skel/etc/zope.conf.in
+index f17bf6b..28d3509 100644
+--- a/skel/etc/zope.conf.in
++++ b/skel/etc/zope.conf.in
+@@ -214,7 +214,7 @@ instancehome $INSTANCE
+ #
+ # Example:
+ #
+-#    zserver-threads 10
++zserver-threads 32768
+ 
+ 
+ # Directive: python-check-interval
+@@ -287,7 +287,7 @@ instancehome $INSTANCE
+ # Example:
+ #
+ #     mime-types  $INSTANCE/etc/mime.types
+-
++mime-types  $INSTANCE/etc/mime.types
+ 
+ # Directive: structured-text-header-level
+ #
+@@ -315,6 +315,8 @@ instancehome $INSTANCE
+ #
+ #    rest-input-encoding iso-8859-15
+ 
++rest-input-encoding utf-8
++
+ # Directive: rest-output-encoding
+ #
+ # Description:
+@@ -328,6 +330,8 @@ instancehome $INSTANCE
+ #
+ #    rest-output-encoding iso-8859-15
+ 
++rest-output-encoding utf-8
++
+ # Directive: rest-header-level
+ #
+ # Description:
+@@ -403,6 +407,7 @@ instancehome $INSTANCE
+ #
+ #    ip-address 127.0.0.1
+ 
++ip-address 127.0.0.1
+ 
+ # Directive: http-realm
+ #
+@@ -443,6 +448,8 @@ instancehome $INSTANCE
+ #
+ #     http-header-max-length 16384
+ 
++http-header-max-length 16384
++
+ # Directive: enable-ms-author-via
+ #
+ # Description:
+@@ -637,6 +644,8 @@ instancehome $INSTANCE
+ #
+ #    maximum-number-of-session-objects 10000
+ 
++maximum-number-of-session-objects 10000
++
+ 
+ # Directive: session-add-notify-script-path
+ #
+@@ -898,7 +907,7 @@ instancehome $INSTANCE
+ # Example:
+ #
+ #    max-listen-sockets 500
+-
++max-listen-sockets 10000
+ 
+ # Directives: port-base
+ #
+@@ -942,6 +951,8 @@ instancehome $INSTANCE
+ #
+ #    default-zpublisher-encoding utf-8
+ 
++default-zpublisher-encoding utf-8
++
+ # Directives: servers
+ #
+ # Description:
