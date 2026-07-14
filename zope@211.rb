@@ -8,7 +8,7 @@ class ZopeAT211 < Formula
   depends_on "python@24"
 
   resource "apache" do
-    url "https://dlcdn.apache.org/httpd/httpd-2.4.68.tar.bz2"
+    url "https://www.apache.org/dyn/closer.lua?path=httpd/httpd-2.4.68.tar.bz2"
     sha256 "68c74d4df38c26bed4dfbdb8f3baf1eb532f3872357becc1bba5d136f6b63c06"
   end
 
@@ -30,15 +30,13 @@ class ZopeAT211 < Formula
     apache = buildpath / "apache"
     mkdir_p apache
     resource("apache").unpack(apache)
-    mv apache / "docs/conf/mime.types", prefix / "skel" / "etc" / "mime.types"
+    skel = prefix / "skel"
+    mv apache / "docs/conf/mime.types", skel / "etc" / "mime.types"
 
     Dir.entries(libexec / "Zope" / "bin").reject { |f| File.directory?(f) }.each do |file|
       (prefix, suffix) = file.split(".")
-      if suffix.nil?
-        proxied_bin = "#{prefix}-2.11"
-      else
-        proxied_bin = "#{prefix}-2.11.#{suffix}"
-      end
+      proxied_bin = "#{prefix}-2.11"
+      proxied_bin = "#{proxied_bin}.#{suffix}" unless suffix.nil?
       (bin / proxied_bin).write <<~SHELL
         #!/usr/bin/env sh
         exec #{libexec}/Zope/bin/#{file} "$@"
