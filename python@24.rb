@@ -84,9 +84,11 @@ class PythonAT24 < Formula
       s.gsub!("/Library/Frameworks", frameworks.to_s)
     end
     system "./configure", *args
-    ["Makefile.pre", "Makefile"].each do |target|
-      inreplace target do |s|
-        s.gsub!("-mno-fused-madd", "-ffp-contract=off")
+    if DevelopmentTools.clang_build_version >= 512
+      ["Makefile.pre", "Makefile"].each do |target|
+        inreplace target do |s|
+          s.gsub!("-mno-fused-madd", "-ffp-contract=off")
+        end
       end
     end
 
