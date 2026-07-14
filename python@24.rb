@@ -116,7 +116,7 @@ class PythonAT24 < Formula
       s.gsub!("#itertools", "itertools")
       s.gsub!("#resource", "resource")
       s.gsub!("#_locale", "_locale")
-      s.gsub!("# -lintl", " -lintl") if OS.mac? and MacOS.version < :tahoe
+      s.gsub!("# -lintl", " -lintl") if OS.mac? && MacOS.version < :tahoe
       s.gsub!("#zlib", "zlib")
       s.gsub!("#SSL=/usr/local/ssl", "SSL=#{HOMEBREW_PREFIX}/opt/openssl")
       s.gsub!("#_ssl", "_ssl")
