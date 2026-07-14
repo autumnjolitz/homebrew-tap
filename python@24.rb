@@ -247,6 +247,18 @@ class PythonAT24 < Formula
   end
 end
 __END__
+diff --git a/Include/pymactoolbox.h b/Include/pymactoolbox.h
+index 92799e9..0cd36c2 100644
+--- a/Include/pymactoolbox.h
++++ b/Include/pymactoolbox.h
+@@ -8,7 +8,6 @@
+ #endif
+ 
+ #include <Carbon/Carbon.h>
+-#include <QuickTime/QuickTime.h>
+ 
+ /*
+ ** Helper routines for error codes and such.
 diff --git a/Makefile.pre.in b/Makefile.pre.in
 index d125bf6..9f1fde5 100644
 --- a/Makefile.pre.in

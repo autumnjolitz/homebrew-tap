@@ -7,10 +7,10 @@ class ZopeAT211 < Formula
 
   depends_on "python@24"
 
-  resource "twisted" do
-    url "https://mirror2.openwrt.org/sources/Twisted-2.5.0.tar.bz2"
-    sha256 "f3b2df3f4483752a42f1a775a1163da1f9e91bf5f19d302abc93544aca20d2cd"
-  end
+  # resource "twisted" do
+  #   url "https://files.pythonhosted.org/packages/f9/80/50b40d787ee26af3062eb83b9a57fa3bdb5e0417f6a3047fffdbd09de6d9/Twisted-10.2.0.tar.bz2"
+  #   sha256 "562ed61c18aa72da99c23fb19c2c101d178995eb3a78ab3c09560a613e180c84"
+  # end
 
   resource "apache" do
     url "https://www.apache.org/dyn/closer.lua?path=httpd/httpd-2.4.68.tar.bz2"
@@ -49,10 +49,24 @@ class ZopeAT211 < Formula
       chmod 0555, bin / proxied_bin
     end
 
-    mkdir_p buildpath / "twisted"
-    resource("twisted").unpack(buildpath / "twisted")
-    system "pip-2.4", "install", "-t", "#{libexec}/Zope/lib/python", "#{buildpath}/twisted"
+    # mkdir_p buildpath / "twisted"
+    # resource("twisted").unpack(buildpath / "twisted")
+    # ENV["PYTHONPATH"] = libexec / "Zope" / "lib" / "python"
+    # install_args = [
+    #   "--install-lib",
+    #   libexec / "Zope" / "lib" / "python",
+    #   "--prefix",
+    #   libexec / "Zope",
+    #   "--single-version-externally-managed",
+    #   "--record",
+    #   "/dev/null",
+    # ]
+    # cd buildpath / "twisted" do
+    #   system "python2.4", "setup.py", "build"
+    #   system "python2.4", "setup.py", "install", *install_args
+    # end
   end
+
 
   test do
     system "#{libexec}/Zope/mkzopeinstance.py", "-d", "#{testpath}/zope", "-u", "admin:admin"
