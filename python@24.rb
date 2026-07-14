@@ -91,6 +91,11 @@ class PythonAT24 < Formula
     inreplace "pyconfig.h" do |s|
       s.gsub!("_POSIX_C_SOURCE", "_DARWIN_C_SOURCE")
     end
+    static_flags = []
+    if OS.mac?
+      static_flags << '-framework CoreFoundation'
+      static_flags << '-framework IOKit'
+    end
     link_mode = "*shared*"
     inreplace "Modules/Setup" do |s|
       s.gsub!("#*shared*", link_mode)
@@ -115,11 +120,11 @@ class PythonAT24 < Formula
       s.gsub!("#resource", "resource")
       s.gsub!(
         "#_locale _localemodule.c  # -lintl",
-        "_locale _localemodule.c  -framework CoreFoundation -framework IOKit -I#{HOMEBREW_PREFIX}/opt/gettext/include #{HOMEBREW_PREFIX}/opt/gettext/lib/libintl.a"
+        "_locale _localemodule.c -I#{HOMEBREW_PREFIX}/opt/gettext/include #{static_flags.join " " } #{HOMEBREW_PREFIX}/opt/gettext/lib/libintl.a"
       )
       s.gsub!(
         "#zlib zlibmodule.c -I$(prefix)/include -L$(exec_prefix)/lib -lz",
-        "zlib zlibmodule.c  -framework CoreFoundation -framework IOKit -I#{HOMEBREW_PREFIX}/opt/zlib/include #{HOMEBREW_PREFIX}/opt/zlib/lib/libz.a")
+        "zlib zlibmodule.c -I#{HOMEBREW_PREFIX}/opt/zlib/include #{static_flags.join " " } #{HOMEBREW_PREFIX}/opt/zlib/lib/libz.a")
       s.gsub!("#SSL=/usr/local/ssl", "SSL=#{HOMEBREW_PREFIX}/opt/openssl")
       s.gsub!("#_ssl", "_ssl")
       s.gsub!(/^#(\s)*-DUSE_SSL/, " -DUSE_SSL")
