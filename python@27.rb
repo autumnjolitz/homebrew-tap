@@ -127,11 +127,6 @@ class PythonAT27 < Formula
     args << "LDFLAGS=#{ldflags.join(" ")}" unless ldflags.empty?
     args << "CPPFLAGS=#{cppflags.join(" ")}" unless cppflags.empty?
 
-    inreplace "./configure" do |s|
-      s.gsub!('ppc', 'arm64')
-      s.gsub!('i386', 'x86_64')
-    end
-
     system "./configure", *args
     system "make"
 
