@@ -123,7 +123,7 @@ class PythonAT24 < Formula
       s.gsub!("#resource", "resource")
       s.gsub!(
         "#_locale _localemodule.c  # -lintl",
-        "_locale _localemodule.c -lintl"
+        "_locale _localemodule.c -I#{HOMEBREW_PREFIX}/opt/gettext/include -L#{HOMEBREW_PREFIX}/opt/gettext/lib -lintl"
       )
       s.gsub!(
         "#zlib zlibmodule.c -I$(prefix)/include -L$(exec_prefix)/lib -lz",
