@@ -8,6 +8,7 @@ class PythonAT24 < Formula
   option "with-universal", "Build for both 32 & 64 bit Intel."
 
   depends_on "libtool" => :build
+  depends_on "gettext"
   depends_on "gdbm"
   depends_on "openssl@3"
   depends_on "readline"
@@ -118,7 +119,7 @@ class PythonAT24 < Formula
       s.gsub!("#itertools", "itertools")
       s.gsub!("#resource", "resource")
       s.gsub!("#_locale", "_locale")
-      s.gsub!("# -lintl", " -lintl") if OS.mac? && MacOS.version < :tahoe
+      s.gsub!("# -lintl", " -lintl")
       s.gsub!("#zlib", "zlib")
       s.gsub!("#SSL=/usr/local/ssl", "SSL=#{HOMEBREW_PREFIX}/opt/openssl")
       s.gsub!("#_ssl", "_ssl")
