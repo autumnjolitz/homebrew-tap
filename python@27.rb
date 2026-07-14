@@ -64,6 +64,7 @@ class PythonAT27 < Formula
       --enable-ipv6
       --datarootdir=#{share}
       --datadir=#{share}
+      --mandir=#{man}
       --enable-framework=#{frameworks}
       --without-ensurepip
     ]
@@ -135,6 +136,8 @@ class PythonAT27 < Formula
       system "make", "install", "PYTHONAPPSDIR=#{prefix}"
       system "make", "frameworkinstallextras", "PYTHONAPPSDIR=#{pkgshare}"
     end
+
+    rm man / "man1/python.1"
 
     # Fixes setting Python build flags for certain software
     # See: https://github.com/Homebrew/homebrew/pull/20182
@@ -311,10 +314,20 @@ class PythonAT27 < Formula
 end
 __END__
 diff --git a/Lib/_osx_support.py b/Lib/_osx_support.py
-index d2aaae7..884e923 100644
+index d2aaae7..55d698c 100644
 --- a/Lib/_osx_support.py
 +++ b/Lib/_osx_support.py
-@@ -476,7 +476,7 @@ def get_platform_osx(_config_vars, osname, release, machine):
+@@ -437,6 +437,9 @@ def get_platform_osx(_config_vars, osname, release, machine):
+     # MACOSX_DEPLOYMENT_TARGET.
+ 
+     macver = _config_vars.get('MACOSX_DEPLOYMENT_TARGET', '')
++    if not isinstance(macver, str):
++        macver = str(macver)
++        _config_vars["MACOSX_DEPLOYMENT_TARGET"] = macver
+     macrelease = _get_system_version() or macver
+     macver = macver or macrelease
+ 
+@@ -476,7 +479,7 @@ def get_platform_osx(_config_vars, osname, release, machine):
                  machine = 'intel'
              elif archs == ('i386', 'ppc', 'x86_64'):
                  machine = 'fat3'
@@ -323,6 +336,26 @@ index d2aaae7..884e923 100644
                  machine = 'fat64'
              elif archs == ('i386', 'ppc', 'ppc64', 'x86_64'):
                  machine = 'universal'
+diff --git a/Lib/distutils/spawn.py b/Lib/distutils/spawn.py
+index 737b293..5e3621d 100644
+--- a/Lib/distutils/spawn.py
++++ b/Lib/distutils/spawn.py
+@@ -126,13 +126,13 @@ def _spawn_posix(cmd, search_path=1, verbose=0, dry_run=0):
+             _cfg_target = sysconfig.get_config_var(
+                                   'MACOSX_DEPLOYMENT_TARGET') or ''
+             if _cfg_target:
+-                _cfg_target_split = [int(x) for x in _cfg_target.split('.')]
++                _cfg_target_split = [int(x) for x in str(_cfg_target).split('.')]
+         if _cfg_target:
+             # ensure that the deployment target of build process is not less
+             # than that used when the interpreter was built. This ensures
+             # extension modules are built with correct compatibility values
+             cur_target = os.environ.get('MACOSX_DEPLOYMENT_TARGET', _cfg_target)
+-            if _cfg_target_split > [int(x) for x in cur_target.split('.')]:
++            if _cfg_target_split > [int(x) for x in str(cur_target).split('.')]:
+                 my_msg = ('$MACOSX_DEPLOYMENT_TARGET mismatch: '
+                           'now "%s" but "%s" during configure'
+                                 % (cur_target, _cfg_target))
 diff --git a/Mac/Tools/pythonw.c b/Mac/Tools/pythonw.c
 index 76734c1..b0cf723 100644
 --- a/Mac/Tools/pythonw.c
@@ -337,6 +370,51 @@ index 76734c1..b0cf723 100644
  #elif defined(__x86_64__)
      cpu_types[0] = CPU_TYPE_X86_64;
  
+diff --git a/Modules/_ctypes/libffi_osx/include/ffi.h b/Modules/_ctypes/libffi_osx/include/ffi.h
+index c104a5c..373557e 100644
+--- a/Modules/_ctypes/libffi_osx/include/ffi.h
++++ b/Modules/_ctypes/libffi_osx/include/ffi.h
+@@ -61,6 +61,8 @@ extern "C" {
+ #		define X86_DARWIN
+ #	elif defined(__ppc__) || defined(__ppc64__)
+ #		define POWERPC_DARWIN
++#	elif defined(__arm64__)
++#		define AARCH64
+ #	else
+ #	error "Unsupported MacOS X CPU type"
+ #	endif
+diff --git a/Modules/_ctypes/libffi_osx/include/fficonfig.h b/Modules/_ctypes/libffi_osx/include/fficonfig.h
+index 2172490..d722bd5 100644
+--- a/Modules/_ctypes/libffi_osx/include/fficonfig.h
++++ b/Modules/_ctypes/libffi_osx/include/fficonfig.h
+@@ -46,6 +46,13 @@
+ #	define	SIZEOF_DOUBLE 8
+ #	define	HAVE_LONG_DOUBLE 1
+ #	define	SIZEOF_LONG_DOUBLE 16
++#elif defined(__arm64__)
++#	define	BYTEORDER 1234
++#	undef	HOST_WORDS_BIG_ENDIAN
++#	undef	WORDS_BIGENDIAN
++#	define	SIZEOF_DOUBLE 8
++#	define	HAVE_LONG_DOUBLE 1
++#	define	SIZEOF_LONG_DOUBLE 16
+ 
+ #else
+ #error "Unknown CPU type"
+diff --git a/Modules/_ctypes/libffi_osx/include/ffitarget.h b/Modules/_ctypes/libffi_osx/include/ffitarget.h
+index faaa30d..6ec1ff4 100644
+--- a/Modules/_ctypes/libffi_osx/include/ffitarget.h
++++ b/Modules/_ctypes/libffi_osx/include/ffitarget.h
+@@ -8,6 +8,8 @@
+ #include "x86-ffitarget.h"
+ #elif defined(__ppc__) || defined(__ppc64__)
+ #include "ppc-ffitarget.h"
++#elif defined(__arm64__)
++#include "aarch64-ffitarget.h"
+ #else
+ #error "Unsupported CPU type"
+ #endif
+\ No newline at end of file
 diff --git a/README b/README
 index 4afaac0..63bc66d 100644
 --- a/README
@@ -1010,3 +1088,18 @@ index efe6922..d943e8b 100644
    AC_MSG_RESULT(no)
  fi
  ],
+diff --git a/setup.py b/setup.py
+index f764223..68a5514 100644
+--- a/setup.py
++++ b/setup.py
+@@ -801,8 +801,9 @@ class PyBuildExt(build_ext):
+         if host_platform == 'darwin':
+             os_release = int(os.uname()[2].split('.')[0])
+             dep_target = sysconfig.get_config_var('MACOSX_DEPLOYMENT_TARGET')
++            dep_target = str(dep_target)
+             if (dep_target and
+-                    (tuple(int(n) for n in dep_target.split('.')[0:2])
++                    (tuple(int(n) for n in dep_target.split('.', 1)[0:2])
+                         < (10, 5) ) ):
+                 os_release = 8
+             if os_release < 9:

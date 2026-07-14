@@ -159,6 +159,8 @@ class PythonAT24 < Formula
     ENV.deparallelize # Some kinds of installs must be serialized.
     system "make", "install"
 
+    mv man / "man1/python.1", man / "man1/python2.4.1"
+
     mv bin / "idle", bin / "idle-2.4"
     mv bin / "pydoc", bin / "pydoc-2.4"
     mv bin / "smtpd.py", bin / "smtpd-2.4.py"
