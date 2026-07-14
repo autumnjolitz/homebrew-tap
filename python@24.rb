@@ -311,7 +311,7 @@ index 4d19c34..43a4d91 100644
  # define FAITH
  #endif
 diff --git a/Modules/posixmodule.c b/Modules/posixmodule.c
-index dc7f723..ce6c501 100644
+index dc7f723..0095643 100644
 --- a/Modules/posixmodule.c
 +++ b/Modules/posixmodule.c
 @@ -23,6 +23,12 @@
@@ -327,16 +327,19 @@ index dc7f723..ce6c501 100644
  #endif /* __APPLE__ */
  
  #include "Python.h"
-@@ -155,6 +161,9 @@ corresponding Unix manual entries for more information on calls.");
-    (default) */
+@@ -156,6 +162,12 @@ corresponding Unix manual entries for more information on calls.");
  extern char        *ctermid_r(char *);
  #endif
+ 
++#if defined(__APPLE__)
 +extern int getloadavg(double[], int);
 +extern char *ctermid_r(char *buf);
 +extern int setgroups(int ngroups, const gid_t *gidset);
- 
++#endif
++
  #ifndef HAVE_UNISTD_H
  #if defined(PYCC_VACPP)
+ extern int mkdir(char *);
 diff --git a/Modules/readline.c b/Modules/readline.c
 index 5094bf2..7e8f51c 100644
 --- a/Modules/readline.c
@@ -357,6 +360,55 @@ index 5094bf2..7e8f51c 100644
  	/* Set Python word break characters */
  	rl_completer_word_break_characters =
  		strdup(" \t\n`~!@#$%^&*()-=+[{]}\\|;:'\",<>/?");
+diff --git a/configure b/configure
+index a6ed9f1..e146787 100755
+--- a/configure
++++ b/configure
+@@ -846,7 +846,7 @@ Optional Features:
+   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
+   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+   --enable-universalsdk[=SDKDIR]
+-                          Build agains Mac OS X 10.4u SDK (ppc/i386)
++                          Build agains Mac OS X 10.4u SDK (arm64/x86_64)
+   --enable-framework[=INSTALLDIR]
+                           Build (MacOSX|Darwin) framework
+   --enable-shared         disable/enable building shared python library
+@@ -1716,7 +1716,7 @@ else
+ 		without_gcc=;;
+ 	BeOS*)
+ 		case $BE_HOST_CPU in
+-		ppc)
++		arm64)
+ 			CC=mwcc
+ 			without_gcc=yes
+ 			BASECFLAGS="$BASECFLAGS -export pragma"
+@@ -3909,7 +3909,7 @@ echo "${ECHO_T}$ac_cv_no_strict_aliasing_ok" >&6
+ 	Darwin*)
+ 	    BASECFLAGS="$BASECFLAGS -Wno-long-double -no-cpp-precomp -mno-fused-madd"
+ 	    if test "${enable_universalsdk}"; then
+-		BASECFLAGS="-arch ppc -arch i386 -isysroot ${UNIVERSALSDK} ${BASECFLAGS}"
++		BASECFLAGS="-arch arm64 -arch x86_64 -isysroot ${UNIVERSALSDK} ${BASECFLAGS}"
+ 	    fi
+ 
+ 	    ;;
+@@ -10328,7 +10328,7 @@ case $ac_sys_system/$ac_sys_release in
+         else
+             LIBTOOL_CRUFT=""
+     fi
+-    LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -lSystem -lSystemStubs -arch_only ppc'
++    LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -lSystem -lSystemStubs -arch_only arm64'
+     LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -install_name $(PYTHONFRAMEWORKINSTALLDIR)/Versions/$(VERSION)/$(PYTHONFRAMEWORK)'
+     LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -compatibility_version $(VERSION) -current_version $(VERSION)';;
+ esac
+@@ -10460,7 +10460,7 @@ then
+ 		if test ${MACOSX_DEPLOYMENT_TARGET-${cur_target}} '>' 10.2
+ 		then
+ 			if test "${enable_universalsdk}"; then
+-				LDFLAGS="-arch i386 -arch ppc -isysroot ${UNIVERSALSDK} ${LDFLAGS}"
++				LDFLAGS="-arch x86_64 -arch arm64 -isysroot ${UNIVERSALSDK} ${LDFLAGS}"
+ 			fi
+ 			LDSHARED='$(CC) $(LDFLAGS) -bundle -undefined dynamic_lookup'
+ 			BLDSHARED="$LDSHARED"
 diff --git a/configure.in b/configure.in
 index 2770b1e..1bc5aa0 100644
 --- a/configure.in
