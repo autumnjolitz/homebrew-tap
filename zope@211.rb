@@ -6,7 +6,6 @@ class ZopeAT211 < Formula
   license "ZPL-2.1"
 
   depends_on "python@24"
-  depends_on "nginx"
 
   resource "apache" do
     url "https://www.apache.org/dyn/closer.lua?path=httpd/httpd-2.4.68.tar.bz2"
