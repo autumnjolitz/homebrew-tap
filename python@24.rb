@@ -10,7 +10,9 @@ class PythonAT24 < Formula
   depends_on "libtool" => :build
   depends_on "zlib" => :build
   depends_on "gdbm"
-  depends_on "gettext"
+  on_macos do
+    depends_on "gettext"
+  end
   depends_on "openssl@3"
   depends_on "readline"
 
@@ -122,11 +124,14 @@ class PythonAT24 < Formula
       s.gsub!("#itertools", "itertools")
       s.gsub!("#resource", "resource")
       locale_cflags = []
-      locale_cflags << "-I#{HOMEBREW_PREFIX}/opt/gettext/include"
-      locale_cflags << "-L#{HOMEBREW_PREFIX}/opt/gettext/lib"
+      if OS.mac?
+        locale_cflags << "-I#{HOMEBREW_PREFIX}/opt/gettext/include"
+        locale_cflags << "-L#{HOMEBREW_PREFIX}/opt/gettext/lib"
+        locale_cflags << "-lintl"
+      end
       s.gsub!(
         "#_locale _localemodule.c  # -lintl",
-        "_locale _localemodule.c #{locale_cflags.join " "} -lintl",
+        "_locale _localemodule.c #{locale_cflags.join " "}",
       )
       zlib_cflags = []
       zlib_cflags << "-I#{HOMEBREW_PREFIX}/opt/zlib/include"
