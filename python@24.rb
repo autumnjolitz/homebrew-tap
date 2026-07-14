@@ -9,7 +9,7 @@ class PythonAT24 < Formula
 
   depends_on "libtool" => :build
   depends_on "gdbm"
-  depends_on "openssl"
+  depends_on "openssl@3"
   depends_on "readline"
 
   resource "pip" do
