@@ -30,7 +30,6 @@ class ZopeAT211 < Formula
         exec #{libexec}/Zope/bin/#{file} "$@"
       SHELL
       chmod 0555, bin / prefixed_file
-      chmod 0555, "#{libexec}/Zope/#{file}"
     end
   end
 
