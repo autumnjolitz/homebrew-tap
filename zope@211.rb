@@ -5,7 +5,7 @@ class ZopeAT211 < Formula
   sha256 "cdae1f71f8164901bec15d53a11cbedd17731dbb3c00963665a2aaebc44cad26"
   license "ZPL-2.1"
 
-  depends_on "autumnjolitz/tap/python@24"
+  depends_on "python@24"
 
   patch :p1, :DATA
 
@@ -20,16 +20,21 @@ class ZopeAT211 < Formula
     system "make"
     system "make", "install"
 
+    mv libexec / "Zope" / "bin" / "README.txt", libexec / "Zope" / "README.txt"
     ln_s libexec / "Zope" / "skel", prefix / "skel"
 
     Dir.entries(libexec / "Zope" / "bin").reject { |f| File.directory?(f) }.each do |file|
       (prefix, suffix) = file.split(".")
-      prefixed_file = "#{prefix}-2.11.#{suffix}"
-      (bin / prefixed_file).write <<~SHELL
+      if suffix.nil?
+        proxied_bin = "#{prefix}-2.11"
+      else
+        proxied_bin = "#{prefix}-2.11.#{suffix}"
+      end
+      (bin / proxied_bin).write <<~SHELL
         #!/usr/bin/env sh
         exec #{libexec}/Zope/bin/#{file} "$@"
       SHELL
-      chmod 0555, bin / prefixed_file
+      chmod 0555, bin / proxied_bin
     end
   end
 
