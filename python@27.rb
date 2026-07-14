@@ -1005,3 +1005,252 @@ diff -x *.git -Naur Python-2.7.18/configure.ac Python2/configure.ac
    AC_MSG_RESULT(no)
  fi
  ],
+diff --git a/Include/pymactoolbox.h b/Include/pymactoolbox.h
+index 92799e9..0cd36c2 100644
+--- a/Include/pymactoolbox.h
++++ b/Include/pymactoolbox.h
+@@ -8,7 +8,6 @@
+ #endif
+ 
+ #include <Carbon/Carbon.h>
+-#include <QuickTime/QuickTime.h>
+ 
+ /*
+ ** Helper routines for error codes and such.
+diff --git a/Makefile.pre.in b/Makefile.pre.in
+index d125bf6..9f1fde5 100644
+--- a/Makefile.pre.in
++++ b/Makefile.pre.in
+@@ -375,15 +375,18 @@ $(PYTHONFRAMEWORKDIR)/Versions/$(VERSION)/$(PYTHONFRAMEWORK): \
+                 $(RESSRCDIR)/English.lproj/InfoPlist.strings
+ 	$(INSTALL) -d -m $(DIRMODE) $(PYTHONFRAMEWORKDIR)/Versions/$(VERSION)
+ 	if test "${UNIVERSALSDK}"; then \
+-		$(CC) -o $(LDLIBRARY) -arch i386 -arch ppc -dynamiclib \
++		$(CC) -o $(LDLIBRARY) -arch i386 -arch arm64 -dynamiclib \
+ 			-isysroot "${UNIVERSALSDK}" \
+ 			-all_load $(LIBRARY) -Wl,-single_module \
+ 			-install_name $(DESTDIR)$(PYTHONFRAMEWORKINSTALLDIR)/Versions/$(VERSION)/Python \
+ 			-compatibility_version $(VERSION) \
+ 			-current_version $(VERSION); \
+         else \
+-		libtool -o $(LDLIBRARY) -dynamic $(OTHER_LIBTOOL_OPT) $(LIBRARY) \
+-			@LIBTOOL_CRUFT@ ;\
++		$(CC) -o $(LDLIBRARY) -dynamiclib \
++			-all_load $(LIBRARY) -Wl,-single_module \
++			-install_name $(DESTDIR)$(PYTHONFRAMEWORKINSTALLDIR)/Versions/$(VERSION)/Python \
++			-compatibility_version $(VERSION) \
++			-current_version $(VERSION); \
+ 	fi
+ 	$(INSTALL) -d -m $(DIRMODE)  \
+ 		$(PYTHONFRAMEWORKDIR)/Versions/$(VERSION)/Resources/English.lproj
+diff --git a/Modules/_ssl.c b/Modules/_ssl.c
+index f90ec13..3bdac05 100644
+--- a/Modules/_ssl.c
++++ b/Modules/_ssl.c
+@@ -55,6 +55,10 @@ static PyObject *PySSLErrorObject;
+ # undef HAVE_OPENSSL_RAND
+ #endif
+ 
++#ifdef __APPLE__
++extern int RAND_egd(const char *path);
++#endif
++
+ typedef struct {
+ 	PyObject_HEAD
+ 	PySocketSockObject *Socket;	/* Socket on which we're layered */
+@@ -290,7 +294,7 @@ newPySSLObject(PySocketSockObject *Sock, char *key_file, char *cert_file)
+ 		PySSL_SetError(self, ret);
+ 		goto fail;
+ 	}
+-	self->ssl->debug = 1;
++	// self->ssl->debug = 1;
+ 
+ 	Py_BEGIN_ALLOW_THREADS
+ 	if ((self->server_cert = SSL_get_peer_certificate(self->ssl))) {
+diff --git a/Modules/fcntlmodule.c b/Modules/fcntlmodule.c
+index 0c02ee6..ca10cd4 100644
+--- a/Modules/fcntlmodule.c
++++ b/Modules/fcntlmodule.c
+@@ -12,6 +12,9 @@
+ #ifdef HAVE_STROPTS_H
+ #include <stropts.h>
+ #endif
++#if defined(__APPLE__)
++extern int flock(int fd, int operation);
++#endif
+ 
+ static int
+ conv_descriptor(PyObject *object, int *target)
+diff --git a/Modules/getaddrinfo.c b/Modules/getaddrinfo.c
+index 4d19c34..b40a0d8 100644
+--- a/Modules/getaddrinfo.c
++++ b/Modules/getaddrinfo.c
+@@ -56,6 +56,17 @@
+ 
+ #include "addrinfo.h"
+ #endif
++#if defined(__APPLE__)
++#include <netinet/in.h>
++#include <arpa/inet.h>
++
++typedef unsigned short u_short;
++typedef unsigned long u_long;
++typedef unsigned char u_char;
++
++extern const char *hstrerror(int err);
++extern int inet_aton(const char *cp, struct in_addr *pin);
++#endif
+ 
+ #if defined(__KAME__) && defined(ENABLE_IPV6)
+ # define FAITH
+diff --git a/Modules/posixmodule.c b/Modules/posixmodule.c
+index dc7f723..0095643 100644
+--- a/Modules/posixmodule.c
++++ b/Modules/posixmodule.c
+@@ -23,6 +23,12 @@
+ #  pragma weak statvfs
+ #  pragma weak fstatvfs
+ 
++#include <sys/param.h>
++#include <unistd.h>
++
++#include <sys/types.h>
++#include <sys/disk.h>
++
+ #endif /* __APPLE__ */
+ 
+ #include "Python.h"
+@@ -156,6 +162,12 @@ corresponding Unix manual entries for more information on calls.");
+ extern char        *ctermid_r(char *);
+ #endif
+ 
++#if defined(__APPLE__)
++extern int getloadavg(double[], int);
++extern char *ctermid_r(char *buf);
++extern int setgroups(int ngroups, const gid_t *gidset);
++#endif
++
+ #ifndef HAVE_UNISTD_H
+ #if defined(PYCC_VACPP)
+ extern int mkdir(char *);
+diff --git a/Modules/readline.c b/Modules/readline.c
+index 5094bf2..7e8f51c 100644
+--- a/Modules/readline.c
++++ b/Modules/readline.c
+@@ -708,12 +708,12 @@ setup_readline(void)
+ 	rl_bind_key_in_map ('\t', rl_complete, emacs_meta_keymap);
+ 	rl_bind_key_in_map ('\033', rl_complete, emacs_meta_keymap);
+ 	/* Set our hook functions */
+-	rl_startup_hook = (Function *)on_startup_hook;
++	rl_startup_hook = (void *)on_startup_hook;
+ #ifdef HAVE_RL_PRE_INPUT_HOOK
+-	rl_pre_input_hook = (Function *)on_pre_input_hook;
++	rl_pre_input_hook = (void *)on_pre_input_hook;
+ #endif
+ 	/* Set our completion function */
+-	rl_attempted_completion_function = (CPPFunction *)flex_complete;
++	rl_attempted_completion_function = (void *)flex_complete;
+ 	/* Set Python word break characters */
+ 	rl_completer_word_break_characters =
+ 		strdup(" \t\n`~!@#$%^&*()-=+[{]}\\|;:'\",<>/?");
+diff --git a/configure b/configure
+index a6ed9f1..e146787 100755
+--- a/configure
++++ b/configure
+@@ -846,7 +846,7 @@ Optional Features:
+   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
+   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+   --enable-universalsdk[=SDKDIR]
+-                          Build agains Mac OS X 10.4u SDK (ppc/i386)
++                          Build agains Mac OS X 10.4u SDK (arm64/x86_64)
+   --enable-framework[=INSTALLDIR]
+                           Build (MacOSX|Darwin) framework
+   --enable-shared         disable/enable building shared python library
+@@ -1716,7 +1716,7 @@ else
+ 		without_gcc=;;
+ 	BeOS*)
+ 		case $BE_HOST_CPU in
+-		ppc)
++		arm64)
+ 			CC=mwcc
+ 			without_gcc=yes
+ 			BASECFLAGS="$BASECFLAGS -export pragma"
+@@ -3909,7 +3909,7 @@ echo "${ECHO_T}$ac_cv_no_strict_aliasing_ok" >&6
+ 	Darwin*)
+ 	    BASECFLAGS="$BASECFLAGS -Wno-long-double -no-cpp-precomp -mno-fused-madd"
+ 	    if test "${enable_universalsdk}"; then
+-		BASECFLAGS="-arch ppc -arch i386 -isysroot ${UNIVERSALSDK} ${BASECFLAGS}"
++		BASECFLAGS="-arch arm64 -arch x86_64 -isysroot ${UNIVERSALSDK} ${BASECFLAGS}"
+ 	    fi
+ 
+ 	    ;;
+@@ -10328,7 +10328,7 @@ case $ac_sys_system/$ac_sys_release in
+         else
+             LIBTOOL_CRUFT=""
+     fi
+-    LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -lSystem -lSystemStubs -arch_only ppc'
++    LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -lSystem -lSystemStubs -arch_only arm64'
+     LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -install_name $(PYTHONFRAMEWORKINSTALLDIR)/Versions/$(VERSION)/$(PYTHONFRAMEWORK)'
+     LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -compatibility_version $(VERSION) -current_version $(VERSION)';;
+ esac
+@@ -10460,7 +10460,7 @@ then
+ 		if test ${MACOSX_DEPLOYMENT_TARGET-${cur_target}} '>' 10.2
+ 		then
+ 			if test "${enable_universalsdk}"; then
+-				LDFLAGS="-arch i386 -arch ppc -isysroot ${UNIVERSALSDK} ${LDFLAGS}"
++				LDFLAGS="-arch x86_64 -arch arm64 -isysroot ${UNIVERSALSDK} ${LDFLAGS}"
+ 			fi
+ 			LDSHARED='$(CC) $(LDFLAGS) -bundle -undefined dynamic_lookup'
+ 			BLDSHARED="$LDSHARED"
+diff --git a/configure.in b/configure.in
+index 2770b1e..1bc5aa0 100644
+--- a/configure.in
++++ b/configure.in
+@@ -61,7 +61,7 @@ AC_SUBST(CONFIG_ARGS)
+ CONFIG_ARGS="$ac_configure_args"
+ 
+ AC_ARG_ENABLE(universalsdk,
+-	AC_HELP_STRING(--enable-universalsdk@<:@=SDKDIR@:>@, Build agains Mac OS X 10.4u SDK (ppc/i386)),
++	AC_HELP_STRING(--enable-universalsdk@<:@=SDKDIR@:>@, Build agains Mac OS X 10.4u SDK (arm64/i386)),
+ [
+ 	case $enableval in
+ 	yes)
+@@ -796,9 +796,9 @@ yes)
+ 	    ;;
+ 	# is there any other compiler on Darwin besides gcc?
+ 	Darwin*)
+-	    BASECFLAGS="$BASECFLAGS -Wno-long-double -no-cpp-precomp -mno-fused-madd"
++	    BASECFLAGS="$BASECFLAGS -Wno-long-double -no-cpp-precomp -ffp-contract=off"
+ 	    if test "${enable_universalsdk}"; then
+-		BASECFLAGS="-arch ppc -arch i386 -isysroot ${UNIVERSALSDK} ${BASECFLAGS}"
++		BASECFLAGS="-arch arm64 -arch i386 -isysroot ${UNIVERSALSDK} ${BASECFLAGS}"
+ 	    fi
+ 
+ 	    ;;
+@@ -1315,7 +1315,7 @@ case $ac_sys_system/$ac_sys_release in
+         else
+             LIBTOOL_CRUFT=""
+     fi
+-    LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -lSystem -lSystemStubs -arch_only ppc'
++    LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -lSystem -lSystemStubs -arch_only arm64'
+     LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -install_name $(PYTHONFRAMEWORKINSTALLDIR)/Versions/$(VERSION)/$(PYTHONFRAMEWORK)'
+     LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -compatibility_version $(VERSION) -current_version $(VERSION)';;
+ esac
+@@ -1435,7 +1435,7 @@ then
+ 		if test ${MACOSX_DEPLOYMENT_TARGET-${cur_target}} '>' 10.2
+ 		then
+ 			if test "${enable_universalsdk}"; then
+-				LDFLAGS="-arch i386 -arch ppc -isysroot ${UNIVERSALSDK} ${LDFLAGS}"
++				LDFLAGS="-arch i386 -arch arm64 -isysroot ${UNIVERSALSDK} ${LDFLAGS}"
+ 			fi
+ 			LDSHARED='$(CC) $(LDFLAGS) -bundle -undefined dynamic_lookup'
+ 			BLDSHARED="$LDSHARED"
+@@ -2927,7 +2927,7 @@ AH_VERBATIM([WORDS_BIGENDIAN],
+ 
+     The block below does compile-time checking for endianness on platforms
+     that use GCC and therefore allows compiling fat binaries on OSX by using 
+-    '-arch ppc -arch i386' as the compile flags. The phrasing was choosen
++    '-arch arm64 -arch i386' as the compile flags. The phrasing was choosen
+     such that the configure-result is used on systems that don't use GCC.
+   */
+ #ifdef __BIG_ENDIAN__
