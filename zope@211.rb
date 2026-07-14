@@ -20,7 +20,6 @@ class ZopeAT211 < Formula
     system "make"
     system "make", "install"
 
-    mkdir_p buildpath / "post-install"
     mkdir_p libexec / "Zope"
     ln_s prefix / "skel", libexec / "skel"
 
