@@ -93,8 +93,8 @@ class PythonAT24 < Formula
     end
     static_flags = []
     if OS.mac?
-      static_flags << '-framework CoreFoundation'
-      static_flags << '-framework IOKit'
+      static_flags << "-framework CoreFoundation"
+      static_flags << "-framework IOKit"
     end
     link_mode = "*shared*"
     inreplace "Modules/Setup" do |s|
@@ -108,7 +108,7 @@ class PythonAT24 < Formula
       s.gsub!("#unicodedata", "unicodedata")
       s.gsub!(
         "#readline readline.c -lreadline -ltermcap",
-        "readline readline.c -lreadline -ltermcap"
+        "readline readline.c -lreadline -ltermcap",
       )
       s.gsub!("#array", "array")
       s.gsub!("#cmath", "cmath")
@@ -123,11 +123,12 @@ class PythonAT24 < Formula
       s.gsub!("#resource", "resource")
       s.gsub!(
         "#_locale _localemodule.c  # -lintl",
-        "_locale _localemodule.c -I#{HOMEBREW_PREFIX}/opt/gettext/include -L#{HOMEBREW_PREFIX}/opt/gettext/lib -lintl"
+        "_locale _localemodule.c -I#{HOMEBREW_PREFIX}/opt/gettext/include -L#{HOMEBREW_PREFIX}/opt/gettext/lib -lintl",
       )
       s.gsub!(
         "#zlib zlibmodule.c -I$(prefix)/include -L$(exec_prefix)/lib -lz",
-        "zlib zlibmodule.c -I#{HOMEBREW_PREFIX}/opt/zlib/include #{static_flags.join " " } #{HOMEBREW_PREFIX}/opt/zlib/lib/libz.a")
+        "zlib zlibmodule.c -I#{HOMEBREW_PREFIX}/opt/zlib/include #{static_flags.join " " } #{HOMEBREW_PREFIX}/opt/zlib/lib/libz.a",
+      )
       s.gsub!("#SSL=/usr/local/ssl", "SSL=#{HOMEBREW_PREFIX}/opt/openssl")
       s.gsub!("#_ssl", "_ssl")
       s.gsub!(/^#(\s)*-DUSE_SSL/, " -DUSE_SSL")
