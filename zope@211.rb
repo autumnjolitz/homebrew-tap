@@ -22,6 +22,7 @@ class ZopeAT211 < Formula
 
     mkdir_p libexec / "Zope"
     ln_s prefix / "skel", libexec / "skel"
+    ln_s lib, libexec / "lib"
 
     Dir.entries(bin.to_s).reject { |f| File.directory?(f) }.each do |file|
       mv bin / file, libexec / "Zope" / file
