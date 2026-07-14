@@ -8,8 +8,8 @@ class ZopeAT211 < Formula
   depends_on "python@24"
 
   resource "twisted" do
-    url "https://files.pythonhosted.org/packages/3b/b0/c4cafea9ab2e31aa15556eddc151ba987e130cb347b753d991aa2ace768a/Twisted-9.0.0.tar.bz2"
-    sha256 "5711c2f70ce415cfd8d47da2e2387fba36df4dfbf59efba4fc0ba2ef889f6ca8"
+    url "https://mirror2.openwrt.org/sources/Twisted-2.5.0.tar.bz2"
+    sha256 "f3b2df3f4483752a42f1a775a1163da1f9e91bf5f19d302abc93544aca20d2cd"
   end
 
   resource "apache" do
