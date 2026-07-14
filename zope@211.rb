@@ -6,6 +6,7 @@ class ZopeAT211 < Formula
   license "ZPL-2.1"
 
   depends_on "python@24"
+  depends_on "nginx"
 
   resource "apache" do
     url "https://www.apache.org/dyn/closer.lua?path=httpd/httpd-2.4.68.tar.bz2"
@@ -64,18 +65,10 @@ index bcb0aa2..04c659b 100644
      safe_builtins[name] = __builtins__[name]
  
 diff --git a/lib/python/zope/tal/talinterpreter.py b/lib/python/zope/tal/talinterpreter.py
-index 9e65be5..d725307 100644
+index 9e65be5..90d3806 100644
 --- a/lib/python/zope/tal/talinterpreter.py
 +++ b/lib/python/zope/tal/talinterpreter.py
-@@ -30,7 +30,6 @@ from zope.tal.taldefs import getProgramVersion, getProgramMode
- from zope.tal.talgenerator import TALGenerator
- from zope.tal.translationcontext import TranslationContext
- 
--
- # Avoid constructing this tuple over and over
- I18nMessageTypes = (Message,)
- 
-@@ -781,7 +780,7 @@ class TALInterpreter(object):
+@@ -781,7 +781,7 @@ class TALInterpreter(object):
  
      def insertHTMLStructure(self, text, repldict):
          from zope.tal.htmltalparser import HTMLTALParser
@@ -84,7 +77,7 @@ index 9e65be5..d725307 100644
          p = HTMLTALParser(gen) # Raises an exception if text is invalid
          p.parseString(text)
          program, macros = p.getCode()
-@@ -789,7 +788,7 @@ class TALInterpreter(object):
+@@ -789,7 +789,7 @@ class TALInterpreter(object):
  
      def insertXMLStructure(self, text, repldict):
          from zope.tal.talparser import TALParser
@@ -156,7 +149,7 @@ index 95aa933..6ad7540 100755
 -exec "$PYTHON" "$ZDCTL" -C "$CONFIG_FILE" "$@"
 +exec "$ZOPE_PYTHON" "$ZDCTL" -C "$CONFIG_FILE" "$@"
 diff --git a/skel/etc/zope.conf.in b/skel/etc/zope.conf.in
-index f17bf6b..ba3a132 100644
+index f17bf6b..0b72ac1 100644
 --- a/skel/etc/zope.conf.in
 +++ b/skel/etc/zope.conf.in
 @@ -214,7 +214,7 @@ instancehome $INSTANCE
@@ -203,6 +196,15 @@ index f17bf6b..ba3a132 100644
  
  # Directive: http-realm
  #
+@@ -428,7 +433,7 @@ instancehome $INSTANCE
+ # Example:
+ #
+ #    cgi-maxlen 10000
+-
++cgi-maxlen 65535
+ 
+ # Directive: http-header-max-length
+ #
 @@ -443,6 +448,8 @@ instancehome $INSTANCE
  #
  #     http-header-max-length 16384
@@ -212,7 +214,16 @@ index f17bf6b..ba3a132 100644
  # Directive: enable-ms-author-via
  #
  # Description:
-@@ -637,6 +644,8 @@ instancehome $INSTANCE
+@@ -544,6 +551,8 @@ instancehome $INSTANCE
+ #    trusted-proxy www.example.com
+ #    trusted-proxy 192.168.1.1
+ 
++trusted-proxy 127.0.0.1
++
+ # Directive: publisher-profile-file
+ #
+ # Description:
+@@ -637,6 +646,8 @@ instancehome $INSTANCE
  #
  #    maximum-number-of-session-objects 10000
  
@@ -221,7 +232,7 @@ index f17bf6b..ba3a132 100644
  
  # Directive: session-add-notify-script-path
  #
-@@ -898,7 +907,7 @@ instancehome $INSTANCE
+@@ -898,7 +909,7 @@ instancehome $INSTANCE
  # Example:
  #
  #    max-listen-sockets 500
@@ -230,7 +241,15 @@ index f17bf6b..ba3a132 100644
  
  # Directives: port-base
  #
-@@ -942,6 +951,8 @@ instancehome $INSTANCE
+@@ -929,6 +940,7 @@ instancehome $INSTANCE
+ # Example:
+ #
+ #    large-file-threshold 1Mb
++large-file-threshold 1Mb
+ 
+ # Directive: default-zpublisher-encoding
+ #
+@@ -942,6 +954,8 @@ instancehome $INSTANCE
  #
  #    default-zpublisher-encoding utf-8
  
@@ -239,3 +258,61 @@ index f17bf6b..ba3a132 100644
  # Directives: servers
  #
  # Description:
+@@ -962,21 +976,42 @@ instancehome $INSTANCE
+ #
+ # Default:
+ #
+-#     An HTTP server starts on port 8080.
+-
+-<http-server>
+-  # valid keys are "address" and "force-connection-close"
+-  address 8080
+-
+-  # force-connection-close on
+-  #
+-  # You can also use the WSGI interface between ZServer and ZPublisher:
+-  # use-wsgi on
+-  #
+-  # To defer the opening of the HTTP socket until the end of the 
+-  # startup phase: 
+-  # fast-listen off
+-</http-server>
++#     An HTTP server starts on port zope.localhost:8080.
++
++# <http-server>
++#   # valid keys are "address" and "force-connection-close"
++#   address 127.0.0.1:8080
++#   # force-connection-close on
++#   #
++#   # You can also use the WSGI interface between ZServer and ZPublisher:
++#   # use-wsgi on
++#   #
++#   # To defer the opening of the HTTP socket until the end of the 
++#   # startup phase: 
++#   fast-listen off
++# </http-server>
++
++# Example: FastCGI for use with nginx server block of
++# server {
++#     server_name zope.localhost;
++#     location / {
++#         set $nonempty_content_length $content_length;
++#         if ($nonempty_content_length = "") {
++#             set $nonempty_content_length "0";
++#         }
++#         fastcgi_pass unix:$INSTANCE/var/zope.sock;
++#         include fastcgi_params;
++#         fastcgi_param CONTENT_LENGTH $nonempty_content_length;
++#         fastcgi_pass_header Authorization;
++#         fastcgi_intercept_errors off;
++#     }
++# }
++<fast-cgi>
++    # valid key is "address"; the address may be hostname:port, port,
++    # or a path for a Unix-domain socket
++    address $INSTANCE/var/zope.sock
++</fast-cgi>
++
+ 
+ # Examples:
+ #
