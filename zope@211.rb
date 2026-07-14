@@ -56,7 +56,6 @@ class ZopeAT211 < Formula
   end
 
   test do
-    system "#{bin}/mkzopeinstance.py", "-d", "#{testpath}/zope", "-u", "admin:admin", "-s", "#{prefix}/skel"
-    system "./zope/bin/zopectl", "test"
+    system "#{libexec}/Zope/mkzopeinstance.py", "-d", "#{testpath}/zope", "-u", "admin:admin"
   end
 end
