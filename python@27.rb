@@ -1110,7 +1110,7 @@ index efe6922..d943e8b 100644
  fi
  ],
 diff --git a/setup.py b/setup.py
-index f764223..e7c310b 100644
+index f764223..ebc97c7 100644
 --- a/setup.py
 +++ b/setup.py
 @@ -801,8 +801,9 @@ class PyBuildExt(build_ext):
@@ -1135,11 +1135,3 @@ index f764223..e7c310b 100644
                               'powerpc/ppc-darwin.S',
                               'powerpc/ppc-darwin_closure.S',
                               'powerpc/ppc-ffi_darwin.c',
-@@ -2064,6 +2069,7 @@ class PyBuildExt(build_ext):
- 
-     def configure_ctypes(self, ext):
-         if not self.use_system_libffi:
-+            1/0
-             if host_platform == 'darwin':
-                 return self.configure_ctypes_darwin(ext)
- 
