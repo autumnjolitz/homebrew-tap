@@ -172,6 +172,22 @@ class PythonAT27 < Formula
     (libexec/"setuptools").install resource("setuptools")
     (libexec/"pip").install resource("pip")
     (libexec/"wheel").install resource("wheel")
+
+    [
+      "pydoc",
+      "pydoc2",
+      "pythonw",
+      "idle",
+      "pythonw2",
+      "idle2",
+      "python",
+      "python-config",
+      "smtpd.py",
+      "python2",
+      "python2-config",
+      "smtpd2.py",
+    ].each { |f| rm bin / f }
+
   end
 
   def post_install
