@@ -68,7 +68,7 @@ class PythonAT27 < Formula
       --with-system-expat
       --enable-optimizations
     ]
-    args << "--enabled-shared" unless OS.mac?
+    args << "--enable-shared" unless OS.mac?
     args << "--enable-framework=#{frameworks}" if OS.mac?
     args << "--enable-toolbox-glue" if OS.mac?
 
