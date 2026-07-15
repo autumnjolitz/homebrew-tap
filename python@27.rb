@@ -167,7 +167,8 @@ class PythonAT27 < Formula
       lib_cellar / "config/Makefile",
     ]
     if OS.mac?
-      fragile_paths << frameworks / "Python.framework/Versions/Current/lib/pkgconfig/python-2.7.pc"
+      framwork_pkg_conf = "Python.framework/Versions/Current/lib/pkgconfig/python-2.7.pc"
+      fragile_paths << frameworks / framwork_pkg_conf
     end
     inreplace fragile_paths,
               prefix, opt_prefix
