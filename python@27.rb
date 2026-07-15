@@ -168,7 +168,7 @@ class PythonAT27 < Formula
     ]
     if OS.mac?
       framwork_pkg_conf = "Python.framework/Versions/Current/lib/pkgconfig/python-2.7.pc"
-      fragile_paths << frameworks / framwork_pkg_conf
+      fragile_paths << (frameworks / framwork_pkg_conf)
     end
     inreplace fragile_paths,
               prefix, opt_prefix
@@ -185,7 +185,7 @@ class PythonAT27 < Formula
       [
         "Headers",
         "Python",
-        "Resources"
+        "Resources",
       ].each { |f| rm(prefix / "Frameworks/Python.framework/#{f}") }
 
       rm prefix / "Frameworks/Python.framework/Versions/Current"
@@ -197,9 +197,9 @@ class PythonAT27 < Formula
     (libexec/"setuptools").install resource("setuptools")
     (libexec/"pip").install resource("pip")
     (libexec/"wheel").install resource("wheel")
-  # end
+  end
 
-  # def post_install
+  def post_install
     # Avoid conflicts with lingering unversioned files from Python 3
     rm_f %W[
       #{HOMEBREW_PREFIX}/bin/easy_install
