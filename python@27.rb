@@ -13,6 +13,7 @@ class PythonAT27 < Formula
   depends_on "openssl@3"
   depends_on "readline"
   depends_on "sqlite"
+  uses_from_macos "expat"
   uses_from_macos "libffi"
 
   resource "setuptools" do
