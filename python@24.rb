@@ -200,8 +200,9 @@ class PythonAT24 < Formula
 
     rm bin / "pip"
     rm bin / "easy_install"
-    (libexec / "bin").install_symlink (bin / "pip-2.4").realpath => "pip"
-    (libexec / "bin").install_symlink (bin / "pip-2.4").realpath => "pip-2.4"
+    mv bin / "pip-2.4", bin / "pip2.4"
+    (libexec / "bin").install_symlink (bin / "pip2.4").realpath => "pip"
+    (libexec / "bin").install_symlink (bin / "pip2.4").realpath => "pip2.4"
     (libexec / "bin").install_symlink (bin / "easy_install-2.4").realpath => "easy_install"
     (libexec / "bin").install_symlink (bin / "easy_install-2.4").realpath => "easy_install-2.4"
   end
@@ -228,14 +229,16 @@ class PythonAT24 < Formula
     EOS
 
     general_caveats = <<-EOS
-      You may want to create a "virtual environment" using this Python as a base
-      so you can manage multiple independent site-packages. See:
-        http://pypi.python.org/pypi/virtualenv
+      Pip and setuptools have been installed. To update them
+        pip2.4 install --upgrade pip setuptools
 
-      If you install Python packages via pip, binaries will be installed under
-      Python's cellar but not automatically linked into the Homebrew prefix.
-      You may want to add Python's bin folder to your PATH as well:
-        #{bin}
+      You can install Python packages with
+        pip2.4 install <package>
+
+      They will install into the site-package directory
+        #{site_packages}
+
+      See: https://docs.brew.sh/Homebrew-and-Python
     EOS
 
     s = site_caveats+general_caveats
