@@ -129,6 +129,11 @@ class PythonAT27 < Formula
     args << "LDFLAGS=#{ldflags.join(" ")}" unless ldflags.empty?
     args << "CPPFLAGS=#{cppflags.join(" ")}" unless cppflags.empty?
 
+    inreplace "setup.py" do |s|
+      s.gsub("/usr/local/ssl/include", Formula["openssl@3"].opt_include)
+      s.gsub("/usr/local/ssl/lib", Formula["openssl@3"].opt_lib)
+    end
+
     system "./configure", *args
     system "make"
 
@@ -371,51 +376,24 @@ index 76734c1..b0cf723 100644
  #elif defined(__x86_64__)
      cpu_types[0] = CPU_TYPE_X86_64;
  
-diff --git a/Modules/_ctypes/libffi_osx/include/ffi.h b/Modules/_ctypes/libffi_osx/include/ffi.h
-index c104a5c..373557e 100644
---- a/Modules/_ctypes/libffi_osx/include/ffi.h
-+++ b/Modules/_ctypes/libffi_osx/include/ffi.h
-@@ -61,6 +61,8 @@ extern "C" {
- #		define X86_DARWIN
- #	elif defined(__ppc__) || defined(__ppc64__)
- #		define POWERPC_DARWIN
-+#	elif defined(__arm64__)
-+#		define AARCH64
- #	else
- #	error "Unsupported MacOS X CPU type"
- #	endif
-diff --git a/Modules/_ctypes/libffi_osx/include/fficonfig.h b/Modules/_ctypes/libffi_osx/include/fficonfig.h
-index 2172490..d722bd5 100644
---- a/Modules/_ctypes/libffi_osx/include/fficonfig.h
-+++ b/Modules/_ctypes/libffi_osx/include/fficonfig.h
-@@ -46,6 +46,13 @@
- #	define	SIZEOF_DOUBLE 8
- #	define	HAVE_LONG_DOUBLE 1
- #	define	SIZEOF_LONG_DOUBLE 16
-+#elif defined(__arm64__)
-+#	define	BYTEORDER 1234
-+#	undef	HOST_WORDS_BIG_ENDIAN
-+#	undef	WORDS_BIGENDIAN
-+#	define	SIZEOF_DOUBLE 8
-+#	define	HAVE_LONG_DOUBLE 1
-+#	define	SIZEOF_LONG_DOUBLE 16
- 
- #else
- #error "Unknown CPU type"
-diff --git a/Modules/_ctypes/libffi_osx/include/ffitarget.h b/Modules/_ctypes/libffi_osx/include/ffitarget.h
-index faaa30d..6ec1ff4 100644
---- a/Modules/_ctypes/libffi_osx/include/ffitarget.h
-+++ b/Modules/_ctypes/libffi_osx/include/ffitarget.h
-@@ -8,6 +8,8 @@
- #include "x86-ffitarget.h"
- #elif defined(__ppc__) || defined(__ppc64__)
- #include "ppc-ffitarget.h"
-+#elif defined(__arm64__)
-+#include "aarch64-ffitarget.h"
- #else
- #error "Unsupported CPU type"
- #endif
-\ No newline at end of file
+diff --git a/Modules/_ctypes/callbacks.c b/Modules/_ctypes/callbacks.c
+index ef1f001..c2e3cc9 100644
+--- a/Modules/_ctypes/callbacks.c
++++ b/Modules/_ctypes/callbacks.c
+@@ -473,13 +473,9 @@ CThunkObject *_ctypes_alloc_callback(PyObject *callable,
+                      "ffi_prep_cif failed with %d", result);
+         goto error;
+     }
+-#if defined(X86_DARWIN) || defined(POWERPC_DARWIN)
+-    result = ffi_prep_closure(p->pcl_write, &p->cif, closure_fcn, p);
+-#else
+     result = ffi_prep_closure_loc(p->pcl_write, &p->cif, closure_fcn,
+ 				  p,
+ 				  p->pcl_exec);
+-#endif
+     if (result != FFI_OK) {
+         PyErr_Format(PyExc_RuntimeError,
+                      "ffi_prep_closure failed with %d", result);
 diff --git a/README b/README
 index 4afaac0..63bc66d 100644
 --- a/README
@@ -1090,7 +1068,7 @@ index efe6922..d943e8b 100644
  fi
  ],
 diff --git a/setup.py b/setup.py
-index f764223..68a5514 100644
+index f764223..e7c310b 100644
 --- a/setup.py
 +++ b/setup.py
 @@ -801,8 +801,9 @@ class PyBuildExt(build_ext):
@@ -1104,3 +1082,22 @@ index f764223..68a5514 100644
                          < (10, 5) ) ):
                  os_release = 8
              if os_release < 9:
+@@ -2047,6 +2048,10 @@ class PyBuildExt(build_ext):
+                              'x86/x86-darwin.S',
+                              'x86/x86-ffi_darwin.c',
+                              'x86/x86-ffi64.c',
++                             'arm64/darwin64.S',
++                             'arm64/arm64-darwin.S',
++                             'arm64/arm64-ffi_darwin.c',
++                             'arm64/arm64-ffi64.c',
+                              'powerpc/ppc-darwin.S',
+                              'powerpc/ppc-darwin_closure.S',
+                              'powerpc/ppc-ffi_darwin.c',
+@@ -2064,6 +2069,7 @@ class PyBuildExt(build_ext):
+ 
+     def configure_ctypes(self, ext):
+         if not self.use_system_libffi:
++            1/0
+             if host_platform == 'darwin':
+                 return self.configure_ctypes_darwin(ext)
+ 
