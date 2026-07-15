@@ -130,8 +130,8 @@ class PythonAT27 < Formula
     args << "CPPFLAGS=#{cppflags.join(" ")}" unless cppflags.empty?
 
     inreplace "setup.py" do |s|
-      s.gsub("/usr/local/ssl/include", Formula["openssl@3"].opt_include)
-      s.gsub("/usr/local/ssl/lib", Formula["openssl@3"].opt_lib)
+      s.gsub!("/usr/local/ssl/include", Formula["openssl@3"].opt_include.to_s)
+      s.gsub!("/usr/local/ssl/lib", Formula["openssl@3"].opt_lib.to_s)
     end
 
     system "./configure", *args
