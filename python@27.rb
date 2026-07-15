@@ -175,7 +175,7 @@ class PythonAT27 < Formula
     # Remove 2to3 because Python 3 also installs it
     Dir.glob(bin / "2to3*").each { |f| rm f }
 
-    if Os.mac?
+    if OS.mac?
       # Symlink the pkgconfig files into HOMEBREW_PREFIX so they're accessible.
       (lib/"pkgconfig").install_symlink Dir[frameworks/"Python.framework/Versions/Current/lib/pkgconfig/*"]
       # A fix, because python and python@2 both want to install Python.framework
