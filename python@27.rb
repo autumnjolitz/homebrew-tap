@@ -115,7 +115,7 @@ class PythonAT27 < Formula
         cflags  << "-I#{MacOS.sdk_path}/System/Library/Frameworks/Tk.framework/Versions/8.5/Headers"
       end
       # Avoid linking to libgcc https://code.activestate.com/lists/python-dev/112195/
-      args << "MACOSX_DEPLOYMENT_TARGET=#{MacOS.version}" if OS.mac?
+      args << "MACOSX_DEPLOYMENT_TARGET=#{MacOS.version}"
     end
     # We want our readline and openssl! This is just to outsmart the detection code,
     # superenv handles that cc finds includes/libs!
