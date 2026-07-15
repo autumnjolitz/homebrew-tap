@@ -1,6 +1,6 @@
 class PythonAT24 < Formula
-  desc "This is the Homebrew formula for Python 2.4"
-  homepage "http://www.python.org/"
+  desc "Interpreted, interactive, object-oriented programming language"
+  homepage "https://www.python.org/"
   url "https://www.python.org/ftp/python/2.4.6/Python-2.4.6.tar.bz2"
   sha256 "da104139ad3f4534482942ac02cf8f8ed9badd370ffa14f06b07c44914423e08"
 
