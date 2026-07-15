@@ -32,7 +32,16 @@ You will need to `brew trust autumnjolitz/tap` first before you can install any 
 
 `brew install --HEAD autumnjolitz/tap/crossfire-client`
 
-### python2.4
+## Resurrected Snakes (Python 2)
 
-`brew install autumnjolitz/tap/python24`
+### python 2.4
 
+`brew install autumnjolitz/tap/python@24`
+
+### python 2.7
+
+`brew install autumnjolitz/tap/python@27`
+
+### zope 2.11
+
+`brew install autumnjolitz/tap/zope@211`
