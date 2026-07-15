@@ -233,9 +233,12 @@ class PythonAT27 < Formula
 
     # When building from source, these symlinks will not exist, since
     # post_install happens after linking.
-    %w[pip pip2 pip2.7 easy_install easy_install-2.7 wheel].each do |e|
+    mv bin / "wheel", bin / "wheel-2.7"
+
+    %w[pip2.7 easy_install-2.7 wheel-2.7].each do |e|
       (HOMEBREW_PREFIX/"bin").install_symlink bin/e
     end
+
 
     # Help distutils find brewed stuff when building extensions
     include_dirs = [HOMEBREW_PREFIX/"include", Formula["openssl@3"].opt_include,
