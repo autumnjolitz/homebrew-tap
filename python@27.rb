@@ -31,6 +31,11 @@ class PythonAT27 < Formula
     sha256 "e9a504e793efbca1b8e0e9cb979a249cf4a0a7b5b8c9e8b65a5e39d49529c1c4"
   end
 
+  resource "virtualenv" do
+    url "https://files.pythonhosted.org/packages/a4/2f/05b77cb73501c01963de2cef343839f0803b64aab4d5476771ae303b97a6/virtualenv-20.15.1.tar.gz"
+    sha256 "288171134a2ff3bfb1a2f54f119e77cd1b81c29fc1265a2356f3e8d14c7d58c4"
+  end
+
   patch :p1, :DATA
 
   def lib_cellar
@@ -200,6 +205,7 @@ class PythonAT27 < Formula
     (libexec/"setuptools").install resource("setuptools")
     (libexec/"pip").install resource("pip")
     (libexec/"wheel").install resource("wheel")
+    (libexec/"virtualenv").install resource("virtualenv")
   end
 
   def post_install
@@ -208,6 +214,7 @@ class PythonAT27 < Formula
       #{HOMEBREW_PREFIX}/bin/easy_install
       #{HOMEBREW_PREFIX}/bin/pip
       #{HOMEBREW_PREFIX}/bin/wheel
+      #{HOMEBREW_PREFIX}/bin/virtualenv
     ]
 
     # Fix up the site-packages so that user-installed Python software survives
@@ -242,12 +249,14 @@ class PythonAT27 < Formula
     (libexec/"setuptools").cd { system "#{bin}/python2.7", *setup_args }
     (libexec/"pip").cd { system "#{bin}/python2.7", *setup_args }
     (libexec/"wheel").cd { system "#{bin}/python2.7", *setup_args }
+    (libexec/"virtualenv").cd { system "#{bin}/python2.7", *setup_args }
 
     # When building from source, these symlinks will not exist, since
     # post_install happens after linking.
     mv bin / "wheel", bin / "wheel-2.7"
+    mv bin / "virtualenv", bin / "virtualenv-2.7"
 
-    %w[pip2.7 easy_install-2.7 wheel-2.7].each do |e|
+    %w[pip2.7 easy_install-2.7 wheel-2.7 virtualenv-2.7].each do |e|
       (HOMEBREW_PREFIX/"bin").install_symlink bin/e
     end
 
