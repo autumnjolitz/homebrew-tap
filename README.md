@@ -20,9 +20,13 @@ Crossfire is a free, open-source, cooperative multiplayer RPG and adventure game
 
 Python 2.4 is legacy and clearly unmaintained, however older Zope installations require it.
 
-## How do I install these formulae?
+# Python 2.7 Homebrew Tap
 
-You will need to `brew trust autumnjolitz/tap` first before you can install any of these packages. Don't worry, it's a one time action.
+Python 2.4 is legacy and clearly unmaintained, however older Zope installations require it.
+
+# Zope 2.11 Homebrew Tap
+
+Zope 2.11 is legacy software, blah blah.
 
 ### xsoldier
 
