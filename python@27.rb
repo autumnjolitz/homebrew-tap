@@ -50,7 +50,7 @@ class PythonAT27 < Formula
 
   # The HOMEBREW_PREFIX location of site-packages.
   def site_packages
-    HOMEBREW_PREFIX/"lib/python2.7/site-packages"
+    HOMEBREW_PREFIX/"lib/python#{version.major}.#{version.minor}/site-packages"
   end
 
   def install
@@ -239,6 +239,12 @@ class PythonAT27 < Formula
       include_dirs=#{include_dirs.join ":"}
       library_dirs=#{library_dirs.join ":"}
     EOS
+
+    rm_f %W[
+      #{bin}/easy_install
+      #{bin}/pip
+      #{bin}/pip2
+    ]
   end
 
   def sitecustomize
@@ -293,10 +299,10 @@ class PythonAT27 < Formula
 
   def caveats; <<~EOS
     Pip and setuptools have been installed. To update them
-      pip install --upgrade pip setuptools
+      python2.7 -m pip install --upgrade pip setuptools
 
     You can install Python packages with
-      pip install <package>
+      python2.7 -m pip install <package>
 
     They will install into the site-package directory
       #{site_packages}
