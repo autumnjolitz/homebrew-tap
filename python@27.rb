@@ -337,6 +337,19 @@ index d2aaae7..55d698c 100644
                  machine = 'fat64'
              elif archs == ('i386', 'ppc', 'ppc64', 'x86_64'):
                  machine = 'universal'
+diff --git a/Lib/ctypes/__init__.py b/Lib/ctypes/__init__.py
+index 88c85ff..113c7a1 100644
+--- a/Lib/ctypes/__init__.py
++++ b/Lib/ctypes/__init__.py
+@@ -273,7 +273,7 @@ def _reset_cache():
+     # function is needed for the unittests on Win64 to succeed.  This MAY
+     # be a compiler bug, since the problem occurs only when _ctypes is
+     # compiled with the MS SDK compiler.  Or an uninitialized variable?
+-    CFUNCTYPE(c_int)(lambda: None)
++    # CFUNCTYPE(c_int)(lambda: None)
+ 
+ try:
+     from _ctypes import set_conversion_mode
 diff --git a/Lib/distutils/spawn.py b/Lib/distutils/spawn.py
 index 737b293..5e3621d 100644
 --- a/Lib/distutils/spawn.py
