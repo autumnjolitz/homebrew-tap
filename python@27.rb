@@ -60,9 +60,11 @@ class PythonAT27 < Formula
       --without-ensurepip
       --with-system-ffi
       --with-system-expat
+      --enable-optimizations
     ]
-
+    args << "--enabled-shared" unless OS.mac?
     args << "--enable-framework=#{frameworks}" if OS.mac?
+    args << "--enable-toolbox-glue" if OS.mac?
 
     if build.with? "universal"
       maybe_sdks = %W[
