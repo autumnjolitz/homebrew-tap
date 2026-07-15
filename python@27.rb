@@ -4,18 +4,7 @@ class PythonAT27 < Formula
   url "https://www.python.org/ftp/python/2.7.18/Python-2.7.18.tar.xz"
   sha256 "b62c0e7937551d0cc02b8fd5cb0f544f9405bafc9a54d3808ed4594812edef43"
   revision 1
-  head "https://github.com/python/cpython.git", :branch => "2.7"
-
-  # setuptools remembers the build flags python is built with and uses them to
-  # build packages later. Xcode-only systems need different flags.
-  pour_bottle? do
-    reason <<~EOS
-      The bottle needs the Apple Command Line Tools to be installed.
-        You can install them, if desired, with:
-          xcode-select --install
-    EOS
-    satisfy { MacOS::CLT.installed? }
-  end
+  head "https://github.com/python/cpython.git", branch: "2.7"
 
   depends_on "pkg-config" => :build
   depends_on "gdbm"
@@ -50,7 +39,7 @@ class PythonAT27 < Formula
 
   # The HOMEBREW_PREFIX location of site-packages.
   def site_packages
-    HOMEBREW_PREFIX/"lib/python#{version.major}.#{version.minor}/site-packages"
+    HOMEBREW_PREFIX/"lib/python2.7/site-packages"
   end
 
   def install
@@ -103,14 +92,14 @@ class PythonAT27 < Formula
     # superenv handles that cc finds includes/libs!
     inreplace "setup.py" do |s|
       s.gsub! "do_readline = self.compiler.find_library_file(lib_dirs, 'readline')",
-              "do_readline = '#{Formula["readline"].opt_lib}/libhistory.dylib'"
-      s.gsub! "/usr/local/ssl", Formula["openssl@3"].opt_prefix
+              "do_readline = '#{formula_opt_lib("readline")}/libhistory.dylib'"
+      s.gsub! "/usr/local/ssl", formula_opt_prefix("openssl@3").to_s
     end
 
     inreplace "setup.py" do |s|
       s.gsub! "sqlite_setup_debug = False", "sqlite_setup_debug = True"
       s.gsub! "for d_ in inc_dirs + sqlite_inc_paths:",
-              "for d_ in ['#{Formula["sqlite"].opt_include}']:"
+              "for d_ in ['#{formula_opt_include("sqlite")}']:"
 
       # Allow sqlite3 module to load extensions:
       # https://docs.python.org/library/sqlite3.html#f1
@@ -223,12 +212,11 @@ class PythonAT27 < Formula
       (HOMEBREW_PREFIX/"bin").install_symlink bin/e
     end
 
-
     # Help distutils find brewed stuff when building extensions
-    include_dirs = [HOMEBREW_PREFIX/"include", Formula["openssl@3"].opt_include,
-                    Formula["sqlite"].opt_include]
-    library_dirs = [HOMEBREW_PREFIX/"lib", Formula["openssl@3"].opt_lib,
-                    Formula["sqlite"].opt_lib]
+    include_dirs = [HOMEBREW_PREFIX/"include", formula_opt_include("openssl@3"),
+                    formula_opt_include("sqlite")]
+    library_dirs = [HOMEBREW_PREFIX/"lib", formula_opt_lib("openssl@3"),
+                    formula_opt_lib("sqlite")]
 
     cfg = lib_cellar/"distutils/distutils.cfg"
     cfg.atomic_write <<~EOS
@@ -279,7 +267,7 @@ class PythonAT27 < Formula
 
           # the Cellar site-packages is a symlink to the HOMEBREW_PREFIX
           # site_packages; prefer the shorter paths
-          long_prefix = re.compile(r'#{rack}/[0-9\._abrc]+/Frameworks/Python\.framework/Versions/2\.7/lib/python2\.7/site-packages')
+          long_prefix = re.compile(r'#{rack}/[0-9\\._abrc]+/Frameworks/Python\\.framework/Versions/2\\.7/lib/python2\\.7/site-packages')
           sys.path = [long_prefix.sub('#{site_packages}', p) for p in sys.path]
 
           # LINKFORSHARED (and python-config --ldflags) return the
@@ -297,18 +285,19 @@ class PythonAT27 < Formula
     EOS
   end
 
-  def caveats; <<~EOS
-    Pip and setuptools have been installed. To update them
-      python2.7 -m pip install --upgrade pip setuptools
+  def caveats
+    <<~EOS
+      Pip and setuptools have been installed. To update them
+        python2.7 -m pip install --upgrade pip setuptools
 
-    You can install Python packages with
-      python2.7 -m pip install <package>
+      You can install Python packages with
+        python2.7 -m pip install <package>
 
-    They will install into the site-package directory
-      #{site_packages}
+      They will install into the site-package directory
+        #{site_packages}
 
-    See: https://docs.brew.sh/Homebrew-and-Python
-  EOS
+      See: https://docs.brew.sh/Homebrew-and-Python
+    EOS
   end
 
   test do
