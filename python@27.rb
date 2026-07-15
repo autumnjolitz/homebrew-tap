@@ -134,7 +134,7 @@ class PythonAT27 < Formula
 
     ENV.deparallelize do
       # Tell Python not to install into /Applications
-      system "make", "altinstall", "PYTHONAPPSDIR=#{prefix}"
+      system "make", "install", "PYTHONAPPSDIR=#{prefix}"
       system "make", "frameworkinstallextras", "PYTHONAPPSDIR=#{pkgshare}"
     end
 
@@ -158,7 +158,7 @@ class PythonAT27 < Formula
     (lib/"pkgconfig").install_symlink Dir[frameworks/"Python.framework/Versions/Current/lib/pkgconfig/*"]
 
     # Remove 2to3 because Python 3 also installs it
-    rm bin/"2to3-2.7"
+    Dir.glob(bin / "2to3*").each { |f| rm f }
 
     # A fix, because python and python@2 both want to install Python.framework
     # and therefore we can't link both into HOMEBREW_PREFIX/Frameworks
@@ -172,8 +172,6 @@ class PythonAT27 < Formula
     (libexec/"setuptools").install resource("setuptools")
     (libexec/"pip").install resource("pip")
     (libexec/"wheel").install resource("wheel")
-
-    rm bin / "pip"
   end
 
   def post_install
