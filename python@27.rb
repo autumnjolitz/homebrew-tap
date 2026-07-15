@@ -11,6 +11,7 @@ class PythonAT27 < Formula
   depends_on "openssl@3"
   depends_on "readline"
   depends_on "sqlite"
+  uses_from_macos "libffi"
 
   resource "setuptools" do
     url "https://files.pythonhosted.org/packages/b2/40/4e00501c204b457f10fe410da0c97537214b2265247bc9a5bc6edd55b9e4/setuptools-44.1.1.zip"
@@ -57,6 +58,7 @@ class PythonAT27 < Formula
       --enable-framework=#{frameworks}
       --without-ensurepip
       --with-system-ffi
+      --with-system-expat
     ]
 
     # See upstream bug report from 22 Jan 2018 "Significant performance problems
@@ -161,9 +163,9 @@ class PythonAT27 < Formula
     (libexec/"setuptools").install resource("setuptools")
     (libexec/"pip").install resource("pip")
     (libexec/"wheel").install resource("wheel")
-  end
+  # end
 
-  def post_install
+  # def post_install
     # Avoid conflicts with lingering unversioned files from Python 3
     rm_f %W[
       #{HOMEBREW_PREFIX}/bin/easy_install
