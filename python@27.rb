@@ -349,7 +349,7 @@ class PythonAT27 < Formula
 end
 __END__
 diff --git a/Lib/_osx_support.py b/Lib/_osx_support.py
-index d2aaae7..55d698c 100644
+index d2aaae7..1a4b0b6 100644
 --- a/Lib/_osx_support.py
 +++ b/Lib/_osx_support.py
 @@ -437,6 +437,9 @@ def get_platform_osx(_config_vars, osname, release, machine):
@@ -362,15 +362,18 @@ index d2aaae7..55d698c 100644
      macrelease = _get_system_version() or macver
      macver = macver or macrelease
  
-@@ -476,7 +479,7 @@ def get_platform_osx(_config_vars, osname, release, machine):
-                 machine = 'intel'
-             elif archs == ('i386', 'ppc', 'x86_64'):
-                 machine = 'fat3'
--            elif archs == ('ppc64', 'x86_64'):
+@@ -467,9 +470,10 @@ def get_platform_osx(_config_vars, osname, release, machine):
+ 
+             archs = re.findall('-arch\s+(\S+)', cflags)
+             archs = tuple(sorted(set(archs)))
+-
+             if len(archs) == 1:
+                 machine = archs[0]
 +            elif archs == ('arm64', 'x86_64'):
-                 machine = 'fat64'
-             elif archs == ('i386', 'ppc', 'ppc64', 'x86_64'):
-                 machine = 'universal'
++                machine = 'universal2'
+             elif archs == ('i386', 'ppc'):
+                 machine = 'fat'
+             elif archs == ('i386', 'x86_64'):
 diff --git a/Lib/ctypes/__init__.py b/Lib/ctypes/__init__.py
 index 88c85ff..113c7a1 100644
 --- a/Lib/ctypes/__init__.py
@@ -436,20 +439,6 @@ index ef1f001..c2e3cc9 100644
      if (result != FFI_OK) {
          PyErr_Format(PyExc_RuntimeError,
                       "ffi_prep_closure failed with %d", result);
-diff --git a/README b/README
-index 4afaac0..63bc66d 100644
---- a/README
-+++ b/README
-@@ -1,3 +1,9 @@
-+Build Python2.framework for Arm64 and x86_64 on macOS
-+
-+./configure --without-gcc --with-framework-name=Python2 \
-+            --enable-unicode=ucs4 --enable-ipv6 --enable-toolbox-glue --enable-optimizations \
-+            --enable-framework --enable-universalsdk --with-universal-archs=64-bit
-+
- This is Python version 2.7.18
- =============================
- 
 diff --git a/configure b/configure
 index 63d6753..3c6d1ab 100755
 --- a/configure
