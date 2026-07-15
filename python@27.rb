@@ -275,6 +275,13 @@ class PythonAT27 < Formula
       include_dirs=#{include_dirs.join ":"}
       library_dirs=#{library_dirs.join ":"}
     EOS
+    # remove the bundled installers
+    [
+      libexec/"setuptools",
+      libexec/"pip",
+      libexec/"wheel",
+      libexec/"virtualenv",
+    ].each { |d| rm_rf d }
 
     rm_f %W[
       #{bin}/easy_install
