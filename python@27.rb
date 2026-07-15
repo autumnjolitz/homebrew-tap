@@ -67,6 +67,7 @@ class PythonAT27 < Formula
       --mandir=#{man}
       --enable-framework=#{frameworks}
       --without-ensurepip
+      --with-system-ffi
     ]
 
     # See upstream bug report from 22 Jan 2018 "Significant performance problems
