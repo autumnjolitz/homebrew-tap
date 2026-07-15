@@ -80,7 +80,6 @@ class PythonAT27 < Formula
       args << "--with-universal-archs=universal2"
     end
 
-
     # See upstream bug report from 22 Jan 2018 "Significant performance problems
     # with Python 2.7 built with clang 3.x or 4.x"
     # https://bugs.python.org/issue32616
@@ -167,10 +166,11 @@ class PythonAT27 < Formula
       lib_cellar / "_sysconfigdata.py",
       lib_cellar / "config/Makefile",
     ]
-    fragile_paths << frameworks / "Python.framework/Versions/Current/lib/pkgconfig/python-2.7.pc" if OS.mac?
+    if OS.mac?
+      fragile_paths << frameworks / "Python.framework/Versions/Current/lib/pkgconfig/python-2.7.pc"
+    end
     inreplace fragile_paths,
               prefix, opt_prefix
-
 
     # Remove 2to3 because Python 3 also installs it
     Dir.glob(bin / "2to3*").each { |f| rm f }
