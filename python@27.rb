@@ -6,6 +6,8 @@ class PythonAT27 < Formula
   revision 1
   head "https://github.com/python/cpython.git", branch: "2.7"
 
+  option "with-universal", "Build universal2 (arm64 and x86_64) Mach-O binary"
+
   depends_on "pkg-config" => :build
   depends_on "gdbm"
   depends_on "openssl@3"
@@ -55,11 +57,29 @@ class PythonAT27 < Formula
       --datarootdir=#{share}
       --datadir=#{share}
       --mandir=#{man}
-      --enable-framework=#{frameworks}
       --without-ensurepip
       --with-system-ffi
       --with-system-expat
     ]
+
+    args << "--enable-framework=#{frameworks}" if OS.mac?
+
+    if build.with? "universal"
+      maybe_sdks = %W[
+        #{MacOS.active_developer_dir}
+        /Library/Developer/CommandLineTools
+        /Applications/Xcode.app/Contents/Developer
+      ]
+      universal_sdk_path = maybe_sdks.uniq.find do |path|
+        File.directory?(path) && File.directory?("#{path}/SDKs/MacOSX.sdk")
+      end
+
+      odie "Cannot locate any developer SDKs at the following paths: #{maybe_sdks}" if universal_sdk_path.nil?
+
+      args << "--enable-universalsdk=#{universal_sdk_path}/SDKs/MacOSX.sdk"
+      args << "--with-universal-archs=universal2"
+    end
+
 
     # See upstream bug report from 22 Jan 2018 "Significant performance problems
     # with Python 2.7 built with clang 3.x or 4.x"
@@ -76,25 +96,26 @@ class PythonAT27 < Formula
     ldflags  = []
     cppflags = []
 
-    if OS.mac? && !MacOS.sdk_path.nil?
-      # Help Python's build system (setuptools/pip) to build things on SDK-based systems
-      # The setup.py looks at "-isysroot" to get the sysroot (and not at --sysroot)
-      cflags  << "-isysroot #{MacOS.sdk_path}" << "-I#{MacOS.sdk_path}/usr/include"
-      ldflags << "-isysroot #{MacOS.sdk_path}"
-      # For the Xlib.h, Python needs this header dir with the system Tk
-      # Yep, this needs the absolute path where zlib needed a path relative
-      # to the SDK.
-      cflags  << "-I#{MacOS.sdk_path}/System/Library/Frameworks/Tk.framework/Versions/8.5/Headers"
+    if OS.mac?
+      unless MacOS.sdk_path.nil?
+        # Help Python's build system (setuptools/pip) to build things on SDK-based systems
+        # The setup.py looks at "-isysroot" to get the sysroot (and not at --sysroot)
+        cflags  << "-isysroot #{MacOS.sdk_path}" << "-I#{MacOS.sdk_path}/usr/include"
+        ldflags << "-isysroot #{MacOS.sdk_path}"
+        # For the Xlib.h, Python needs this header dir with the system Tk
+        # Yep, this needs the absolute path where zlib needed a path relative
+        # to the SDK.
+        cflags  << "-I#{MacOS.sdk_path}/System/Library/Frameworks/Tk.framework/Versions/8.5/Headers"
+      end
+      # Avoid linking to libgcc https://code.activestate.com/lists/python-dev/112195/
+      args << "MACOSX_DEPLOYMENT_TARGET=#{MacOS.version}" if OS.mac?
     end
-
-    # Avoid linking to libgcc https://code.activestate.com/lists/python-dev/112195/
-    args << "MACOSX_DEPLOYMENT_TARGET=#{MacOS.version}" if OS.mac?
-
     # We want our readline and openssl! This is just to outsmart the detection code,
     # superenv handles that cc finds includes/libs!
     inreplace "setup.py" do |s|
+      shared_extension = OS.mac? ? "dylib" : "so"
       s.gsub! "do_readline = self.compiler.find_library_file(lib_dirs, 'readline')",
-              "do_readline = '#{formula_opt_lib("readline")}/libhistory.dylib'"
+              "do_readline = '#{formula_opt_lib("readline")}/libhistory.#{shared_extension}'"
       s.gsub! "/usr/local/ssl", formula_opt_prefix("openssl@3").to_s
     end
 
@@ -126,7 +147,7 @@ class PythonAT27 < Formula
     ENV.deparallelize do
       # Tell Python not to install into /Applications
       system "make", "altinstall", "PYTHONAPPSDIR=#{prefix}"
-      system "make", "frameworkinstallextras", "PYTHONAPPSDIR=#{pkgshare}"
+      system "make", "frameworkinstallextras", "PYTHONAPPSDIR=#{pkgshare}" if OS.mac?
     end
 
     rm man / "man1/python.1"
@@ -134,28 +155,40 @@ class PythonAT27 < Formula
     # Fixes setting Python build flags for certain software
     # See: https://github.com/Homebrew/homebrew/pull/20182
     # https://bugs.python.org/issue3588
-    inreplace lib_cellar/"config/Makefile" do |s|
-      s.change_make_var! "LINKFORSHARED",
-        "-u _PyMac_Error $(PYTHONFRAMEWORKINSTALLDIR)/Versions/$(VERSION)/$(PYTHONFRAMEWORK)"
+    if OS.mac?
+      inreplace lib_cellar/"config/Makefile" do |s|
+        s.change_make_var! "LINKFORSHARED",
+          "-u _PyMac_Error $(PYTHONFRAMEWORKINSTALLDIR)/Versions/$(VERSION)/$(PYTHONFRAMEWORK)"
+      end
     end
 
     # Prevent third-party packages from building against fragile Cellar paths
-    inreplace [lib_cellar/"_sysconfigdata.py",
-               lib_cellar/"config/Makefile",
-               frameworks/"Python.framework/Versions/Current/lib/pkgconfig/python-2.7.pc"],
+    fragile_paths = [
+      lib_cellar / "_sysconfigdata.py",
+      lib_cellar / "config/Makefile",
+    ]
+    fragile_paths << frameworks / "Python.framework/Versions/Current/lib/pkgconfig/python-2.7.pc" if OS.mac?
+    inreplace fragile_paths,
               prefix, opt_prefix
 
-    # Symlink the pkgconfig files into HOMEBREW_PREFIX so they're accessible.
-    (lib/"pkgconfig").install_symlink Dir[frameworks/"Python.framework/Versions/Current/lib/pkgconfig/*"]
 
     # Remove 2to3 because Python 3 also installs it
     Dir.glob(bin / "2to3*").each { |f| rm f }
 
-    # A fix, because python and python@2 both want to install Python.framework
-    # and therefore we can't link both into HOMEBREW_PREFIX/Frameworks
-    # https://github.com/Homebrew/homebrew/issues/15943
-    ["Headers", "Python", "Resources"].each { |f| rm(prefix/"Frameworks/Python.framework/#{f}") }
-    rm prefix/"Frameworks/Python.framework/Versions/Current"
+    if Os.mac?
+      # Symlink the pkgconfig files into HOMEBREW_PREFIX so they're accessible.
+      (lib/"pkgconfig").install_symlink Dir[frameworks/"Python.framework/Versions/Current/lib/pkgconfig/*"]
+      # A fix, because python and python@2 both want to install Python.framework
+      # and therefore we can't link both into HOMEBREW_PREFIX/Frameworks
+      # https://github.com/Homebrew/homebrew/issues/15943
+      [
+        "Headers",
+        "Python",
+        "Resources"
+      ].each { |f| rm(prefix / "Frameworks/Python.framework/#{f}") }
+
+      rm prefix / "Frameworks/Python.framework/Versions/Current"
+    end
 
     # Remove the site-packages that Python created in its Cellar.
     site_packages_cellar.rmtree
