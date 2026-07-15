@@ -134,7 +134,7 @@ class PythonAT27 < Formula
 
     ENV.deparallelize do
       # Tell Python not to install into /Applications
-      system "make", "install", "PYTHONAPPSDIR=#{prefix}"
+      system "make", "altinstall", "PYTHONAPPSDIR=#{prefix}"
       system "make", "frameworkinstallextras", "PYTHONAPPSDIR=#{pkgshare}"
     end
 
