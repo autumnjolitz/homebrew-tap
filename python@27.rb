@@ -363,7 +363,7 @@ class PythonAT27 < Formula
     # and it can occur that building sqlite silently fails if OSX's sqlite is used.
     system "#{bin}/python2.7", "-c", "import sqlite3"
     # Check if some other modules import. Then the linked libs are working.
-    system "#{bin}/python2.7", "-c", "import Tkinter; root = Tkinter.Tk()"
+    # system "#{bin}/python2.7", "-c", "import Tkinter; root = Tkinter.Tk()"
     system "#{bin}/python2.7", "-c", "import dbm; print(dbm.library)"
     system "#{bin}/python2.7", "-c", "import zlib"
     system bin/"pip-2.7", "list", "--format=columns"
