@@ -13,8 +13,11 @@ class PythonAT27 < Formula
   depends_on "openssl@3"
   depends_on "readline"
   depends_on "sqlite"
+  uses_from_macos "bzip2"
   uses_from_macos "expat"
   uses_from_macos "libffi"
+  uses_from_macos "ncurses"
+  uses_from_macos "zlib"
 
   resource "setuptools" do
     url "https://files.pythonhosted.org/packages/b2/40/4e00501c204b457f10fe410da0c97537214b2265247bc9a5bc6edd55b9e4/setuptools-44.1.1.zip"
@@ -368,7 +371,7 @@ class PythonAT27 < Formula
 end
 __END__
 diff --git a/Lib/_osx_support.py b/Lib/_osx_support.py
-index d2aaae7..1a4b0b6 100644
+index d2aaae7..89db70b 100644
 --- a/Lib/_osx_support.py
 +++ b/Lib/_osx_support.py
 @@ -437,6 +437,9 @@ def get_platform_osx(_config_vars, osname, release, machine):
@@ -381,11 +384,8 @@ index d2aaae7..1a4b0b6 100644
      macrelease = _get_system_version() or macver
      macver = macver or macrelease
  
-@@ -467,9 +470,10 @@ def get_platform_osx(_config_vars, osname, release, machine):
+@@ -470,6 +473,8 @@ def get_platform_osx(_config_vars, osname, release, machine):
  
-             archs = re.findall('-arch\s+(\S+)', cflags)
-             archs = tuple(sorted(set(archs)))
--
              if len(archs) == 1:
                  machine = archs[0]
 +            elif archs == ('arm64', 'x86_64'):
@@ -394,14 +394,15 @@ index d2aaae7..1a4b0b6 100644
                  machine = 'fat'
              elif archs == ('i386', 'x86_64'):
 diff --git a/Lib/ctypes/__init__.py b/Lib/ctypes/__init__.py
-index 88c85ff..113c7a1 100644
+index 88c85ff..9d2c814 100644
 --- a/Lib/ctypes/__init__.py
 +++ b/Lib/ctypes/__init__.py
-@@ -273,7 +273,7 @@ def _reset_cache():
+@@ -273,7 +273,8 @@ def _reset_cache():
      # function is needed for the unittests on Win64 to succeed.  This MAY
      # be a compiler bug, since the problem occurs only when _ctypes is
      # compiled with the MS SDK compiler.  Or an uninitialized variable?
 -    CFUNCTYPE(c_int)(lambda: None)
++    # ARJ: commented the following out for osx:
 +    # CFUNCTYPE(c_int)(lambda: None)
  
  try:
@@ -459,19 +460,27 @@ index ef1f001..c2e3cc9 100644
          PyErr_Format(PyExc_RuntimeError,
                       "ffi_prep_closure failed with %d", result);
 diff --git a/configure b/configure
-index 63d6753..3c6d1ab 100755
+index 63d6753..8a1669b 100755
 --- a/configure
 +++ b/configure
-@@ -6128,7 +6128,7 @@ $as_echo "$CC" >&6; }
-                ARCH_RUN_32BIT=""
-                ;;
-             64-bit)
--               UNIVERSAL_ARCH_FLAGS="-arch ppc64 -arch x86_64"
-+               UNIVERSAL_ARCH_FLAGS="-arch arm64 -arch x86_64"
+@@ -6152,6 +6152,16 @@ $as_echo "$CC" >&6; }
                 LIPO_32BIT_FLAGS=""
                 ARCH_RUN_32BIT=""
                 ;;
-@@ -8471,8 +8471,8 @@ fi
++            universal2)
++               UNIVERSAL_ARCH_FLAGS="-arch arm64 -arch x86_64"
++               LIPO_32BIT_FLAGS=""
++               ARCH_RUN_32BIT=""
++               ;;
++            arm64)
++               UNIVERSAL_ARCH_FLAGS="-arch arm64"
++               LIPO_32BIT_FLAGS=""
++               ARCH_RUN_32BIT=""
++               ;;
+             3-way)
+                UNIVERSAL_ARCH_FLAGS="-arch i386 -arch ppc -arch x86_64"
+                LIPO_32BIT_FLAGS="-extract ppc7400 -extract i386"
+@@ -8471,9 +8481,12 @@ fi
      	i386)
      		MACOSX_DEFAULT_ARCH="x86_64"
      		;;
@@ -480,10 +489,14 @@ index 63d6753..3c6d1ab 100755
 +    	arm64)
 +    		MACOSX_DEFAULT_ARCH="arm64"
      		;;
++      ppc64)
++        MACOSX_DEFAULT_ARCH="ppc64"
++        ;;
      	*)
      		as_fn_error $? "Unexpected output of 'arch' on OSX" "$LINENO" 5
+     		;;
 diff --git a/configure.ac b/configure.ac
-index efe6922..d943e8b 100644
+index efe6922..849b394 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -52,7 +52,7 @@ dnl can cause trouble.
@@ -495,6 +508,15 @@ index efe6922..d943e8b 100644
  
  dnl This is for stuff that absolutely must end up in pyconfig.h.
  dnl Please use pyport.h instead, if possible.
+@@ -176,7 +176,7 @@ fi
+ AC_SUBST(LIPO_32BIT_FLAGS)
+ AC_MSG_CHECKING(for --with-universal-archs)
+ AC_ARG_WITH(universal-archs,
+-    AS_HELP_STRING([--with-universal-archs=ARCH], [select architectures for universal build ("32-bit", "64-bit", "3-way", "intel", "intel-32", "intel-64", or "all")]),
++    AS_HELP_STRING([--with-universal-archs=ARCH], [select architectures for universal build ("universal2", 32-bit", "64-bit", "3-way", "intel", "intel-32", "intel-64", or "all")]),
+ [
+ 	UNIVERSAL_ARCHS="$withval"
+ ],
 @@ -210,7 +210,7 @@ AC_ARG_ENABLE(framework,
                AS_HELP_STRING([--enable-framework@<:@=INSTALLDIR@:>@], [Build (MacOSX|Darwin) framework]),
  [
@@ -643,16 +665,24 @@ index efe6922..d943e8b 100644
    Py_DEBUG='true'
  else AC_MSG_RESULT(no); Py_DEBUG='false'
  fi],
-@@ -1179,7 +1179,7 @@ yes)
-                ARCH_RUN_32BIT=""
-                ;;
-             64-bit)
--               UNIVERSAL_ARCH_FLAGS="-arch ppc64 -arch x86_64"
-+               UNIVERSAL_ARCH_FLAGS="-arch arm64 -arch x86_64"
+@@ -1203,6 +1203,16 @@ yes)
                 LIPO_32BIT_FLAGS=""
                 ARCH_RUN_32BIT=""
                 ;;
-@@ -1589,7 +1589,7 @@ int main(){
++            universal2)
++               UNIVERSAL_ARCH_FLAGS="-arch arm64 -arch x86_64"
++               LIPO_32BIT_FLAGS=""
++               ARCH_RUN_32BIT=""
++		           ;;
++            arm64)
++               UNIVERSAL_ARCH_FLAGS="-arch arm64"
++               LIPO_32BIT_FLAGS=""
++               ARCH_RUN_32BIT=""
++		           ;;
+             3-way)
+                UNIVERSAL_ARCH_FLAGS="-arch i386 -arch ppc -arch x86_64"
+                LIPO_32BIT_FLAGS="-extract ppc7400 -extract i386"
+@@ -1589,7 +1599,7 @@ int main(){
  AC_MSG_RESULT($ac_cv_pthread_is_default)
  
  
@@ -661,7 +691,7 @@ index efe6922..d943e8b 100644
  then
    ac_cv_kpthread=no
  else
-@@ -1688,14 +1688,14 @@ ac_save_cxx="$CXX"
+@@ -1688,14 +1698,14 @@ ac_save_cxx="$CXX"
  
  if test "$ac_cv_kpthread" = "yes"
  then
@@ -678,7 +708,7 @@ index efe6922..d943e8b 100644
    CXX="$CXX -pthread"
    ac_cv_cxx_thread=yes
  fi
-@@ -1814,11 +1814,11 @@ if test "$use_lfs" = "yes"; then
+@@ -1814,11 +1824,11 @@ if test "$use_lfs" = "yes"; then
  # These may affect some typedefs
  case $ac_sys_system/$ac_sys_release in
  AIX*)
@@ -692,7 +722,7 @@ index efe6922..d943e8b 100644
  [This must be defined on some systems to enable large file support.])
  AC_DEFINE(_FILE_OFFSET_BITS, 64,
  [This must be set to 64 on some systems to enable large file support.])
-@@ -1880,7 +1880,7 @@ AC_CHECK_SIZEOF(pid_t, 4)
+@@ -1880,7 +1890,7 @@ AC_CHECK_SIZEOF(pid_t, 4)
  AC_MSG_CHECKING(for long long support)
  have_long_long=no
  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[long long x; x = (long long)0;]])],[
@@ -701,7 +731,7 @@ index efe6922..d943e8b 100644
    have_long_long=yes
  ],[])
  AC_MSG_RESULT($have_long_long)
-@@ -1902,7 +1902,7 @@ fi
+@@ -1902,7 +1912,7 @@ fi
  AC_MSG_CHECKING(for _Bool support)
  have_c99_bool=no
  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[_Bool x; x = (_Bool)0;]])],[
@@ -710,7 +740,7 @@ index efe6922..d943e8b 100644
    have_c99_bool=yes
  ],[])
  AC_MSG_RESULT($have_c99_bool)
-@@ -1910,8 +1910,8 @@ if test "$have_c99_bool" = yes ; then
+@@ -1910,8 +1920,8 @@ if test "$have_c99_bool" = yes ; then
  AC_CHECK_SIZEOF(_Bool, 1)
  fi
  
@@ -721,7 +751,7 @@ index efe6922..d943e8b 100644
     [], [#ifdef HAVE_STDINT_H
          #include <stdint.h>
          #endif
-@@ -1930,7 +1930,7 @@ if test "$have_long_long" = yes
+@@ -1930,7 +1940,7 @@ if test "$have_long_long" = yes
  then
  if test "$ac_cv_sizeof_off_t" -gt "$ac_cv_sizeof_long" -a \
  	"$ac_cv_sizeof_long_long" -ge "$ac_cv_sizeof_off_t"; then
@@ -730,7 +760,7 @@ index efe6922..d943e8b 100644
    [Defined to enable large file support when an off_t is bigger than a long
     and long long is available and at least as big as an off_t. You may need
     to add some flags for configuration and compilation to enable this mode.
-@@ -1981,7 +1981,7 @@ AC_ARG_ENABLE(toolbox-glue,
+@@ -1981,7 +1991,7 @@ AC_ARG_ENABLE(toolbox-glue,
                AS_HELP_STRING([--enable-toolbox-glue], [disable/enable MacOSX glue code for extensions]))
  
  if test -z "$enable_toolbox_glue"
@@ -739,7 +769,7 @@ index efe6922..d943e8b 100644
  	case $ac_sys_system/$ac_sys_release in
  	Darwin/*)
  		enable_toolbox_glue="yes";;
-@@ -2006,7 +2006,7 @@ AC_MSG_RESULT($enable_toolbox_glue)
+@@ -2006,7 +2016,7 @@ AC_MSG_RESULT($enable_toolbox_glue)
  
  AC_SUBST(OTHER_LIBTOOL_OPT)
  case $ac_sys_system/$ac_sys_release in
@@ -748,7 +778,7 @@ index efe6922..d943e8b 100644
      OTHER_LIBTOOL_OPT="-prebind -seg1addr 0x10000000"
      ;;
    Darwin/*)
-@@ -2017,7 +2017,7 @@ esac
+@@ -2017,7 +2027,7 @@ esac
  
  AC_SUBST(LIBTOOL_CRUFT)
  case $ac_sys_system/$ac_sys_release in
@@ -757,7 +787,7 @@ index efe6922..d943e8b 100644
      LIBTOOL_CRUFT="-framework System -lcc_dynamic"
      if test "${enable_universalsdk}"; then
  	    :
-@@ -2031,7 +2031,7 @@ case $ac_sys_system/$ac_sys_release in
+@@ -2031,7 +2041,7 @@ case $ac_sys_system/$ac_sys_release in
      if test ${gcc_version} '<' 4.0
          then
              LIBTOOL_CRUFT="-lcc_dynamic"
@@ -766,7 +796,7 @@ index efe6922..d943e8b 100644
              LIBTOOL_CRUFT=""
      fi
      AC_RUN_IFELSE([AC_LANG_SOURCE([[
-@@ -2045,14 +2045,14 @@ case $ac_sys_system/$ac_sys_release in
+@@ -2045,14 +2055,14 @@ case $ac_sys_system/$ac_sys_release in
        }
      }
      ]])],[ac_osx_32bit=yes],[ac_osx_32bit=no],[ac_osx_32bit=yes])
@@ -786,7 +816,7 @@ index efe6922..d943e8b 100644
      		;;
      	*)
      		AC_MSG_ERROR([Unexpected output of 'arch' on OSX])
-@@ -2060,11 +2060,11 @@ case $ac_sys_system/$ac_sys_release in
+@@ -2060,11 +2070,14 @@ case $ac_sys_system/$ac_sys_release in
      	esac
      else
      	case `/usr/bin/arch` in
@@ -799,10 +829,13 @@ index efe6922..d943e8b 100644
 -    		MACOSX_DEFAULT_ARCH="ppc64" 
 +    	arm64)
 +    		MACOSX_DEFAULT_ARCH="arm64"
++    		;;
++    	ppc64)
++    		MACOSX_DEFAULT_ARCH="ppc64"
      		;;
      	*)
      		AC_MSG_ERROR([Unexpected output of 'arch' on OSX])
-@@ -2082,9 +2082,9 @@ AC_MSG_CHECKING(for --enable-framework)
+@@ -2082,9 +2095,9 @@ AC_MSG_CHECKING(for --enable-framework)
  if test "$enable_framework"
  then
  	BASECFLAGS="$BASECFLAGS -fno-common -dynamic"
@@ -814,7 +847,7 @@ index efe6922..d943e8b 100644
           [Define if you want to produce an OpenStep/Rhapsody framework
           (shared library plus accessory files).])
  	AC_MSG_RESULT(yes)
-@@ -2099,7 +2099,7 @@ fi
+@@ -2099,7 +2112,7 @@ fi
  AC_MSG_CHECKING(for dyld)
  case $ac_sys_system/$ac_sys_release in
    Darwin/*)
@@ -823,7 +856,7 @@ index efe6922..d943e8b 100644
          [Define if you want to use the new-style (Openstep, Rhapsody, MacOS)
           dynamic linker (dyld) instead of the old-style (NextStep) dynamic
           linker (rld). Dyld is necessary to support frameworks.])
-@@ -2165,7 +2165,7 @@ then
+@@ -2165,7 +2178,7 @@ then
  		;;
  	IRIX/5*) LDSHARED="ld -shared";;
  	IRIX*/6*) LDSHARED="ld ${SGI_ABI} -shared -all";;
@@ -832,7 +865,7 @@ index efe6922..d943e8b 100644
  		if test "$GCC" = "yes" ; then
  			LDSHARED='$(CC) -shared'
  			LDCXXSHARED='$(CXX) -shared'
-@@ -2346,7 +2346,7 @@ then
+@@ -2346,7 +2359,7 @@ then
  	BSD/OS/4*) LINKFORSHARED="-Xlinker -export-dynamic";;
  	Linux*|GNU*) LINKFORSHARED="-Xlinker -export-dynamic";;
  	# -u libsys_s pulls in all symbols in libsys
@@ -841,7 +874,7 @@ index efe6922..d943e8b 100644
  		# -u _PyMac_Error is needed to pull in the mac toolbox glue,
  		# which is
  		# not used by the core itself but which needs to be in the core so
-@@ -2364,7 +2364,7 @@ then
+@@ -2364,7 +2377,7 @@ then
  	OpenUNIX*|UnixWare*) LINKFORSHARED="-Wl,-Bexport";;
  	SCO_SV*) LINKFORSHARED="-Wl,-Bexport";;
  	ReliantUNIX*) LINKFORSHARED="-W1 -Blargedynsym";;
@@ -850,7 +883,7 @@ index efe6922..d943e8b 100644
  		if [[ "`$CC -dM -E - </dev/null | grep __ELF__`" != "" ]]
  		then
  			LINKFORSHARED="-Wl,--export-dynamic"
-@@ -2624,7 +2624,7 @@ then
+@@ -2624,7 +2637,7 @@ then
      # Defining _REENTRANT on system with POSIX threads should not hurt.
      AC_DEFINE(_REENTRANT)
      posix_threads=yes
@@ -859,7 +892,7 @@ index efe6922..d943e8b 100644
      if test "$ac_sys_system" = "SunOS"; then
          CFLAGS="$CFLAGS -D_REENTRANT"
      fi
-@@ -2751,7 +2751,7 @@ pthread_create (NULL, NULL, start_routine, NULL)]])],[
+@@ -2751,7 +2764,7 @@ pthread_create (NULL, NULL, start_routine, NULL)]])],[
      THREADOBJ="Python/thread.o"
      USE_THREAD_MODULE=""])
  
@@ -868,7 +901,7 @@ index efe6922..d943e8b 100644
        AC_CHECK_LIB(thread, thr_create, [AC_DEFINE(WITH_THREAD)
        LIBS="$LIBS -lthread"
        THREADOBJ="Python/thread.o"
-@@ -2771,7 +2771,7 @@ fi
+@@ -2771,7 +2784,7 @@ fi
  if test "$posix_threads" = "yes"; then
        if test "$unistd_defines_pthreads" = "no"; then
           AC_DEFINE(_POSIX_THREADS, 1,
@@ -877,7 +910,7 @@ index efe6922..d943e8b 100644
            and your system does not define that.])
        fi
  
-@@ -3016,9 +3016,9 @@ AC_MSG_CHECKING(for --with-tsc)
+@@ -3016,9 +3029,9 @@ AC_MSG_CHECKING(for --with-tsc)
  AC_ARG_WITH(tsc,
  	    AS_HELP_STRING([--with(out)-tsc],[enable/disable timestamp counter profile]),[
  if test "$withval" != no
@@ -890,7 +923,7 @@ index efe6922..d943e8b 100644
      AC_MSG_RESULT(yes)
  else AC_MSG_RESULT(no)
  fi],
-@@ -3034,7 +3034,7 @@ then with_pymalloc="yes"
+@@ -3034,7 +3047,7 @@ then with_pymalloc="yes"
  fi
  if test "$with_pymalloc" != "no"
  then
@@ -899,7 +932,7 @@ index efe6922..d943e8b 100644
       [Define if you want to compile in Python-specific mallocs])
  fi
  AC_MSG_RESULT($with_pymalloc)
-@@ -3054,14 +3054,14 @@ fi
+@@ -3054,14 +3067,14 @@ fi
  
  # Check for --with-wctype-functions
  AC_MSG_CHECKING(for --with-wctype-functions)
@@ -917,7 +950,7 @@ index efe6922..d943e8b 100644
    AC_MSG_RESULT(yes)
  else AC_MSG_RESULT(no)
  fi],
-@@ -3311,12 +3311,12 @@ dnl before searching for static libraries. setup.py adds -Wl,-search_paths_first
+@@ -3311,12 +3324,12 @@ dnl before searching for static libraries. setup.py adds -Wl,-search_paths_first
  dnl to revert to a more traditional unix behaviour and make it possible to
  dnl override the system libz with a local static library of libz. Temporarily
  dnl add that flag to our CFLAGS as well to ensure that we check the version
@@ -933,7 +966,7 @@ index efe6922..d943e8b 100644
  	_CUR_CFLAGS="${CFLAGS}"
  	_CUR_LDFLAGS="${LDFLAGS}"
  	CFLAGS="${CFLAGS} -Wl,-search_paths_first"
-@@ -3327,7 +3327,7 @@ esac
+@@ -3327,7 +3340,7 @@ esac
  AC_CHECK_LIB(z, inflateCopy, AC_DEFINE(HAVE_ZLIB_COPY, 1, [Define if the zlib library has inflateCopy]))
  
  case $ac_sys_system/$ac_sys_release in
@@ -942,7 +975,7 @@ index efe6922..d943e8b 100644
  	CFLAGS="${_CUR_CFLAGS}"
  	LDFLAGS="${_CUR_LDFLAGS}"
  	;;
-@@ -3381,14 +3381,14 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+@@ -3381,14 +3394,14 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
  
  # check for openpty and forkpty
  
@@ -960,7 +993,7 @@ index efe6922..d943e8b 100644
       [AC_DEFINE(HAVE_FORKPTY) LIBS="$LIBS -lutil"],
       AC_CHECK_LIB(bsd,forkpty, [AC_DEFINE(HAVE_FORKPTY) LIBS="$LIBS -lbsd"])
     )
-@@ -3401,7 +3401,7 @@ AC_CHECK_FUNCS(memmove)
+@@ -3401,7 +3414,7 @@ AC_CHECK_FUNCS(memmove)
  AC_CHECK_FUNCS(fseek64 fseeko fstatvfs ftell64 ftello statvfs)
  
  AC_REPLACE_FUNCS(dup2 getcwd strdup)
@@ -969,7 +1002,7 @@ index efe6922..d943e8b 100644
    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <unistd.h>]], [[getpgrp(0);]])],
      [AC_DEFINE(GETPGRP_HAVE_ARG, 1, [Define if getpgrp() must be called as getpgrp(0).])],
      [])
-@@ -3411,7 +3411,7 @@ AC_CHECK_FUNCS(setpgrp,
+@@ -3411,7 +3424,7 @@ AC_CHECK_FUNCS(setpgrp,
      [AC_DEFINE(SETPGRP_HAVE_ARG, 1, [Define if setpgrp() must be called as setpgrp(0, 0).])],
      [])
  )
@@ -978,7 +1011,7 @@ index efe6922..d943e8b 100644
    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/time.h>]],
    				     [[gettimeofday((struct timeval*)0,(struct timezone*)0);]])],
      [],
-@@ -3441,7 +3441,7 @@ AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+@@ -3441,7 +3454,7 @@ AC_LINK_IFELSE([AC_LANG_PROGRAM([[
  ])
  
  # On OSF/1 V5.1, getaddrinfo is available, but a define
@@ -987,7 +1020,7 @@ index efe6922..d943e8b 100644
  AC_MSG_CHECKING(for getaddrinfo)
  AC_LINK_IFELSE([AC_LANG_PROGRAM([[
  #include <sys/types.h>
-@@ -3603,7 +3603,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+@@ -3603,7 +3616,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
  ]], [[;]])],[
    AC_DEFINE(SYS_SELECT_WITH_SYS_TIME, 1,
    [Define if  you can safely include both <sys/select.h> and <sys/time.h>
@@ -996,7 +1029,7 @@ index efe6922..d943e8b 100644
    was_it_defined=yes
  ],[])
  AC_MSG_RESULT($was_it_defined)
-@@ -3654,8 +3654,8 @@ AC_MSG_RESULT($works)
+@@ -3654,8 +3667,8 @@ AC_MSG_RESULT($works)
  have_prototypes=no
  AC_MSG_CHECKING(for prototypes)
  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[int foo(int x) { return 0; }]], [[return foo(10);]])],
@@ -1007,7 +1040,7 @@ index efe6922..d943e8b 100644
     have_prototypes=yes],
    []
  )
-@@ -3676,7 +3676,7 @@ int foo(int x, ...) {
+@@ -3676,7 +3689,7 @@ int foo(int x, ...) {
  ]], [[return foo(10, "", 3.14);]])],[
    AC_DEFINE(HAVE_STDARG_PROTOTYPES, 1,
     [Define if your compiler supports variable length function prototypes
@@ -1016,7 +1049,7 @@ index efe6922..d943e8b 100644
    works=yes
  ],[])
  AC_MSG_RESULT($works)
-@@ -3711,7 +3711,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+@@ -3711,7 +3724,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
  #include <varargs.h>
  #endif
  ]], [[va_list list1, list2; list1 = list2;]])],[],[
@@ -1025,7 +1058,7 @@ index efe6922..d943e8b 100644
   va_list_is_array=yes
  ])
  AC_MSG_RESULT($va_list_is_array)
-@@ -3806,9 +3806,9 @@ AC_ARG_WITH(fpectl,
+@@ -3806,9 +3819,9 @@ AC_ARG_WITH(fpectl,
              AS_HELP_STRING([--with-fpectl], [enable SIGFPE catching]),
  [
  if test "$withval" != no
@@ -1037,7 +1070,7 @@ index efe6922..d943e8b 100644
    AC_MSG_RESULT(yes)
  else AC_MSG_RESULT(no)
  fi],
-@@ -4123,8 +4123,8 @@ AC_DEFINE_UNQUOTED(PYLONG_BITS_IN_DIGIT, $enable_big_digits, [Define as the pref
+@@ -4123,8 +4136,8 @@ AC_DEFINE_UNQUOTED(PYLONG_BITS_IN_DIGIT, $enable_big_digits, [Define as the pref
  
  # check for wchar.h
  AC_CHECK_HEADER(wchar.h, [
@@ -1048,7 +1081,7 @@ index efe6922..d943e8b 100644
    wchar_h="yes"
  ],
  wchar_h="no"
-@@ -4167,10 +4167,10 @@ then
+@@ -4167,10 +4180,10 @@ then
    [ac_cv_wchar_t_signed=yes])])
    AC_MSG_RESULT($ac_cv_wchar_t_signed)
  fi
@@ -1061,7 +1094,7 @@ index efe6922..d943e8b 100644
                AS_HELP_STRING([--enable-unicode@<:@=ucs@<:@24@:>@@:>@], [Enable Unicode strings (default is ucs2)]),
                [],
                [enable_unicode=yes])
-@@ -4442,7 +4442,7 @@ int main()
+@@ -4442,7 +4455,7 @@ int main()
  	   tm->tm_zone does not exist since it is the alternative way
  	   of getting timezone info.
  
@@ -1070,7 +1103,7 @@ index efe6922..d943e8b 100644
  	   after New Year's Day.
  	*/
  
-@@ -4455,7 +4455,7 @@ int main()
+@@ -4455,7 +4468,7 @@ int main()
  	    exit(1);
  #if HAVE_TZNAME
  	/* For UTC, tzname[1] is sometimes "", sometimes "   " */
@@ -1079,7 +1112,7 @@ index efe6922..d943e8b 100644
  		(tzname[1][0] != 0 && tzname[1][0] != ' '))
  	    exit(1);
  #endif
-@@ -4580,7 +4580,7 @@ AC_MSG_RESULT($ac_cv_window_has_flags)
+@@ -4580,7 +4593,7 @@ AC_MSG_RESULT($ac_cv_window_has_flags)
  
  if test "$ac_cv_window_has_flags" = yes
  then
@@ -1088,7 +1121,7 @@ index efe6922..d943e8b 100644
    [Define if WINDOW in curses.h offers a field _flags.])
  fi
  
-@@ -4871,7 +4871,7 @@ for dir in $SRCDIRS; do
+@@ -4871,7 +4884,7 @@ for dir in $SRCDIRS; do
      fi
  done
  
@@ -1097,7 +1130,7 @@ index efe6922..d943e8b 100644
  # Check for --with-computed-gotos
  AC_MSG_CHECKING(for --with-computed-gotos)
  AC_ARG_WITH(computed-gotos,
-@@ -4879,15 +4879,15 @@ AC_ARG_WITH(computed-gotos,
+@@ -4879,15 +4892,15 @@ AC_ARG_WITH(computed-gotos,
                             [Use computed gotos in evaluation loop (enabled by default on supported compilers)]),
  [
  if test "$withval" = yes
@@ -1118,7 +1151,7 @@ index efe6922..d943e8b 100644
  fi
  ],
 diff --git a/setup.py b/setup.py
-index f764223..ebc97c7 100644
+index f764223..68a5514 100644
 --- a/setup.py
 +++ b/setup.py
 @@ -801,8 +801,9 @@ class PyBuildExt(build_ext):
@@ -1132,14 +1165,3 @@ index f764223..ebc97c7 100644
                          < (10, 5) ) ):
                  os_release = 8
              if os_release < 9:
-@@ -2047,6 +2048,10 @@ class PyBuildExt(build_ext):
-                              'x86/x86-darwin.S',
-                              'x86/x86-ffi_darwin.c',
-                              'x86/x86-ffi64.c',
-+                             'arm64/darwin64.S',
-+                             'arm64/arm64-darwin.S',
-+                             'arm64/arm64-ffi_darwin.c',
-+                             'arm64/arm64-ffi64.c',
-                              'powerpc/ppc-darwin.S',
-                              'powerpc/ppc-darwin_closure.S',
-                              'powerpc/ppc-ffi_darwin.c',
