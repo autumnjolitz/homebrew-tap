@@ -1,5 +1,9 @@
 # Homebrew Tap
 
+## Preamble
+
+Before you can make use of these Homebrew Formula, you'll have to `brew trust autumnjolitz/tap` first.
+
 ## Crossfire Homebrew Tap
 
 Crossfire is a free, open-source, cooperative multiplayer RPG and adventure game.
