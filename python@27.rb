@@ -1148,7 +1148,7 @@ index efe6922..849b394 100644
  fi
  ],
 diff --git a/setup.py b/setup.py
-index f764223..391f3fc 100644
+index f764223..6ee26a0 100644
 --- a/setup.py
 +++ b/setup.py
 @@ -801,8 +801,9 @@ class PyBuildExt(build_ext):
@@ -1200,7 +1200,7 @@ index f764223..391f3fc 100644
 +            else:
 +                if not openssl_ver:
 +                    try:
-+                        o_ssl_maj, o_ssl_min, o_ssl_patch = openssl_ver3_buf
++                        o_ssl_maj, o_ssl_min, o_ssl_patch = openssl_ver_3_buf
 +                    except ValueError:
 +                        raise NotImplementedError(
 +                            "Unable to determine openssl version from: %s" % (opensslv_h,)
