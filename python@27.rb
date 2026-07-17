@@ -13,11 +13,16 @@ class PythonAT27 < Formula
   depends_on "openssl@3"
   depends_on "readline"
   depends_on "sqlite"
+  uses_from_macos "libxcrypt"
   uses_from_macos "bzip2"
   uses_from_macos "expat"
   uses_from_macos "libffi"
   uses_from_macos "ncurses"
   uses_from_macos "zlib"
+
+  on_linux do
+    depends_on "zlib-ng-compat"
+  end
 
   resource "setuptools" do
     url "https://files.pythonhosted.org/packages/b2/40/4e00501c204b457f10fe410da0c97537214b2265247bc9a5bc6edd55b9e4/setuptools-44.1.1.zip"
