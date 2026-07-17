@@ -1,19 +1,21 @@
 class PythonAT24 < Formula
-  desc "This is the Homebrew formula for Python 2.4"
-  homepage "http://www.python.org/"
+  desc "Interpreted, interactive, object-oriented programming language"
+  homepage "https://www.python.org/"
   url "https://www.python.org/ftp/python/2.4.6/Python-2.4.6.tar.bz2"
   sha256 "da104139ad3f4534482942ac02cf8f8ed9badd370ffa14f06b07c44914423e08"
 
   option "with-framework", "Do a 'Framework' build instead of a UNIX-style build."
   option "with-universal", "Build for both 32 & 64 bit Intel."
-  option "with-ssl", "Build with legacy _ssl module"
 
   depends_on "libtool" => :build
+  depends_on "zlib" => :build
   depends_on "gdbm"
-  depends_on "openssl" => "with-ssl"
+  depends_on "openssl@3"
   depends_on "readline"
 
-  patch :p1, :DATA
+  on_macos do
+    depends_on "gettext"
+  end
 
   resource "pip" do
     url "https://files.pythonhosted.org/packages/25/57/0d42cf5307d79913a082c5c4397d46f3793bc35e1138a694136d6e31be99/pip-1.1.tar.gz"
@@ -24,6 +26,8 @@ class PythonAT24 < Formula
     url "https://files.pythonhosted.org/packages/61/3c/8d680267eda244ad6391fb8b211bd39d8b527f3b66207976ef9f2f106230/setuptools-1.4.2.tar.gz"
     sha256 "263986a60a83aba790a5bffc7d009ac88114ba4e908e5c90e453b3bf2155dbbd"
   end
+
+  patch :p1, :DATA
 
   def site_packages
     # The Cellar location of site-packages
@@ -38,15 +42,12 @@ class PythonAT24 < Formula
 
   def prefix_site_packages
     # The HOMEBREW_PREFIX location of site-packages
-    lib/"python2.4"/"site-packages"
+    lib / "python2.4" / "site-packages"
   end
 
   def install
-    # remap ppc to arm64 and i386 to x86_64
-    # inreplace "configure" do |s|
-    #   s.gsub!("ppc", "arm64")
-    #   s.gsub!("i386", "x86_64")
-    # end
+    ENV["PYTHONHOME"] = nil
+    ENV["PYTHONPATH"] = nil
 
     args = [
       "--prefix=#{prefix}",
@@ -58,34 +59,49 @@ class PythonAT24 < Formula
     ]
 
     if build.with? "universal"
-      args << "--enable-universalsdk=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
-      args << "--with-universal-archs=intel"
+      maybe_sdks = %W[
+        #{MacOS.active_developer_dir}
+        /Library/Developer/CommandLineTools
+        /Applications/Xcode.app/Contents/Developer
+      ]
+      universal_sdk_path = maybe_sdks.uniq.find do |path|
+        File.directory?(path) && File.directory?("#{path}/SDKs/MacOSX.sdk")
+      end
+
+      odie "Cannot locate any developer SDKs at the following paths: #{maybe_sdks}" if universal_sdk_path.nil?
+
+      args << "--enable-universalsdk=#{universal_sdk_path}/SDKs/MacOSX.sdk"
+      args << "--with-universal-archs=universal2"
     end
 
-    if build.with? "framework"
-      args << "--enable-framework=#{frameworks}"
-    else
-      args << "--enable-shared"
-    end
+    args << "--enable-shared"
+    args << "--enable-framework=#{frameworks}" if build.with? "framework"
 
-    ENV.append_to_cflags "-D_DARWIN_C_SOURCE"
+    ENV.append_to_cflags "-D_DARWIN_C_SOURCE -g"
 
     inreplace "Mac/OSX/Makefile.in" do |s|
       s.gsub!("/Library/Frameworks", frameworks.to_s)
     end
     system "./configure", *args
-    ["Makefile.pre", "Makefile"].each do |target|
-      inreplace target do |s|
-        s.gsub!("-mno-fused-madd", "-ffp-contract=off")
+    if DevelopmentTools.clang_build_version >= 512
+      ["Makefile.pre", "Makefile"].each do |target|
+        inreplace target do |s|
+          s.gsub!("-mno-fused-madd", "-ffp-contract=off")
+        end
       end
     end
 
     inreplace "pyconfig.h" do |s|
       s.gsub!("_POSIX_C_SOURCE", "_DARWIN_C_SOURCE")
     end
-
+    static_flags = []
+    if OS.mac?
+      static_flags << "-framework CoreFoundation"
+      static_flags << "-framework IOKit"
+    end
+    link_mode = "*shared*"
     inreplace "Modules/Setup" do |s|
-      s.gsub!("#*shared*", "*shared*")
+      s.gsub!("#*shared*", link_mode)
       s.gsub!("#_socket", "_socket")
       s.gsub!("#grp", "grp")
       s.gsub!("#select", "select")
@@ -93,7 +109,10 @@ class PythonAT24 < Formula
       s.gsub!("#mmap", "mmap")
       s.gsub!("#fcntl", "fcntl")
       s.gsub!("#unicodedata", "unicodedata")
-      s.gsub!("#readline", "readline")
+      s.gsub!(
+        "#readline readline.c -lreadline -ltermcap",
+        "readline readline.c -lreadline -ltermcap",
+      )
       s.gsub!("#array", "array")
       s.gsub!("#cmath", "cmath")
       s.gsub!("#math", "math")
@@ -105,30 +124,54 @@ class PythonAT24 < Formula
       s.gsub!("#collections", "collections")
       s.gsub!("#itertools", "itertools")
       s.gsub!("#resource", "resource")
-      s.gsub!("#_locale", "_locale")
-      s.gsub!("#zlib", "zlib")
-      if build.with? "ssl"
-        s.gsub!("#SSL=/usr/local/ssl", "SSL=#{HOMEBREW_PREFIX}/opt/openssl")
-        s.gsub!("#_ssl", "_ssl")
-        s.gsub!(/^#(\s)*-DUSE_SSL/, " -DUSE_SSL")
-        s.gsub!(/^#(\s)*-L\$\(SSL\)\/lib/, " -L$(SSL)/lib")
+      locale_cflags = []
+      if OS.mac?
+        locale_cflags << "-I#{HOMEBREW_PREFIX}/opt/gettext/include"
+        locale_cflags << "-L#{HOMEBREW_PREFIX}/opt/gettext/lib"
+        locale_cflags << "-lintl"
       end
+      s.gsub!(
+        "#_locale _localemodule.c  # -lintl",
+        "_locale _localemodule.c #{locale_cflags.join " "}",
+      )
+      zlib_cflags = []
+      zlib_cflags << "-I#{HOMEBREW_PREFIX}/opt/zlib/include"
+      zlib_cflags << static_flags.join(" ")
+      zlib_cflags << "#{HOMEBREW_PREFIX}/opt/zlib/lib/libz.a"
+      s.gsub!(
+        "#zlib zlibmodule.c -I$(prefix)/include -L$(exec_prefix)/lib -lz",
+        "zlib zlibmodule.c #{zlib_cflags.join " "} ",
+      )
+      s.gsub!("#SSL=/usr/local/ssl", "SSL=#{HOMEBREW_PREFIX}/opt/openssl")
+      s.gsub!("#_ssl", "_ssl")
+      s.gsub!(/^#(\s)*-DUSE_SSL/, " -DUSE_SSL")
+      s.gsub!(%r{^#(\s)*-L\$\(SSL\)/lib}, " -L$(SSL)/lib")
     end
 
     system "make"
     # tell python to double check the setup config
-    FileUtils.touch('Modules/Setup')
+    touch buildpath / "Modules" / "Setup"
     # ARJ: make has to run twice in order to build
     # the expected socket, et al
     # This is NOT a duplicate line. It literally makes
     # the difference between a partial and full install
     system "make"
     ENV.deparallelize # Some kinds of installs must be serialized.
-    system "make", "altinstall"
+    system "make", "install"
+
+    mv man / "man1/python.1", man / "man1/python2.4.1"
 
     mv bin / "idle", bin / "idle-2.4"
     mv bin / "pydoc", bin / "pydoc-2.4"
     mv bin / "smtpd.py", bin / "smtpd-2.4.py"
+    rm bin / "python"
+
+    (libexec / "bin").install_symlink (bin / "idle-2.4").realpath => "idle"
+    (libexec / "bin").install_symlink (bin / "python2.4").realpath => "python2.4"
+    (libexec / "bin").install_symlink (bin / "python2.4").realpath => "python"
+    (libexec / "bin").install_symlink (bin / "python2.4").realpath => "python2"
+    (libexec / "bin").install_symlink (bin / "pydoc-2.4").realpath => "pydoc"
+    (libexec / "bin").install_symlink (bin / "smtpd-2.4.py").realpath => "stmpd.py"
 
     # Add the Homebrew prefix path to site-packages via a .pth
     prefix_site_packages.mkpath
@@ -148,26 +191,20 @@ class PythonAT24 < Formula
 
     cd buildpath / "setuptools" do
       system bin / "python2.4", "setup.py", "build", *package_build_args
-      ["_markerlib", "easy_install.py", "pkg_resources.py", "setuptools"].each do |item|
-        mv buildpath / "setuptools" / "build" / "lib" / item, site_packages / item
-      end
+      system bin / "python2.4", "setup.py", "install", *package_install_args
     end
     cd buildpath / "pip" do
       system bin / "python2.4", "setup.py", "build", *package_build_args
       system bin / "python2.4", "setup.py", "install", *package_install_args
     end
 
-    (bin / "pip-2.4").write(<<EOF
-#!/usr/bin/env python2.4 -u -x
-
-from pip import main
-
-if __name__ == "__main__":
-    main()
-
-EOF
-)
-    chmod 0o660, bin / "pip-2.4"
+    rm bin / "pip"
+    rm bin / "easy_install"
+    mv bin / "pip-2.4", bin / "pip2.4"
+    (libexec / "bin").install_symlink (bin / "pip2.4").realpath => "pip"
+    (libexec / "bin").install_symlink (bin / "pip2.4").realpath => "pip2.4"
+    (libexec / "bin").install_symlink (bin / "easy_install-2.4").realpath => "easy_install"
+    (libexec / "bin").install_symlink (bin / "easy_install-2.4").realpath => "easy_install-2.4"
   end
 
   def caveats
@@ -192,14 +229,16 @@ EOF
     EOS
 
     general_caveats = <<-EOS
-      You may want to create a "virtual environment" using this Python as a base
-      so you can manage multiple independent site-packages. See:
-        http://pypi.python.org/pypi/virtualenv
+      Pip and setuptools have been installed. To update them
+        pip2.4 install --upgrade pip setuptools
 
-      If you install Python packages via pip, binaries will be installed under
-      Python's cellar but not automatically linked into the Homebrew prefix.
-      You may want to add Python's bin folder to your PATH as well:
-        #{bin}
+      You can install Python packages with
+        pip2.4 install <package>
+
+      They will install into the site-package directory
+        #{site_packages}
+
+      See: https://docs.brew.sh/Homebrew-and-Python
     EOS
 
     s = site_caveats+general_caveats
@@ -208,11 +247,23 @@ EOF
   end
 
   test do
-    system bin / "python2.4", "--help"
     system bin / "python2.4", "-c", "import unicodedata"
+    system bin / "python2.4", "-c", "import _locale;_locale.setlocale(0)"
   end
 end
 __END__
+diff --git a/Include/pymactoolbox.h b/Include/pymactoolbox.h
+index 92799e9..0cd36c2 100644
+--- a/Include/pymactoolbox.h
++++ b/Include/pymactoolbox.h
+@@ -8,7 +8,6 @@
+ #endif
+ 
+ #include <Carbon/Carbon.h>
+-#include <QuickTime/QuickTime.h>
+ 
+ /*
+ ** Helper routines for error codes and such.
 diff --git a/Makefile.pre.in b/Makefile.pre.in
 index d125bf6..9f1fde5 100644
 --- a/Makefile.pre.in
@@ -240,30 +291,9 @@ index d125bf6..9f1fde5 100644
  	$(INSTALL) -d -m $(DIRMODE)  \
  		$(PYTHONFRAMEWORKDIR)/Versions/$(VERSION)/Resources/English.lproj
 diff --git a/Modules/_ssl.c b/Modules/_ssl.c
-index f90ec13..5ba83c0 100644
+index f90ec13..3bdac05 100644
 --- a/Modules/_ssl.c
 +++ b/Modules/_ssl.c
-@@ -33,13 +33,13 @@ enum py_ssl_error {
- #endif
- 
- /* Include OpenSSL header files */
--#include "openssl/rsa.h"
--#include "openssl/crypto.h"
--#include "openssl/x509.h"
--#include "openssl/pem.h"
--#include "openssl/ssl.h"
--#include "openssl/err.h"
--#include "openssl/rand.h"
-+#include <openssl/rsa.h>
-+#include <openssl/crypto.h>
-+#include <openssl/x509.h>
-+#include <openssl/pem.h>
-+#include <openssl/ssl.h>
-+#include <openssl/err.h>
-+#include <openssl/rand.h>
- 
- /* SSL error object */
- static PyObject *PySSLErrorObject;
 @@ -55,6 +55,10 @@ static PyObject *PySSLErrorObject;
  # undef HAVE_OPENSSL_RAND
  #endif
@@ -285,26 +315,28 @@ index f90ec13..5ba83c0 100644
  	Py_BEGIN_ALLOW_THREADS
  	if ((self->server_cert = SSL_get_peer_certificate(self->ssl))) {
 diff --git a/Modules/fcntlmodule.c b/Modules/fcntlmodule.c
-index 0c02ee6..2fdd347 100644
+index 0c02ee6..ca10cd4 100644
 --- a/Modules/fcntlmodule.c
 +++ b/Modules/fcntlmodule.c
-@@ -13,6 +13,8 @@
+@@ -12,6 +12,9 @@
+ #ifdef HAVE_STROPTS_H
  #include <stropts.h>
  #endif
- 
++#if defined(__APPLE__)
 +extern int flock(int fd, int operation);
-+
++#endif
+ 
  static int
  conv_descriptor(PyObject *object, int *target)
- {
 diff --git a/Modules/getaddrinfo.c b/Modules/getaddrinfo.c
-index 4d19c34..43a4d91 100644
+index 4d19c34..b40a0d8 100644
 --- a/Modules/getaddrinfo.c
 +++ b/Modules/getaddrinfo.c
-@@ -57,6 +57,16 @@
+@@ -56,6 +56,17 @@
+ 
  #include "addrinfo.h"
  #endif
- 
++#if defined(__APPLE__)
 +#include <netinet/in.h>
 +#include <arpa/inet.h>
 +
@@ -314,12 +346,12 @@ index 4d19c34..43a4d91 100644
 +
 +extern const char *hstrerror(int err);
 +extern int inet_aton(const char *cp, struct in_addr *pin);
-+
++#endif
+ 
  #if defined(__KAME__) && defined(ENABLE_IPV6)
  # define FAITH
- #endif
 diff --git a/Modules/posixmodule.c b/Modules/posixmodule.c
-index dc7f723..ce6c501 100644
+index dc7f723..0095643 100644
 --- a/Modules/posixmodule.c
 +++ b/Modules/posixmodule.c
 @@ -23,6 +23,12 @@
@@ -335,16 +367,19 @@ index dc7f723..ce6c501 100644
  #endif /* __APPLE__ */
  
  #include "Python.h"
-@@ -155,6 +161,9 @@ corresponding Unix manual entries for more information on calls.");
-    (default) */
+@@ -156,6 +162,12 @@ corresponding Unix manual entries for more information on calls.");
  extern char        *ctermid_r(char *);
  #endif
+ 
++#if defined(__APPLE__)
 +extern int getloadavg(double[], int);
 +extern char *ctermid_r(char *buf);
 +extern int setgroups(int ngroups, const gid_t *gidset);
- 
++#endif
++
  #ifndef HAVE_UNISTD_H
  #if defined(PYCC_VACPP)
+ extern int mkdir(char *);
 diff --git a/Modules/readline.c b/Modules/readline.c
 index 5094bf2..7e8f51c 100644
 --- a/Modules/readline.c
@@ -365,3 +400,104 @@ index 5094bf2..7e8f51c 100644
  	/* Set Python word break characters */
  	rl_completer_word_break_characters =
  		strdup(" \t\n`~!@#$%^&*()-=+[{]}\\|;:'\",<>/?");
+diff --git a/configure b/configure
+index a6ed9f1..e146787 100755
+--- a/configure
++++ b/configure
+@@ -846,7 +846,7 @@ Optional Features:
+   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
+   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+   --enable-universalsdk[=SDKDIR]
+-                          Build agains Mac OS X 10.4u SDK (ppc/i386)
++                          Build agains Mac OS X 10.4u SDK (arm64/x86_64)
+   --enable-framework[=INSTALLDIR]
+                           Build (MacOSX|Darwin) framework
+   --enable-shared         disable/enable building shared python library
+@@ -1716,7 +1716,7 @@ else
+ 		without_gcc=;;
+ 	BeOS*)
+ 		case $BE_HOST_CPU in
+-		ppc)
++		arm64)
+ 			CC=mwcc
+ 			without_gcc=yes
+ 			BASECFLAGS="$BASECFLAGS -export pragma"
+@@ -3909,7 +3909,7 @@ echo "${ECHO_T}$ac_cv_no_strict_aliasing_ok" >&6
+ 	Darwin*)
+ 	    BASECFLAGS="$BASECFLAGS -Wno-long-double -no-cpp-precomp -mno-fused-madd"
+ 	    if test "${enable_universalsdk}"; then
+-		BASECFLAGS="-arch ppc -arch i386 -isysroot ${UNIVERSALSDK} ${BASECFLAGS}"
++		BASECFLAGS="-arch arm64 -arch x86_64 -isysroot ${UNIVERSALSDK} ${BASECFLAGS}"
+ 	    fi
+ 
+ 	    ;;
+@@ -10328,7 +10328,7 @@ case $ac_sys_system/$ac_sys_release in
+         else
+             LIBTOOL_CRUFT=""
+     fi
+-    LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -lSystem -lSystemStubs -arch_only ppc'
++    LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -lSystem -lSystemStubs -arch_only arm64'
+     LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -install_name $(PYTHONFRAMEWORKINSTALLDIR)/Versions/$(VERSION)/$(PYTHONFRAMEWORK)'
+     LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -compatibility_version $(VERSION) -current_version $(VERSION)';;
+ esac
+@@ -10460,7 +10460,7 @@ then
+ 		if test ${MACOSX_DEPLOYMENT_TARGET-${cur_target}} '>' 10.2
+ 		then
+ 			if test "${enable_universalsdk}"; then
+-				LDFLAGS="-arch i386 -arch ppc -isysroot ${UNIVERSALSDK} ${LDFLAGS}"
++				LDFLAGS="-arch x86_64 -arch arm64 -isysroot ${UNIVERSALSDK} ${LDFLAGS}"
+ 			fi
+ 			LDSHARED='$(CC) $(LDFLAGS) -bundle -undefined dynamic_lookup'
+ 			BLDSHARED="$LDSHARED"
+diff --git a/configure.in b/configure.in
+index 2770b1e..1bc5aa0 100644
+--- a/configure.in
++++ b/configure.in
+@@ -61,7 +61,7 @@ AC_SUBST(CONFIG_ARGS)
+ CONFIG_ARGS="$ac_configure_args"
+ 
+ AC_ARG_ENABLE(universalsdk,
+-	AC_HELP_STRING(--enable-universalsdk@<:@=SDKDIR@:>@, Build agains Mac OS X 10.4u SDK (ppc/i386)),
++	AC_HELP_STRING(--enable-universalsdk@<:@=SDKDIR@:>@, Build agains Mac OS X 10.4u SDK (arm64/i386)),
+ [
+ 	case $enableval in
+ 	yes)
+@@ -796,9 +796,9 @@ yes)
+ 	    ;;
+ 	# is there any other compiler on Darwin besides gcc?
+ 	Darwin*)
+-	    BASECFLAGS="$BASECFLAGS -Wno-long-double -no-cpp-precomp -mno-fused-madd"
++	    BASECFLAGS="$BASECFLAGS -Wno-long-double -no-cpp-precomp -ffp-contract=off"
+ 	    if test "${enable_universalsdk}"; then
+-		BASECFLAGS="-arch ppc -arch i386 -isysroot ${UNIVERSALSDK} ${BASECFLAGS}"
++		BASECFLAGS="-arch arm64 -arch i386 -isysroot ${UNIVERSALSDK} ${BASECFLAGS}"
+ 	    fi
+ 
+ 	    ;;
+@@ -1315,7 +1315,7 @@ case $ac_sys_system/$ac_sys_release in
+         else
+             LIBTOOL_CRUFT=""
+     fi
+-    LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -lSystem -lSystemStubs -arch_only ppc'
++    LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -lSystem -lSystemStubs -arch_only arm64'
+     LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -install_name $(PYTHONFRAMEWORKINSTALLDIR)/Versions/$(VERSION)/$(PYTHONFRAMEWORK)'
+     LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -compatibility_version $(VERSION) -current_version $(VERSION)';;
+ esac
+@@ -1435,7 +1435,7 @@ then
+ 		if test ${MACOSX_DEPLOYMENT_TARGET-${cur_target}} '>' 10.2
+ 		then
+ 			if test "${enable_universalsdk}"; then
+-				LDFLAGS="-arch i386 -arch ppc -isysroot ${UNIVERSALSDK} ${LDFLAGS}"
++				LDFLAGS="-arch i386 -arch arm64 -isysroot ${UNIVERSALSDK} ${LDFLAGS}"
+ 			fi
+ 			LDSHARED='$(CC) $(LDFLAGS) -bundle -undefined dynamic_lookup'
+ 			BLDSHARED="$LDSHARED"
+@@ -2927,7 +2927,7 @@ AH_VERBATIM([WORDS_BIGENDIAN],
+ 
+     The block below does compile-time checking for endianness on platforms
+     that use GCC and therefore allows compiling fat binaries on OSX by using 
+-    '-arch ppc -arch i386' as the compile flags. The phrasing was choosen
++    '-arch arm64 -arch i386' as the compile flags. The phrasing was choosen
+     such that the configure-result is used on systems that don't use GCC.
+   */
+ #ifdef __BIG_ENDIAN__
