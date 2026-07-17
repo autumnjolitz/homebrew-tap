@@ -132,12 +132,14 @@ class PythonAT27 < Formula
       s.gsub! "/usr/local/ssl", formula_opt_prefix("openssl@3").to_s
     end
 
-    inreplace "setup.py" do |s|
-      s.gsub! "/usr/local/zlib", formula_opt_prefix("zlib").to_s
-    end
+    unless OS.mac?
+      inreplace "setup.py" do |s|
+        s.gsub! "/usr/local/zlib", formula_opt_prefix("zlib").to_s
+      end
 
-    inreplace "setup.py" do |s|
-      s.gsub! "/usr/local/bz2", formula_opt_prefix("bz2").to_s
+      inreplace "setup.py" do |s|
+        s.gsub! "/usr/local/bz2", formula_opt_prefix("bz2").to_s
+      end
     end
 
     inreplace "setup.py" do |s|
