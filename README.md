@@ -1,4 +1,6 @@
-# Crossfire Homebrew Tap
+# Homebrew Tap
+
+## Crossfire Homebrew Tap
 
 Crossfire is a free, open-source, cooperative multiplayer RPG and adventure game.
 
@@ -10,13 +12,20 @@ Crossfire is a free, open-source, cooperative multiplayer RPG and adventure game
 
 ![Screenshot of crossfire-client-gtk2](/docs/screenshot1.png?raw=true "session on metalforge.net")
 
-# xsoldier Homebrew Tap
+### crossfire-client
+
+`brew install --HEAD autumnjolitz/tap/crossfire-client`
+
+## xsoldier Homebrew Tap
 
 [xsoldier](http://www.interq.or.jp/libra/oohara/xsoldier/index.html) is a shoot 'em up game with the \"not shooting\" bonus.
 
 <img src="/docs/xsoldier.png?raw=true" width="600">
 
-# Python 2.4 Homebrew Tap
+### xsoldier
+`brew install autumnjolitz/tap/xsoldier`
+
+## Python 2.4 Homebrew Tap
 
 Python 2.4 is legacy and clearly unmaintained, however older Zope installations require it.
 
@@ -26,7 +35,11 @@ Python 2.4 comes with:
 - setuptools 1.4.2 (aliased to `easy_install-2.4`)
 
 
-# Python 2.7 Homebrew Tap
+### python2.4
+
+`brew install autumnjolitz/tap/python@24`
+
+## Python 2.7 Homebrew Tap
 
 Python 2.7 is legacy and clearly unmaintained, however older Zope installations require it.
 
@@ -37,28 +50,21 @@ Python 2.7 comes with the last known Python 2.7-compatible releases for:
 - virtualenv 20.15.1(alised to `virtualenv-2.7`)
 
 
-# Zope 2.11 Homebrew Tap
-
-Zope 2.11 is legacy software, blah blah.
-
-### xsoldier
-
-`brew install autumnjolitz/tap/xsoldier`
-
-### crossfire-client
-
-`brew install --HEAD autumnjolitz/tap/crossfire-client`
-
-## Resurrected Snakes (Python 2)
-
-### python 2.4
-
-`brew install autumnjolitz/tap/python@24`
-
-### python 2.7
+### python2.7
 
 `brew install autumnjolitz/tap/python@27`
 
-### zope 2.11
+
+## Zope 2.11 Homebrew Tap
+
+Zope 2.11 is legacy software, blah blah.
+
+### zope2.11
 
 `brew install autumnjolitz/tap/zope@211`
+
+
+
+
+
+
