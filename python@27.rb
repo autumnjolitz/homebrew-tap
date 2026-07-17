@@ -43,9 +43,9 @@ class PythonAT27 < Formula
 
   def lib_cellar
     if OS.mac?
-      return prefix / "Frameworks/Python.framework/Versions/#{version.major_minor}/lib/python#{version.major_minor}"
+      prefix / "Frameworks/Python.framework/Versions/#{version.major_minor}/lib/python#{version.major_minor}"
     else
-      return lib / "python#{version.major_minor}"
+      lib / "python#{version.major_minor}"
     end
   end
 
