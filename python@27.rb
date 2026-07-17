@@ -13,10 +13,10 @@ class PythonAT27 < Formula
   depends_on "openssl@3"
   depends_on "readline"
   depends_on "sqlite"
-  uses_from_macos "libxcrypt"
   uses_from_macos "bzip2"
   uses_from_macos "expat"
   uses_from_macos "libffi"
+  uses_from_macos "libxcrypt"
   uses_from_macos "ncurses"
   uses_from_macos "zlib"
 
