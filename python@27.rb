@@ -42,7 +42,11 @@ class PythonAT27 < Formula
   patch :p1, :DATA
 
   def lib_cellar
-    prefix/"Frameworks/Python.framework/Versions/2.7/lib/python2.7"
+    if OS.mac?
+      return prefix / "Frameworks/Python.framework/Versions/#{version.major_minor}/lib/python#{version.major_minor}"
+    else
+      return lib / "python#{version.major_minor}"
+    end
   end
 
   def site_packages_cellar
@@ -177,8 +181,8 @@ class PythonAT27 < Formula
       lib_cellar / "config/Makefile",
     ]
     if OS.mac?
-      framwork_pkg_conf = "Python.framework/Versions/Current/lib/pkgconfig/python-2.7.pc"
-      fragile_paths << (frameworks / framwork_pkg_conf)
+      framework_pkg_conf = "Python.framework/Versions/Current/lib/pkgconfig/python-#{version.major_minor}.pc"
+      fragile_paths << (frameworks / framework_pkg_conf)
     end
     inreplace fragile_paths,
               prefix, opt_prefix
