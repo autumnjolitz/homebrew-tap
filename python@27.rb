@@ -55,7 +55,7 @@ class PythonAT27 < Formula
 
   # The HOMEBREW_PREFIX location of site-packages.
   def site_packages
-    HOMEBREW_PREFIX/"lib/python2.7/site-packages"
+    HOMEBREW_PREFIX/"lib/python#{version.major_minor}/site-packages"
   end
 
   def install
@@ -216,6 +216,9 @@ class PythonAT27 < Formula
     (libexec/"pip").install resource("pip")
     (libexec/"wheel").install resource("wheel")
     (libexec/"virtualenv").install resource("virtualenv")
+
+    python = "#{bin}/python#{version.major_minor}"
+    system python, "-c", "import zlib"
   end
 
   def post_install
@@ -255,20 +258,24 @@ class PythonAT27 < Formula
                   "--record=installed.txt",
                   "--install-scripts=#{bin}",
                   "--install-lib=#{site_packages}"]
+    python = "#{bin}/python#{version.major_minor}"
 
-    (libexec/"setuptools").cd { system "#{bin}/python2.7", *setup_args }
-    (libexec/"pip").cd { system "#{bin}/python2.7", *setup_args }
-    (libexec/"wheel").cd { system "#{bin}/python2.7", *setup_args }
-    (libexec/"virtualenv").cd { system "#{bin}/python2.7", *setup_args }
+    (libexec/"setuptools").cd { system python, *setup_args }
+    (libexec/"pip").cd { system python, *setup_args }
+    (libexec/"wheel").cd { system python, *setup_args }
+    (libexec/"virtualenv").cd { system python, *setup_args }
 
     # When building from source, these symlinks will not exist, since
     # post_install happens after linking.
-    mv bin / "wheel", bin / "wheel-2.7"
-    mv bin / "virtualenv", bin / "virtualenv-2.7"
+    mv bin / "wheel", bin / "wheel-#{version.major_minor}"
+    mv bin / "virtualenv", bin / "virtualenv-#{version.major_minor}"
 
-    %w[pip2.7 easy_install-2.7 wheel-2.7 virtualenv-2.7].each do |e|
-      (HOMEBREW_PREFIX/"bin").install_symlink bin/e
-    end
+    [
+      "pip#{version.major_minor}",
+      "easy_install-#{version.major_minor}",
+      "wheel-#{version.major_minor}",
+      "virtualenv-#{version.major_minor}",
+    ].each { |exe| (HOMEBREW_PREFIX/"bin").install_symlink bin/exe }
 
     # Help distutils find brewed stuff when building extensions
     include_dirs = [HOMEBREW_PREFIX/"include", formula_opt_include("openssl@3"),
@@ -323,7 +330,7 @@ class PythonAT27 < Formula
       if os.path.realpath(sys.executable).startswith('#{rack}'):
           # Shuffle /Library site-packages to the end of sys.path and reject
           # paths in /System pre-emptively (#14712)
-          library_site = '/Library/Python/2.7/site-packages'
+          library_site = '/Library/Python/#{version.major_minor}/site-packages'
           library_packages = [p for p in sys.path if p.startswith(library_site)]
           sys.path = [p for p in sys.path if not p.startswith(library_site) and
                                              not p.startswith('/System')]
@@ -346,7 +353,7 @@ class PythonAT27 < Formula
               pass  # remember: don't print here. Better to fail silently.
 
           # Set the sys.executable to use the opt_prefix
-          sys.executable = '#{opt_bin}/python2.7'
+          sys.executable = '#{opt_bin}/python#{version.major_minor}'
     EOS
   end
 
@@ -368,12 +375,17 @@ class PythonAT27 < Formula
   test do
     # Check if sqlite is ok, because we build with --enable-loadable-sqlite-extensions
     # and it can occur that building sqlite silently fails if OSX's sqlite is used.
-    system "#{bin}/python2.7", "-c", "import sqlite3"
+    python = bin / "python#{version.major_minor}"
+    pip = bin / "pip#{version.major_minor}"
+
+    system python, "-c", "import sqlite3"
+    system python, "-c", "import zlib"
+    system python, "-c", "import _hashlib"
     # Check if some other modules import. Then the linked libs are working.
-    # system "#{bin}/python2.7", "-c", "import Tkinter; root = Tkinter.Tk()"
-    system "#{bin}/python2.7", "-c", "import dbm; print(dbm.library)"
-    system "#{bin}/python2.7", "-c", "import zlib"
-    system bin/"pip2.7", "list", "--format=columns"
+    # system python, "-c", "import Tkinter; root = Tkinter.Tk()"
+    system python, "-c", "import dbm; print(dbm.library)"
+    system python, "-c", "import zlib"
+    system pip, "list", "--format=columns"
   end
 end
 __END__
