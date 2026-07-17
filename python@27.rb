@@ -1150,7 +1150,7 @@ index efe6922..849b394 100644
  fi
  ],
 diff --git a/setup.py b/setup.py
-index f764223..68a5514 100644
+index f764223..391f3fc 100644
 --- a/setup.py
 +++ b/setup.py
 @@ -801,8 +801,9 @@ class PyBuildExt(build_ext):
@@ -1164,3 +1164,50 @@ index f764223..68a5514 100644
                          < (10, 5) ) ):
                  os_release = 8
              if os_release < 9:
+@@ -883,8 +884,12 @@ class PyBuildExt(build_ext):
+ 
+         # find out which version of OpenSSL we have
+         openssl_ver = 0
++        openssl_ver_3_buf = []
+         openssl_ver_re = re.compile(
+-            '^\s*#\s*define\s+OPENSSL_VERSION_NUMBER\s+(0x[0-9a-fA-F]+)' )
++            r'^\s*#\s*define\s+OPENSSL_VERSION_NUMBER\s+(0x[0-9a-fA-F]+)' )
++        openssl_3_ver_re = re.compile(
++            r'^\s*#\s*define\s+OPENSSL_VERSION_(?:MAJOR|MINOR|PATCH)\s+(\d+)'
++        )
+ 
+         # look for the openssl version header on the compiler search path.
+         opensslv_h = find_file('openssl/opensslv.h', [],
+@@ -894,14 +899,27 @@ class PyBuildExt(build_ext):
+             if host_platform == 'darwin' and is_macosx_sdk_path(name):
+                 name = os.path.join(macosx_sdk_root(), name[1:])
+             try:
+-                incfile = open(name, 'r')
+-                for line in incfile:
+-                    m = openssl_ver_re.match(line)
+-                    if m:
+-                        openssl_ver = eval(m.group(1))
++                with open(name, 'r') as fh:
++                    for line in fh:
++                        m = openssl_ver_re.match(line)
++                        if m:
++                            openssl_ver = eval(m.group(1))
++                            break
++                        m = openssl_3_ver_re.match(line)
++                        if m:
++                            openssl_ver_3_buf.append(int(m.group(1)))
+             except IOError, msg:
+                 print "IOError while reading opensshv.h:", msg
+                 pass
++            else:
++                if not openssl_ver:
++                    try:
++                        o_ssl_maj, o_ssl_min, o_ssl_patch = openssl_ver3_buf
++                    except ValueError:
++                        raise NotImplementedError(
++                            "Unable to determine openssl version from: %s" % (opensslv_h,)
++                        )
++                    openssl_ver = o_ssl_maj << 28 | o_ssl_min << 20 | o_ssl_patch << 4
+ 
+         min_openssl_ver = 0x00907000
+         have_any_openssl = ssl_incs is not None and ssl_libs is not None
