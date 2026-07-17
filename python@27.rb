@@ -137,6 +137,10 @@ class PythonAT27 < Formula
       s.gsub! "/usr/local/ssl", formula_opt_prefix("openssl@3").to_s
     end
 
+    inreplace "setup.py" do |s|
+      s.gsub! "/usr/local/gdbm", formula_opt_prefix("gdbm").to_s
+    end
+
     unless OS.mac?
       inreplace "setup.py" do |s|
         s.gsub! "/usr/local/zlib", formula_opt_prefix("zlib").to_s
@@ -1182,7 +1186,7 @@ index efe6922..849b394 100644
  fi
  ],
 diff --git a/setup.py b/setup.py
-index f764223..566e3a8 100644
+index f764223..bf6e389 100644
 --- a/setup.py
 +++ b/setup.py
 @@ -801,8 +801,9 @@ class PyBuildExt(build_ext):
@@ -1243,7 +1247,48 @@ index f764223..566e3a8 100644
  
          min_openssl_ver = 0x00907000
          have_any_openssl = ssl_incs is not None and ssl_libs is not None
-@@ -1449,7 +1467,8 @@ class PyBuildExt(build_ext):
+@@ -1333,13 +1351,15 @@ class PyBuildExt(build_ext):
+                         break
+ 
+                 elif cand == "gdbm":
+-                    if self.compiler.find_library_file(lib_dirs, 'gdbm'):
++                    gdbm_libdir = ["/usr/local/gdbm/lib"]
++                    gdbm_incdir = ["/usr/local/gdbm/include"]
++                    if self.compiler.find_library_file(gdbm_libdir + lib_dirs, 'gdbm'):
+                         gdbm_libs = ['gdbm']
+-                        if self.compiler.find_library_file(lib_dirs,
++                        if self.compiler.find_library_file(gdbm_libdir + lib_dirs,
+                                                                'gdbm_compat'):
+                             gdbm_libs.append('gdbm_compat')
+-                        if find_file("gdbm/ndbm.h", inc_dirs, []) is not None:
+-                            print "building dbm using gdbm"
++                        if find_file("gdbm/ndbm.h", gdbm_incdir + inc_dirs, []) is not None:
++                            print >>sys.stderr, "dbm: building dbm using gdbm"
+                             dbmext = Extension(
+                                 'dbm', ['dbmmodule.c'],
+                                 define_macros=[
+@@ -1347,14 +1367,17 @@ class PyBuildExt(build_ext):
+                                     ],
+                                 libraries = gdbm_libs)
+                             break
+-                        if find_file("gdbm-ndbm.h", inc_dirs, []) is not None:
+-                            print "building dbm using gdbm"
++                        if find_file("gdbm-ndbm.h", gdbm_incdir + inc_dirs, []) is not None:
++                            print >>sys.stderr, "dbm: building dbm using gdbm-ndbm"
+                             dbmext = Extension(
+                                 'dbm', ['dbmmodule.c'],
+                                 define_macros=[
+                                     ('HAVE_GDBM_DASH_NDBM_H', None),
+                                     ],
+-                                libraries = gdbm_libs)
++                                libraries = gdbm_libs,
++                                include_dirs=gdbm_incdir,
++                                library_dirs=gdbm_libdir,
++                                )
+                             break
+                 elif cand == "bdb":
+                     if db_incs is not None:
+@@ -1449,7 +1472,8 @@ class PyBuildExt(build_ext):
          #
          # You can upgrade zlib to version 1.1.4 yourself by going to
          # http://www.gzip.org/zlib/
@@ -1253,7 +1298,7 @@ index f764223..566e3a8 100644
          have_zlib = False
          if zlib_inc is not None:
              zlib_h = zlib_inc[0] + '/zlib.h'
-@@ -1466,20 +1485,24 @@ class PyBuildExt(build_ext):
+@@ -1466,20 +1490,24 @@ class PyBuildExt(build_ext):
                      version = line.split()[2]
                      break
              if version >= version_req:
@@ -1279,7 +1324,7 @@ index f764223..566e3a8 100644
              missing.append('zlib')
  
          # Helper module for various ascii-encoders.  Uses zlib for an optimized
-@@ -1498,15 +1521,20 @@ class PyBuildExt(build_ext):
+@@ -1498,15 +1526,20 @@ class PyBuildExt(build_ext):
                                 extra_link_args = extra_link_args) )
  
          # Gustavo Niemeyer's bz2 module.
