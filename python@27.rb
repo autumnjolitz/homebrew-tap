@@ -1186,7 +1186,7 @@ index efe6922..849b394 100644
  fi
  ],
 diff --git a/setup.py b/setup.py
-index f764223..bf6e389 100644
+index f764223..920413c 100644
 --- a/setup.py
 +++ b/setup.py
 @@ -801,8 +801,9 @@ class PyBuildExt(build_ext):
@@ -1247,7 +1247,7 @@ index f764223..bf6e389 100644
  
          min_openssl_ver = 0x00907000
          have_any_openssl = ssl_incs is not None and ssl_libs is not None
-@@ -1333,13 +1351,15 @@ class PyBuildExt(build_ext):
+@@ -1333,28 +1351,36 @@ class PyBuildExt(build_ext):
                          break
  
                  elif cand == "gdbm":
@@ -1267,9 +1267,13 @@ index f764223..bf6e389 100644
                              dbmext = Extension(
                                  'dbm', ['dbmmodule.c'],
                                  define_macros=[
-@@ -1347,14 +1367,17 @@ class PyBuildExt(build_ext):
+                                     ('HAVE_GDBM_NDBM_H', None),
                                      ],
-                                 libraries = gdbm_libs)
+-                                libraries = gdbm_libs)
++                                libraries = gdbm_libs,
++                                include_dirs=gdbm_incdir,
++                                library_dirs=gdbm_libdir,
++                                )
                              break
 -                        if find_file("gdbm-ndbm.h", inc_dirs, []) is not None:
 -                            print "building dbm using gdbm"
@@ -1288,7 +1292,7 @@ index f764223..bf6e389 100644
                              break
                  elif cand == "bdb":
                      if db_incs is not None:
-@@ -1449,7 +1472,8 @@ class PyBuildExt(build_ext):
+@@ -1449,7 +1475,8 @@ class PyBuildExt(build_ext):
          #
          # You can upgrade zlib to version 1.1.4 yourself by going to
          # http://www.gzip.org/zlib/
@@ -1298,7 +1302,7 @@ index f764223..bf6e389 100644
          have_zlib = False
          if zlib_inc is not None:
              zlib_h = zlib_inc[0] + '/zlib.h'
-@@ -1466,20 +1490,24 @@ class PyBuildExt(build_ext):
+@@ -1466,20 +1493,24 @@ class PyBuildExt(build_ext):
                      version = line.split()[2]
                      break
              if version >= version_req:
@@ -1324,7 +1328,7 @@ index f764223..bf6e389 100644
              missing.append('zlib')
  
          # Helper module for various ascii-encoders.  Uses zlib for an optimized
-@@ -1498,15 +1526,20 @@ class PyBuildExt(build_ext):
+@@ -1498,15 +1529,20 @@ class PyBuildExt(build_ext):
                                 extra_link_args = extra_link_args) )
  
          # Gustavo Niemeyer's bz2 module.
