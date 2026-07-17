@@ -133,6 +133,10 @@ class PythonAT27 < Formula
     end
 
     inreplace "setup.py" do |s|
+      s.gsub! "/usr/local/zlib", formula_opt_prefix("zlib").to_s
+    end
+
+    inreplace "setup.py" do |s|
       s.gsub! "sqlite_setup_debug = False", "sqlite_setup_debug = True"
       s.gsub! "for d_ in inc_dirs + sqlite_inc_paths:",
               "for d_ in ['#{formula_opt_include("sqlite")}']:"
@@ -1154,7 +1158,7 @@ index efe6922..849b394 100644
  fi
  ],
 diff --git a/setup.py b/setup.py
-index f764223..6ee26a0 100644
+index f764223..96c63e2 100644
 --- a/setup.py
 +++ b/setup.py
 @@ -801,8 +801,9 @@ class PyBuildExt(build_ext):
@@ -1215,3 +1219,21 @@ index f764223..6ee26a0 100644
  
          min_openssl_ver = 0x00907000
          have_any_openssl = ssl_incs is not None and ssl_libs is not None
+@@ -1449,7 +1467,8 @@ class PyBuildExt(build_ext):
+         #
+         # You can upgrade zlib to version 1.1.4 yourself by going to
+         # http://www.gzip.org/zlib/
+-        zlib_inc = find_file('zlib.h', [], inc_dirs)
++        zlib_inc = find_file('zlib.h', [], inc_dirs + ["/usr/local/zlib/include"])
++        zlib_extra_libdirs = ["/usr/local/zlib/lib"]
+         have_zlib = False
+         if zlib_inc is not None:
+             zlib_h = zlib_inc[0] + '/zlib.h'
+@@ -1473,6 +1492,7 @@ class PyBuildExt(build_ext):
+                         zlib_extra_link_args = ()
+                     exts.append( Extension('zlib', ['zlibmodule.c'],
+                                            libraries = ['z'],
++                                           library_dirs = zlib_extra_libdirs,
+                                            extra_link_args = zlib_extra_link_args))
+                     have_zlib = True
+                 else:
