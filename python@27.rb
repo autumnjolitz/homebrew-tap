@@ -1158,7 +1158,7 @@ index efe6922..849b394 100644
  fi
  ],
 diff --git a/setup.py b/setup.py
-index f764223..96c63e2 100644
+index f764223..4f49c02 100644
 --- a/setup.py
 +++ b/setup.py
 @@ -801,8 +801,9 @@ class PyBuildExt(build_ext):
@@ -1224,7 +1224,7 @@ index f764223..96c63e2 100644
          # You can upgrade zlib to version 1.1.4 yourself by going to
          # http://www.gzip.org/zlib/
 -        zlib_inc = find_file('zlib.h', [], inc_dirs)
-+        zlib_inc = find_file('zlib.h', [], inc_dirs + ["/usr/local/zlib/include"])
++        zlib_inc = find_file('zlib.h', [], ["/usr/local/zlib/include"] + inc_dirs)
 +        zlib_extra_libdirs = ["/usr/local/zlib/lib"]
          have_zlib = False
          if zlib_inc is not None:
