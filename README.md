@@ -4,15 +4,11 @@
 
 Crossfire is a free, open-source, cooperative multiplayer RPG and adventure game.
 
-[Project](https://crossfire.real-time.com/)
-
-[Source](https://sourceforge.net/projects/crossfire/)
-
-[Wiki](https://wiki.cross-fire.org/)
+[Project](https://crossfire.real-time.com/) | [Source](https://sourceforge.net/projects/crossfire/) | [Wiki](https://wiki.cross-fire.org/)
 
 ![Screenshot of crossfire-client-gtk2](/docs/screenshot1.png?raw=true "session on metalforge.net")
 
-### crossfire-client
+### crossfire-client-gtk2
 
 `brew install --HEAD autumnjolitz/tap/crossfire-client`
 
