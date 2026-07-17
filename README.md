@@ -20,9 +20,22 @@ Crossfire is a free, open-source, cooperative multiplayer RPG and adventure game
 
 Python 2.4 is legacy and clearly unmaintained, however older Zope installations require it.
 
+Python 2.4 comes with:
+
+- pip 1.1 (aliased to `pip2.4`)
+- setuptools 1.4.2 (aliased to `easy_install-2.4`)
+
+
 # Python 2.7 Homebrew Tap
 
-Python 2.4 is legacy and clearly unmaintained, however older Zope installations require it.
+Python 2.7 is legacy and clearly unmaintained, however older Zope installations require it.
+
+Python 2.7 comes with the last known Python 2.7-compatible releases for:
+
+- pip 20.3.4 (aliased to `pip2.7`)
+- setuptools 44.1.1 (aliased to `easy_install-2.7`)
+- virtualenv 20.15.1(alised to `virtualenv-2.7`)
+
 
 # Zope 2.11 Homebrew Tap
 
