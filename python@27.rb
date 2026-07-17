@@ -1170,7 +1170,7 @@ index efe6922..849b394 100644
  fi
  ],
 diff --git a/setup.py b/setup.py
-index f764223..4f49c02 100644
+index f764223..792fa32 100644
 --- a/setup.py
 +++ b/setup.py
 @@ -801,8 +801,9 @@ class PyBuildExt(build_ext):
@@ -1241,7 +1241,7 @@ index f764223..4f49c02 100644
          have_zlib = False
          if zlib_inc is not None:
              zlib_h = zlib_inc[0] + '/zlib.h'
-@@ -1473,6 +1492,7 @@ class PyBuildExt(build_ext):
+@@ -1473,13 +1492,17 @@ class PyBuildExt(build_ext):
                          zlib_extra_link_args = ()
                      exts.append( Extension('zlib', ['zlibmodule.c'],
                                             libraries = ['z'],
@@ -1249,3 +1249,13 @@ index f764223..4f49c02 100644
                                             extra_link_args = zlib_extra_link_args))
                      have_zlib = True
                  else:
++                    print >>sys.stderr, "err: cannot find zlib library!"
+                     missing.append('zlib')
+             else:
++                print >>sys.stderr, "err: zlib version too old!"
+                 missing.append('zlib')
+         else:
++            print >>sys.stderr, "err: zlib.h not found!"
+             missing.append('zlib')
+ 
+         # Helper module for various ascii-encoders.  Uses zlib for an optimized
