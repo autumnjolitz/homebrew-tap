@@ -69,7 +69,6 @@ class PythonAT27 < Formula
       --without-ensurepip
       --with-system-ffi
       --with-system-expat
-      --enable-optimizations
     ]
     args << "--enable-shared" unless OS.mac?
     args << "--enable-framework=#{frameworks}" if OS.mac?
