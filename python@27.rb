@@ -1186,7 +1186,7 @@ index efe6922..849b394 100644
  fi
  ],
 diff --git a/setup.py b/setup.py
-index f764223..2112f43 100644
+index f764223..cb071f1 100644
 --- a/setup.py
 +++ b/setup.py
 @@ -801,8 +801,9 @@ class PyBuildExt(build_ext):
@@ -1247,13 +1247,21 @@ index f764223..2112f43 100644
  
          min_openssl_ver = 0x00907000
          have_any_openssl = ssl_incs is not None and ssl_libs is not None
-@@ -1333,28 +1351,36 @@ class PyBuildExt(build_ext):
+@@ -1311,6 +1329,9 @@ class PyBuildExt(build_ext):
+             else:
+                 dbm_order = "ndbm:gdbm:bdb".split(":")
+             dbmext = None
++            gdbm_libdir = ["/usr/local/gdbm/lib"]
++            gdbm_incdir = ["/usr/local/gdbm/include"]
++
+             for cand in dbm_order:
+                 if cand == "ndbm":
+                     if find_file("ndbm.h", inc_dirs, []) is not None:
+@@ -1333,28 +1354,34 @@ class PyBuildExt(build_ext):
                          break
  
                  elif cand == "gdbm":
 -                    if self.compiler.find_library_file(lib_dirs, 'gdbm'):
-+                    gdbm_libdir = ["/usr/local/gdbm/lib"]
-+                    gdbm_incdir = ["/usr/local/gdbm/include"]
 +                    if self.compiler.find_library_file(gdbm_libdir + lib_dirs, 'gdbm'):
                          gdbm_libs = ['gdbm']
 -                        if self.compiler.find_library_file(lib_dirs,
@@ -1292,7 +1300,7 @@ index f764223..2112f43 100644
                              break
                  elif cand == "bdb":
                      if db_incs is not None:
-@@ -1376,9 +1402,11 @@ class PyBuildExt(build_ext):
+@@ -1376,9 +1403,11 @@ class PyBuildExt(build_ext):
  
          # Anthony Baxter's gdbm module.  GNU dbm(3) will require -lgdbm:
          if ('gdbm' in dbm_order and
@@ -1306,7 +1314,7 @@ index f764223..2112f43 100644
          else:
              missing.append('gdbm')
  
-@@ -1449,7 +1477,8 @@ class PyBuildExt(build_ext):
+@@ -1449,7 +1478,8 @@ class PyBuildExt(build_ext):
          #
          # You can upgrade zlib to version 1.1.4 yourself by going to
          # http://www.gzip.org/zlib/
@@ -1316,7 +1324,7 @@ index f764223..2112f43 100644
          have_zlib = False
          if zlib_inc is not None:
              zlib_h = zlib_inc[0] + '/zlib.h'
-@@ -1466,20 +1495,24 @@ class PyBuildExt(build_ext):
+@@ -1466,20 +1496,24 @@ class PyBuildExt(build_ext):
                      version = line.split()[2]
                      break
              if version >= version_req:
@@ -1342,7 +1350,7 @@ index f764223..2112f43 100644
              missing.append('zlib')
  
          # Helper module for various ascii-encoders.  Uses zlib for an optimized
-@@ -1498,15 +1531,20 @@ class PyBuildExt(build_ext):
+@@ -1498,15 +1532,20 @@ class PyBuildExt(build_ext):
                                 extra_link_args = extra_link_args) )
  
          # Gustavo Niemeyer's bz2 module.
