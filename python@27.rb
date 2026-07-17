@@ -137,6 +137,10 @@ class PythonAT27 < Formula
     end
 
     inreplace "setup.py" do |s|
+      s.gsub! "/usr/local/bz2", formula_opt_prefix("bz2").to_s
+    end
+
+    inreplace "setup.py" do |s|
       s.gsub! "sqlite_setup_debug = False", "sqlite_setup_debug = True"
       s.gsub! "for d_ in inc_dirs + sqlite_inc_paths:",
               "for d_ in ['#{formula_opt_include("sqlite")}']:"
@@ -1170,7 +1174,7 @@ index efe6922..849b394 100644
  fi
  ],
 diff --git a/setup.py b/setup.py
-index f764223..792fa32 100644
+index f764223..566e3a8 100644
 --- a/setup.py
 +++ b/setup.py
 @@ -801,8 +801,9 @@ class PyBuildExt(build_ext):
@@ -1241,7 +1245,15 @@ index f764223..792fa32 100644
          have_zlib = False
          if zlib_inc is not None:
              zlib_h = zlib_inc[0] + '/zlib.h'
-@@ -1473,13 +1492,17 @@ class PyBuildExt(build_ext):
+@@ -1466,20 +1485,24 @@ class PyBuildExt(build_ext):
+                     version = line.split()[2]
+                     break
+             if version >= version_req:
+-                if (self.compiler.find_library_file(lib_dirs, 'z')):
++                if (self.compiler.find_library_file(zlib_extra_libdirs + lib_dirs, 'z')):
+                     if host_platform == "darwin":
+                         zlib_extra_link_args = ('-Wl,-search_paths_first',)
+                     else:
                          zlib_extra_link_args = ()
                      exts.append( Extension('zlib', ['zlibmodule.c'],
                                             libraries = ['z'],
@@ -1259,3 +1271,25 @@ index f764223..792fa32 100644
              missing.append('zlib')
  
          # Helper module for various ascii-encoders.  Uses zlib for an optimized
+@@ -1498,15 +1521,20 @@ class PyBuildExt(build_ext):
+                                extra_link_args = extra_link_args) )
+ 
+         # Gustavo Niemeyer's bz2 module.
+-        if (self.compiler.find_library_file(lib_dirs, 'bz2')):
++        bz2_libs = ["/usr/local/bz2/lib"]
++        bz2_incs = ["/usr/local/bz2/include"]
++        if (self.compiler.find_library_file(bz2_libs + lib_dirs, 'bz2')):
+             if host_platform == "darwin":
+                 bz2_extra_link_args = ('-Wl,-search_paths_first',)
+             else:
+                 bz2_extra_link_args = ()
+             exts.append( Extension('bz2', ['bz2module.c'],
+                                    libraries = ['bz2'],
++                                   library_dirs = bz2_libs,
++                                   include_dirs = bz2_incs,
+                                    extra_link_args = bz2_extra_link_args) )
+         else:
++            print >>sys.stderr, "err: unable to find libbz2 in: %s" % (lib_dirs,)
+             missing.append('bz2')
+ 
+         # Interface to the Expat XML parser
