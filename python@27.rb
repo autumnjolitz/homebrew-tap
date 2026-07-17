@@ -159,8 +159,6 @@ class PythonAT27 < Formula
       system "make", "frameworkinstallextras", "PYTHONAPPSDIR=#{pkgshare}" if OS.mac?
     end
 
-    rm man / "man1/python.1"
-
     # Fixes setting Python build flags for certain software
     # See: https://github.com/Homebrew/homebrew/pull/20182
     # https://bugs.python.org/issue3588
