@@ -354,7 +354,7 @@ class PythonAT27 < Formula
           # -F/#{HOMEBREW_PREFIX}/Frameworks switch.
           try:
               from _sysconfigdata import build_time_vars
-              build_time_vars['LINKFORSHARED'] = '-u _PyMac_Error #{opt_prefix}/Frameworks/Python.framework/Versions/2.7/Python'
+              build_time_vars['LINKFORSHARED'] = '-u _PyMac_Error #{opt_prefix}/Frameworks/Python.framework/Versions/#{version.major_minor}/Python'
           except:
               pass  # remember: don't print here. Better to fail silently.
 
@@ -366,10 +366,10 @@ class PythonAT27 < Formula
   def caveats
     <<~EOS
       Pip and setuptools have been installed. To update them
-        python2.7 -m pip install --upgrade pip setuptools
+        python#{version.major_minor} -m pip install --upgrade pip setuptools
 
       You can install Python packages with
-        python2.7 -m pip install <package>
+        python#{version.major_minor} -m pip install <package>
 
       They will install into the site-package directory
         #{site_packages}
