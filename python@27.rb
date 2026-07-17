@@ -147,7 +147,7 @@ class PythonAT27 < Formula
       end
 
       inreplace "setup.py" do |s|
-        s.gsub! "/usr/local/bz2", formula_opt_prefix("bz2").to_s
+        s.gsub! "/usr/local/bz2", formula_opt_prefix("bzip2").to_s
       end
     end
 
@@ -1186,7 +1186,7 @@ index efe6922..849b394 100644
  fi
  ],
 diff --git a/setup.py b/setup.py
-index f764223..920413c 100644
+index f764223..2112f43 100644
 --- a/setup.py
 +++ b/setup.py
 @@ -801,8 +801,9 @@ class PyBuildExt(build_ext):
@@ -1292,7 +1292,21 @@ index f764223..920413c 100644
                              break
                  elif cand == "bdb":
                      if db_incs is not None:
-@@ -1449,7 +1475,8 @@ class PyBuildExt(build_ext):
+@@ -1376,9 +1402,11 @@ class PyBuildExt(build_ext):
+ 
+         # Anthony Baxter's gdbm module.  GNU dbm(3) will require -lgdbm:
+         if ('gdbm' in dbm_order and
+-            self.compiler.find_library_file(lib_dirs, 'gdbm')):
++            self.compiler.find_library_file(gdbm_libdir + lib_dirs, 'gdbm')):
+             exts.append( Extension('gdbm', ['gdbmmodule.c'],
+-                                   libraries = ['gdbm'] ) )
++                                   libraries = ['gdbm'],
++                                   library_dirs = gdbm_libdir,
++                                   include_dirs = gdbm_incdir) )
+         else:
+             missing.append('gdbm')
+ 
+@@ -1449,7 +1477,8 @@ class PyBuildExt(build_ext):
          #
          # You can upgrade zlib to version 1.1.4 yourself by going to
          # http://www.gzip.org/zlib/
@@ -1302,7 +1316,7 @@ index f764223..920413c 100644
          have_zlib = False
          if zlib_inc is not None:
              zlib_h = zlib_inc[0] + '/zlib.h'
-@@ -1466,20 +1493,24 @@ class PyBuildExt(build_ext):
+@@ -1466,20 +1495,24 @@ class PyBuildExt(build_ext):
                      version = line.split()[2]
                      break
              if version >= version_req:
@@ -1328,7 +1342,7 @@ index f764223..920413c 100644
              missing.append('zlib')
  
          # Helper module for various ascii-encoders.  Uses zlib for an optimized
-@@ -1498,15 +1529,20 @@ class PyBuildExt(build_ext):
+@@ -1498,15 +1531,20 @@ class PyBuildExt(build_ext):
                                 extra_link_args = extra_link_args) )
  
          # Gustavo Niemeyer's bz2 module.
