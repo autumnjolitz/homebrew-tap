@@ -14,7 +14,7 @@ class PythonAT24 < Formula
   uses_from_macos "zlib"
 
   on_macos do
-      depends_on "gettext"
+    depends_on "gettext"
   end
 
   on_linux do
