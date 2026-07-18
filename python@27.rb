@@ -231,10 +231,6 @@ class PythonAT27 < Formula
     (libexec/"pip").install resource("pip")
     (libexec/"wheel").install resource("wheel")
     (libexec/"virtualenv").install resource("virtualenv")
-
-    python = "#{bin}/python#{version.major_minor}"
-    # system python, "-c", "import zlib"
-    # system python, "-c", "import gdbm" unless OS.mac?
   end
 
   def post_install
