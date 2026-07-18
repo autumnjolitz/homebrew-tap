@@ -7,11 +7,6 @@ class ZopeAT211 < Formula
 
   depends_on "python@24"
 
-  # resource "twisted" do
-  #   url "https://files.pythonhosted.org/packages/f9/80/50b40d787ee26af3062eb83b9a57fa3bdb5e0417f6a3047fffdbd09de6d9/Twisted-10.2.0.tar.bz2"
-  #   sha256 "562ed61c18aa72da99c23fb19c2c101d178995eb3a78ab3c09560a613e180c84"
-  # end
-
   resource "apache" do
     url "https://www.apache.org/dyn/closer.lua?path=httpd/httpd-2.4.68.tar.bz2"
     sha256 "68c74d4df38c26bed4dfbdb8f3baf1eb532f3872357becc1bba5d136f6b63c06"
@@ -48,23 +43,6 @@ class ZopeAT211 < Formula
       SHELL
       chmod 0555, bin / proxied_bin
     end
-
-    # mkdir_p buildpath / "twisted"
-    # resource("twisted").unpack(buildpath / "twisted")
-    # ENV["PYTHONPATH"] = libexec / "Zope" / "lib" / "python"
-    # install_args = [
-    #   "--install-lib",
-    #   libexec / "Zope" / "lib" / "python",
-    #   "--prefix",
-    #   libexec / "Zope",
-    #   "--single-version-externally-managed",
-    #   "--record",
-    #   "/dev/null",
-    # ]
-    # cd buildpath / "twisted" do
-    #   system "python2.4", "setup.py", "build"
-    #   system "python2.4", "setup.py", "install", *install_args
-    # end
   end
 
   test do
