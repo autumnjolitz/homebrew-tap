@@ -8,10 +8,15 @@ class PythonAT24 < Formula
   option "with-universal", "Build for both 32 & 64 bit Intel."
 
   depends_on "libtool" => :build
-  depends_on "zlib" => :build
   depends_on "gdbm"
   depends_on "openssl@3"
   depends_on "readline"
+  uses_from_macos "zlib"
+
+  on_linux do
+    depends_on "zlib-ng-compat"
+  end
+
 
   resource "pip" do
     url "https://files.pythonhosted.org/packages/25/57/0d42cf5307d79913a082c5c4397d46f3793bc35e1138a694136d6e31be99/pip-1.1.tar.gz"
@@ -90,11 +95,6 @@ class PythonAT24 < Formula
     inreplace "pyconfig.h" do |s|
       s.gsub!("_POSIX_C_SOURCE", "_DARWIN_C_SOURCE")
     end
-    static_flags = []
-    if OS.mac?
-      static_flags << "-framework CoreFoundation"
-      static_flags << "-framework IOKit"
-    end
     link_mode = "*shared*"
     inreplace "Modules/Setup" do |s|
       s.gsub!("#*shared*", link_mode)
@@ -126,8 +126,7 @@ class PythonAT24 < Formula
       )
       zlib_cflags = []
       zlib_cflags << "-I#{HOMEBREW_PREFIX}/opt/zlib/include"
-      zlib_cflags << static_flags.join(" ")
-      zlib_cflags << "#{HOMEBREW_PREFIX}/opt/zlib/lib/libz.a"
+      zlib_cflags << "-lz"
       s.gsub!(
         "#zlib zlibmodule.c -I$(prefix)/include -L$(exec_prefix)/lib -lz",
         "zlib zlibmodule.c #{zlib_cflags.join " "} ",
