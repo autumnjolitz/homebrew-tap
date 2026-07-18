@@ -8,13 +8,17 @@ class PythonAT24 < Formula
   option "with-universal", "Build for both 32 & 64 bit Intel."
 
   depends_on "libtool" => :build
-  depends_on "zlib" => :build
   depends_on "gdbm"
   depends_on "openssl@3"
   depends_on "readline"
+  uses_from_macos "zlib"
 
   on_macos do
     depends_on "gettext"
+  end
+
+  on_linux do
+    depends_on "zlib-ng-compat"
   end
 
   resource "pip" do
@@ -94,11 +98,7 @@ class PythonAT24 < Formula
     inreplace "pyconfig.h" do |s|
       s.gsub!("_POSIX_C_SOURCE", "_DARWIN_C_SOURCE")
     end
-    static_flags = []
-    if OS.mac?
-      static_flags << "-framework CoreFoundation"
-      static_flags << "-framework IOKit"
-    end
+
     link_mode = "*shared*"
     inreplace "Modules/Setup" do |s|
       s.gsub!("#*shared*", link_mode)
@@ -124,25 +124,30 @@ class PythonAT24 < Formula
       s.gsub!("#collections", "collections")
       s.gsub!("#itertools", "itertools")
       s.gsub!("#resource", "resource")
+
       locale_cflags = []
       if OS.mac?
-        locale_cflags << "-I#{HOMEBREW_PREFIX}/opt/gettext/include"
-        locale_cflags << "-L#{HOMEBREW_PREFIX}/opt/gettext/lib"
+        locale_cflags << "-I#{formula_opt_include("gettext")}"
+        locale_cflags << "-L#{formula_opt_lib("gettext")}"
+        locale_cflags << "-DHAVE_LIBINTL_H"
         locale_cflags << "-lintl"
       end
       s.gsub!(
         "#_locale _localemodule.c  # -lintl",
-        "_locale _localemodule.c #{locale_cflags.join " "}",
+        "_locale _localemodule.c  #{locale_cflags.join(" ")}",
       )
+
       zlib_cflags = []
-      zlib_cflags << "-I#{HOMEBREW_PREFIX}/opt/zlib/include"
-      zlib_cflags << static_flags.join(" ")
-      zlib_cflags << "#{HOMEBREW_PREFIX}/opt/zlib/lib/libz.a"
+      zlib_cflags << "-I#{formula_opt_include("zlib")}"
+      zlib_cflags << "-L#{formula_opt_lib("zlib")}"
+      zlib_cflags << "-framework CoreFoundation" if OS.mac?
+      zlib_cflags << "-framework IOKit" if OS.mac?
+      zlib_cflags << "-lz"
       s.gsub!(
         "#zlib zlibmodule.c -I$(prefix)/include -L$(exec_prefix)/lib -lz",
-        "zlib zlibmodule.c #{zlib_cflags.join " "} ",
+        "zlib zlibmodule.c #{zlib_cflags.join(" ")} ",
       )
-      s.gsub!("#SSL=/usr/local/ssl", "SSL=#{HOMEBREW_PREFIX}/opt/openssl")
+      s.gsub!("#SSL=/usr/local/ssl", "SSL=#{formula_opt_prefix("openssl@3")}")
       s.gsub!("#_ssl", "_ssl")
       s.gsub!(/^#(\s)*-DUSE_SSL/, " -DUSE_SSL")
       s.gsub!(%r{^#(\s)*-L\$\(SSL\)/lib}, " -L$(SSL)/lib")
@@ -248,7 +253,8 @@ class PythonAT24 < Formula
 
   test do
     system bin / "python2.4", "-c", "import unicodedata"
-    system bin / "python2.4", "-c", "import _locale;_locale.setlocale(0)"
+    system bin / "python2.4", "-c", "import _locale;_locale.setlocale(0, None)"
+    system bin / "python2.4", "-c", "import zlib"
   end
 end
 __END__

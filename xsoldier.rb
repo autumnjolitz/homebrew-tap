@@ -7,10 +7,10 @@ class Xsoldier < Formula
 
   depends_on "autoconf" => :build
   depends_on "automake" => :build
-  depends_on "libICE"
-  depends_on "libSM"
-  depends_on "libX11"
-  depends_on "libXpm"
+  depends_on "libice"
+  depends_on "libsm"
+  depends_on "libx11"
+  depends_on "libxpm"
 
   patch :p1, :DATA
 
@@ -24,7 +24,7 @@ class Xsoldier < Formula
   end
 
   test do
-    system "${bin}/xsoldier", "--help"
+    system "#{bin}/xsoldier", "-h"
   end
 end
 __END__
