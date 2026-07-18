@@ -13,6 +13,10 @@ class PythonAT24 < Formula
   depends_on "readline"
   uses_from_macos "zlib"
 
+  on_macos do
+      depends_on "gettext"
+  end
+
   on_linux do
     depends_on "zlib-ng-compat"
   end
@@ -122,10 +126,12 @@ class PythonAT24 < Formula
       s.gsub!("#resource", "resource")
 
       locale_args = []
-      locale_args << "-framework CoreFoundation" if OS.mac?
-      locale_args << "-lSystem" if OS.mac?
-      locale_args << "-UHAVE_LIBINTL_H" if OS.mac?
-
+      if OS.mac?
+        locale_cflags << "-I#{formula_opt_include("gettext")}"
+        locale_cflags << "-L#{formula_opt_lib("gettext")}"
+        locale_cflags << "-DHAVE_LIBINTL_H"
+        locale_cflags << "-lintl"
+      end
       s.gsub!(
         "#_locale _localemodule.c  # -lintl",
         "_locale _localemodule.c  #{locale_args.join(" ")}",
@@ -247,7 +253,7 @@ class PythonAT24 < Formula
 
   test do
     system bin / "python2.4", "-c", "import unicodedata"
-    system bin / "python2.4", "-c", "import _locale;_locale.setlocale(0)"
+    system bin / "python2.4", "-c", "import _locale;_locale.setlocale(0, None)"
     system bin / "python2.4", "-c", "import zlib"
   end
 end
