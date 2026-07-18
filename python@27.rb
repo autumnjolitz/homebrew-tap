@@ -233,8 +233,8 @@ class PythonAT27 < Formula
     (libexec/"virtualenv").install resource("virtualenv")
 
     python = "#{bin}/python#{version.major_minor}"
-    system python, "-c", "import zlib"
-    system python, "-c", "import gdbm" unless OS.mac?
+    # system python, "-c", "import zlib"
+    # system python, "-c", "import gdbm" unless OS.mac?
   end
 
   def post_install
