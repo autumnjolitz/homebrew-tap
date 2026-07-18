@@ -127,7 +127,7 @@ class PythonAT24 < Formula
       )
 
       zlib_cflags = []
-      zlib_cflags << "-I#{{formula_opt_include("zlib").to_s}}"
+      zlib_cflags << "-I#{formula_opt_include("zlib").to_s}"
       zlib_cflags << "-L#{formula_opt_lib("zlib").to_s}"
       zlib_cflags << "-lz"
       s.gsub!(
