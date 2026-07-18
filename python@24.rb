@@ -122,7 +122,8 @@ class PythonAT24 < Formula
       s.gsub!("#resource", "resource")
 
       locale_args = []
-      locale_args << "-lSystem" if OS.mac?
+      locale_args << "-framework CoreFoundation" if OS.mac?
+      locale_args << "-framework IOKit" if OS.mac?
 
       s.gsub!(
         "#_locale _localemodule.c  # -lintl",
