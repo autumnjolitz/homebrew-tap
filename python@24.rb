@@ -124,7 +124,7 @@ class PythonAT24 < Formula
       locale_args = []
       locale_args << "-framework CoreFoundation" if OS.mac?
       locale_args << "-lSystem" if OS.mac?
-      locale_args << "-U HAVE_LIBINTL_H" if OS.mac?
+      locale_args << "-UHAVE_LIBINTL_H" if OS.mac?
 
       s.gsub!(
         "#_locale _localemodule.c  # -lintl",
