@@ -95,6 +95,7 @@ class PythonAT24 < Formula
     inreplace "pyconfig.h" do |s|
       s.gsub!("_POSIX_C_SOURCE", "_DARWIN_C_SOURCE")
     end
+
     link_mode = "*shared*"
     inreplace "Modules/Setup" do |s|
       s.gsub!("#*shared*", link_mode)
@@ -124,14 +125,16 @@ class PythonAT24 < Formula
         "#_locale _localemodule.c  # -lintl",
         "_locale _localemodule.c  # -lintl",
       )
+
       zlib_cflags = []
-      zlib_cflags << "-I#{HOMEBREW_PREFIX}/opt/zlib/include"
+      zlib_cflags << "-I#{{formula_opt_include("zlib").to_s}}"
+      zlib_cflags << "-L#{formula_opt_lib("zlib").to_s}"
       zlib_cflags << "-lz"
       s.gsub!(
         "#zlib zlibmodule.c -I$(prefix)/include -L$(exec_prefix)/lib -lz",
-        "zlib zlibmodule.c #{zlib_cflags.join " "} ",
+        "zlib zlibmodule.c #{ zlib_cflags.join(" ") } ",
       )
-      s.gsub!("#SSL=/usr/local/ssl", "SSL=#{HOMEBREW_PREFIX}/opt/openssl")
+      s.gsub!("#SSL=/usr/local/ssl", "SSL=#{formula_opt_prefix("openssl@3")}")
       s.gsub!("#_ssl", "_ssl")
       s.gsub!(/^#(\s)*-DUSE_SSL/, " -DUSE_SSL")
       s.gsub!(%r{^#(\s)*-L\$\(SSL\)/lib}, " -L$(SSL)/lib")
