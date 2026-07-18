@@ -249,6 +249,7 @@ class PythonAT24 < Formula
   test do
     system bin / "python2.4", "-c", "import unicodedata"
     system bin / "python2.4", "-c", "import _locale;_locale.setlocale(0)"
+    system bin / "python2.4", "-c", "import zlib"
   end
 end
 __END__
