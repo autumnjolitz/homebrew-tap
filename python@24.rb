@@ -17,7 +17,6 @@ class PythonAT24 < Formula
     depends_on "zlib-ng-compat"
   end
 
-
   resource "pip" do
     url "https://files.pythonhosted.org/packages/25/57/0d42cf5307d79913a082c5c4397d46f3793bc35e1138a694136d6e31be99/pip-1.1.tar.gz"
     sha256 "993804bb947d18508acee02141281c77d27677f8c14eaa64d6287a1c53ef01c8"
@@ -127,12 +126,12 @@ class PythonAT24 < Formula
       )
 
       zlib_cflags = []
-      zlib_cflags << "-I#{formula_opt_include("zlib").to_s}"
-      zlib_cflags << "-L#{formula_opt_lib("zlib").to_s}"
+      zlib_cflags << "-I#{formula_opt_include("zlib")}"
+      zlib_cflags << "-L#{formula_opt_lib("zlib")}"
       zlib_cflags << "-lz"
       s.gsub!(
         "#zlib zlibmodule.c -I$(prefix)/include -L$(exec_prefix)/lib -lz",
-        "zlib zlibmodule.c #{ zlib_cflags.join(" ") } ",
+        "zlib zlibmodule.c #{zlib_cflags.join(" ")} ",
       )
       s.gsub!("#SSL=/usr/local/ssl", "SSL=#{formula_opt_prefix("openssl@3")}")
       s.gsub!("#_ssl", "_ssl")
