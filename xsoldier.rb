@@ -24,7 +24,7 @@ class Xsoldier < Formula
   end
 
   test do
-    system "#{bin}/xsoldier", "--help"
+    system "#{bin}/xsoldier", "-h"
   end
 end
 __END__
