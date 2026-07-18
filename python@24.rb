@@ -13,10 +13,6 @@ class PythonAT24 < Formula
   depends_on "openssl@3"
   depends_on "readline"
 
-  on_macos do
-    depends_on "gettext"
-  end
-
   resource "pip" do
     url "https://files.pythonhosted.org/packages/25/57/0d42cf5307d79913a082c5c4397d46f3793bc35e1138a694136d6e31be99/pip-1.1.tar.gz"
     sha256 "993804bb947d18508acee02141281c77d27677f8c14eaa64d6287a1c53ef01c8"
@@ -124,15 +120,9 @@ class PythonAT24 < Formula
       s.gsub!("#collections", "collections")
       s.gsub!("#itertools", "itertools")
       s.gsub!("#resource", "resource")
-      locale_cflags = []
-      if OS.mac?
-        locale_cflags << "-I#{HOMEBREW_PREFIX}/opt/gettext/include"
-        locale_cflags << "-L#{HOMEBREW_PREFIX}/opt/gettext/lib"
-        locale_cflags << "-lintl"
-      end
       s.gsub!(
         "#_locale _localemodule.c  # -lintl",
-        "_locale _localemodule.c #{locale_cflags.join " "}",
+        "_locale _localemodule.c  # -lintl",
       )
       zlib_cflags = []
       zlib_cflags << "-I#{HOMEBREW_PREFIX}/opt/zlib/include"
