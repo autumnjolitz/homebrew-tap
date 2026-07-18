@@ -120,9 +120,13 @@ class PythonAT24 < Formula
       s.gsub!("#collections", "collections")
       s.gsub!("#itertools", "itertools")
       s.gsub!("#resource", "resource")
+
+      locale_args = []
+      locale_args << "-lc" if OS.mac?
+
       s.gsub!(
         "#_locale _localemodule.c  # -lintl",
-        "_locale _localemodule.c  # -lintl",
+        "_locale _localemodule.c  #{locale_args.join(" ")}",
       )
 
       zlib_cflags = []
