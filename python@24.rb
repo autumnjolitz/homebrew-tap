@@ -123,7 +123,7 @@ class PythonAT24 < Formula
 
       locale_args = []
       locale_args << "-framework CoreFoundation" if OS.mac?
-      locale_args << "-framework IOKit" if OS.mac?
+      locale_args << "-lSystem" if OS.mac?
 
       s.gsub!(
         "#_locale _localemodule.c  # -lintl",
@@ -289,21 +289,6 @@ index d125bf6..9f1fde5 100644
  	fi
  	$(INSTALL) -d -m $(DIRMODE)  \
  		$(PYTHONFRAMEWORKDIR)/Versions/$(VERSION)/Resources/English.lproj
-diff --git a/Modules/_localemodule.c b/Modules/_localemodule.c
-index af6a615..ce884db 100644
---- a/Modules/_localemodule.c
-+++ b/Modules/_localemodule.c
-@@ -41,7 +41,9 @@ This software comes with no warranty. Use at your own risk.
- #ifdef RISCOS
- char *strdup(const char *);
- #endif
--
-+#if defined(__APPLE__)
-+extern char *setlocale(int category, const char *locale);
-+#endif
- PyDoc_STRVAR(locale__doc__, "Support for POSIX locales.");
- 
- static PyObject *Error;
 diff --git a/Modules/_ssl.c b/Modules/_ssl.c
 index f90ec13..3bdac05 100644
 --- a/Modules/_ssl.c
