@@ -125,7 +125,7 @@ class PythonAT24 < Formula
       s.gsub!("#itertools", "itertools")
       s.gsub!("#resource", "resource")
 
-      locale_args = []
+      locale_cflags = []
       if OS.mac?
         locale_cflags << "-I#{formula_opt_include("gettext")}"
         locale_cflags << "-L#{formula_opt_lib("gettext")}"
@@ -134,7 +134,7 @@ class PythonAT24 < Formula
       end
       s.gsub!(
         "#_locale _localemodule.c  # -lintl",
-        "_locale _localemodule.c  #{locale_args.join(" ")}",
+        "_locale _localemodule.c  #{locale_cflags.join(" ")}",
       )
 
       zlib_cflags = []
