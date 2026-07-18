@@ -128,6 +128,8 @@ class PythonAT24 < Formula
       zlib_cflags = []
       zlib_cflags << "-I#{formula_opt_include("zlib")}"
       zlib_cflags << "-L#{formula_opt_lib("zlib")}"
+      zlib_cflags << "-framework CoreFoundation" if OS.mac?
+      zlib_cflags << "-framework IOKit" if OS.mac?
       zlib_cflags << "-lz"
       s.gsub!(
         "#zlib zlibmodule.c -I$(prefix)/include -L$(exec_prefix)/lib -lz",
