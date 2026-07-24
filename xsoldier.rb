@@ -8,6 +8,9 @@ class Xsoldier < Formula
   bottle do
     root_url "https://ghcr.io/v2/autumnjolitz/tap"
     rebuild 1
+    sha256 arm64_tahoe:   "26e4f8a370f05fbdb4d200fd17e33572d5356c5809402382021fdeeed0ee3c7e"
+    sha256 arm64_sequoia: "115cb00adf09865289f343f19acd604978b33a9dd66b43f8d62ef26d3a86181b"
+    sha256 x86_64_linux:  "5df3a16bf6543d2ea6ed7ee1f9062d1ee67d25791870febbaf25bafc5eaa2aa3"
   end
 
   depends_on "autoconf" => :build
