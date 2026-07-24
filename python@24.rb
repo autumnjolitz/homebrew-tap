@@ -7,9 +7,9 @@ class PythonAT24 < Formula
   bottle do
     root_url "https://ghcr.io/v2/autumnjolitz/tap"
     rebuild 3
-    sha256 arm64_tahoe:   "2bc2786207d3186691e4f7ef64fa194c7bbea20f881a78d192c91f457977ed36"
-    sha256 arm64_sequoia: "94de76a9d6ef13ac96eb7f9ce9a8547776a026e2458bbef997dca4173059ac28"
-    sha256 x86_64_linux:  "4a2bcef8971cbf6a9d32f551c5134ae1e846243d59dd665d8f283844459241f2"
+    sha256 arm64_tahoe:   "f2fe68fc4cdbae40d305a527785280dabe2036bae30f81afec57a41839c129c5"
+    sha256 arm64_sequoia: "92ad161a952bd0615101f60de0a08634fd3a129ab5d2099e8541f0ecea07ae32"
+    sha256 x86_64_linux:  "f8b4406c5bf3ea5b36a9f5994fe674df44827d0a1b3912905c2e7ffb19ecb8b7"
   end
 
   option "with-framework", "Do a 'Framework' build instead of a UNIX-style build."
