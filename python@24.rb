@@ -14,7 +14,6 @@ class PythonAT24 < Formula
   option "with-framework", "Do a 'Framework' build instead of a UNIX-style build."
   option "with-universal", "Build for both arm64 and x86-64."
 
-  depends_on "libtool" => :build
   depends_on "gdbm"
   depends_on "openssl@3"
   depends_on "readline"
