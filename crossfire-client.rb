@@ -42,6 +42,7 @@ class CrossfireClient < Formula
   depends_on "lua@5.4"
   depends_on "pango"
   depends_on "sdl2"
+  depends_on "sdl2-compat"
   depends_on "sdl2_mixer"
 
   def install
