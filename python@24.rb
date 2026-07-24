@@ -5,7 +5,7 @@ class PythonAT24 < Formula
   sha256 "da104139ad3f4534482942ac02cf8f8ed9badd370ffa14f06b07c44914423e08"
 
   option "with-framework", "Do a 'Framework' build instead of a UNIX-style build."
-  option "with-universal", "Build for both 32 & 64 bit Intel."
+  option "with-universal", "Build for both arm64 and x86-64."
 
   depends_on "libtool" => :build
   depends_on "gdbm"
