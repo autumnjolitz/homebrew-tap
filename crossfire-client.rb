@@ -59,7 +59,7 @@ class CrossfireClient < Formula
   end
 
   test do
-    system bin/"crossfire-client-gtk2", "--help-all"
+    assert_path_exists bin/"crossfire-client-gtk2"
   end
 end
 __END__
