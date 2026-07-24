@@ -57,7 +57,26 @@ Python 2.7 comes with the last known Python 2.7-compatible releases for:
 
 ## Zope 2.11 Homebrew Tap
 
-Zope 2.11 is legacy software, blah blah.
+Zope 2.11 is legacy software. It's of relevance for preservation of 1990-2005 websites written in it.
+
+This fork of Zope 2.11 is meant for circumstances where legacy Zope is required and you don't wish to expose even `localhost:PORT` to reduce one's vulnerability surface.
+
+New Features:
+- ZServer/HTTP (`medusa`) accepts `bind-to ADDRESS` where `ADDRESS` may be one of the following:
+  * `ip:port`
+  * Path for UNIX Domain Socket
+
+Fixed Bugs:
+- TAL engine throws TypeError on XML/HTML fragments
+
+Known Bugs:
+- Unix Domain Sockets don't remove stale socket files
+  * TODO: upon binding a Unix Domain Socket, fork off/exec a small watcher script that waits for the read end of a pipe to close, then unlinks the stale file.
+- CGI server is broken for serving file streams
+  * GETs on an image for example returns:
+```
+<open file 'Zope.jpg', mode 'r' at 0x140020378>
+```
 
 ### zope2.11
 
