@@ -3,15 +3,13 @@ class ZopeAT211 < Formula
   homepage "https://zopefoundation.github.io"
   license "ZPL-2.1"
 
-  head do
-    url "https://codeberg.org/autumnlicious/Zope2.git", branch: "Zope211"
-  end
+  head "https://codeberg.org/autumnlicious/Zope2.git", branch: "Zope211"
 
   stable do
-      url "https://old.zope.dev/Products/Zope/2.11.8/Zope-2.11.8-final.tgz"
-      sha256 "cdae1f71f8164901bec15d53a11cbedd17731dbb3c00963665a2aaebc44cad26"
+    url "https://old.zope.dev/Products/Zope/2.11.8/Zope-2.11.8-final.tgz"
+    sha256 "cdae1f71f8164901bec15d53a11cbedd17731dbb3c00963665a2aaebc44cad26"
 
-      patch :p1, :DATA
+    patch :p1, :DATA
   end
 
   depends_on "python@24"
@@ -20,7 +18,6 @@ class ZopeAT211 < Formula
     url "https://www.apache.org/dyn/closer.lua?path=httpd/httpd-2.4.68.tar.bz2"
     sha256 "68c74d4df38c26bed4dfbdb8f3baf1eb532f3872357becc1bba5d136f6b63c06"
   end
-
 
   def install
     mkdir_p buildpath / "obj"
