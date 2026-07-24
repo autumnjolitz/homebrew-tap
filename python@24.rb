@@ -4,6 +4,13 @@ class PythonAT24 < Formula
   url "https://www.python.org/ftp/python/2.4.6/Python-2.4.6.tar.bz2"
   sha256 "da104139ad3f4534482942ac02cf8f8ed9badd370ffa14f06b07c44914423e08"
 
+  bottle do
+    root_url "https://ghcr.io/v2/autumnjolitz/tap"
+    rebuild 1
+    sha256 arm64_tahoe:  "bcbf82203bc7862be859cffc2a0ca609a80a5be3331ecb65a0bf47209bc68f4b"
+    sha256 x86_64_linux: "f5c26fd70a5b217d0ed539f03199a8e6f82dc7d5f00071bb29f7f1bcda3ae243"
+  end
+
   option "with-framework", "Do a 'Framework' build instead of a UNIX-style build."
   option "with-universal", "Build for both arm64 and x86-64."
 
