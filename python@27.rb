@@ -8,10 +8,10 @@ class PythonAT27 < Formula
 
   bottle do
     root_url "https://ghcr.io/v2/autumnjolitz/tap"
-    rebuild 1
-    sha256 arm64_tahoe:  "046f1ecfcf862fe8048ac58162179a7fe906da20f01a6942f50a179587d1c8c0"
-    sha256 sequoia:      "8da6e87d089c243908f4f275b5675cdde9b5385933ad5f8d5512134e177d94f7"
-    sha256 x86_64_linux: "f5c01327a3cdbf0dd4c624753c2cf238f6892f648c05147a8b4ef570bd19488c"
+    sha256 arm64_tahoe:   "e21bd2098d0b7821a0cb684c77c559bff48f5496581338db3e356ba972b3c097"
+    sha256 arm64_sequoia: "dce8cb3e6c2a4074830c90ca8dca8fbbeb2b9ed254b6b6ab7c4a5d07d22a067b"
+    sha256 sequoia:       "45cb7b9ccf76f0020b4e105fa2ca14402017272b993200b078a13ad5f7143172"
+    sha256 x86_64_linux:  "4127c9fd45dcf0c2a2a89145b1ba35395b404fdf45dc55fb239e26edd5d1003e"
   end
 
   option "with-universal", "Build universal2 (arm64 and x86_64)."
