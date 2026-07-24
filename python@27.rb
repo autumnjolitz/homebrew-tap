@@ -6,6 +6,14 @@ class PythonAT27 < Formula
   revision 1
   head "https://github.com/python/cpython.git", branch: "2.7"
 
+  bottle do
+    root_url "https://ghcr.io/v2/autumnjolitz/tap"
+    rebuild 1
+    sha256 arm64_tahoe:  "046f1ecfcf862fe8048ac58162179a7fe906da20f01a6942f50a179587d1c8c0"
+    sha256 sequoia:      "8da6e87d089c243908f4f275b5675cdde9b5385933ad5f8d5512134e177d94f7"
+    sha256 x86_64_linux: "f5c01327a3cdbf0dd4c624753c2cf238f6892f648c05147a8b4ef570bd19488c"
+  end
+
   option "with-universal", "Build universal2 (arm64 and x86_64)."
 
   depends_on "pkg-config" => :build
