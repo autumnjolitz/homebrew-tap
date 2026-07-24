@@ -5,6 +5,11 @@ class Xsoldier < Formula
   sha256 "4d1a60513a2738e5dc09a25b4ab7bdbcd88705a5cc7ef0ad6f27263b914cdae6"
   license "GPL-2.0-or-later"
 
+  bottle do
+    root_url "https://ghcr.io/v2/autumnjolitz/tap"
+    rebuild 1
+  end
+
   depends_on "autoconf" => :build
   depends_on "automake" => :build
   depends_on "libice"
