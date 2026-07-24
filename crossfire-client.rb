@@ -16,6 +16,13 @@ class CrossfireClient < Formula
     patch :p1, :DATA
   end
 
+  bottle do
+    root_url "https://ghcr.io/v2/autumnjolitz/tap"
+    sha256 arm64_tahoe:   "f367f3e7ffea1b1428bddb2996beb7472b9f1666952b71ef78b240f2b336fde4"
+    sha256 arm64_sequoia: "34d5b43ea33718060b7872e90e853c540fded0ce978b938e32b1332e3d01a167"
+    sha256 x86_64_linux:  "ab8e4a233ea54655e8bce2dc1ee12fb9eabcd511ca19ecf3e7ffb9d981ff6db6"
+  end
+
   head do
     url "https://git.code.sf.net/p/crossfire/crossfire-client.git", branch: "gtk3"
 
