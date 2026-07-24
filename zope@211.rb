@@ -14,7 +14,7 @@ class ZopeAT211 < Formula
 
   bottle do
     root_url "https://ghcr.io/v2/autumnjolitz/tap"
-    rebuild 1
+    rebuild 2
     sha256 cellar: :any_skip_relocation, arm64_tahoe:  "f68c75c89aa6fc1a9aeaae4d3c72a136b3aa8bbd6f5111bb1ea50754ea04066e"
     sha256 cellar: :any,                 x86_64_linux: "8c3fa98c8764adab7edbf0dd78b40d73d64250bdab882ec1233933c6cdb4e1de"
   end
