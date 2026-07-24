@@ -6,7 +6,7 @@ class PythonAT27 < Formula
   revision 1
   head "https://github.com/python/cpython.git", branch: "2.7"
 
-  option "with-universal", "Build universal2 (arm64 and x86_64) Mach-O binary"
+  option "with-universal", "Build universal2 (arm64 and x86_64)."
 
   depends_on "pkg-config" => :build
   depends_on "gdbm"
