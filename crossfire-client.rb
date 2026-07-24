@@ -3,24 +3,24 @@ class CrossfireClient < Formula
   homepage "https://sourceforge.net/projects/crossfire/"
   license "GPL-2.0-only"
 
-  head do
-    url "https://git.code.sf.net/p/crossfire/crossfire-client.git", branch: "gtk3"
+  stable do
+    url "https://downloads.sourceforge.net/code-snapshots/git/c/cr/crossfire/crossfire-client.git/crossfire-crossfire-client-e196986b41fefdc130be146f0ea565c7f2c09ff4.zip"
+    version "1.75.5"
+    sha256 "0edfdb53ae9533e5973e3436cafd3bed222d0c3c520f34adf9bc7bea5f2537fb"
 
     resource "crossfire-sounds" do
-      url "git://git.code.sf.net/p/crossfire/crossfire-sounds"
+      url "https://downloads.sourceforge.net/code-snapshots/git/c/cr/crossfire/crossfire-sounds.git/crossfire-crossfire-sounds-8d136fbf62928c765af3aac62b48845fa01c5359.zip"
+      sha256 "a3246db222a97efea51c760420efe46d4d8b63b6f755df2c0979f5e59307a623"
     end
 
     patch :p1, :DATA
   end
 
-  stable do
-    url "https://sourceforge.net/code-snapshots/git/c/cr/crossfire/crossfire-client.git/crossfire-crossfire-client-e196986b41fefdc130be146f0ea565c7f2c09ff4.zip"
-    version "1.75.5"
-    sha256 "0edfdb53ae9533e5973e3436cafd3bed222d0c3c520f34adf9bc7bea5f2537fb"
+  head do
+    url "https://git.code.sf.net/p/crossfire/crossfire-client.git", branch: "gtk3"
 
     resource "crossfire-sounds" do
-      url "https://sourceforge.net/code-snapshots/git/c/cr/crossfire/crossfire-sounds.git/crossfire-crossfire-sounds-8d136fbf62928c765af3aac62b48845fa01c5359.zip"
-      sha256 "a3246db222a97efea51c760420efe46d4d8b63b6f755df2c0979f5e59307a623"
+      url "git://git.code.sf.net/p/crossfire/crossfire-sounds"
     end
 
     patch :p1, :DATA
