@@ -292,3 +292,187 @@ index f17bf6b..5a82b8d 100644
  # Examples:
  #
  #  <ftp-server>
+diff --git a/lib/python/ZServer/HTTPServer.py b/lib/python/ZServer/HTTPServer.py
+index b820240..28a39d8 100644
+--- a/lib/python/ZServer/HTTPServer.py
++++ b/lib/python/ZServer/HTTPServer.py
+@@ -201,8 +201,9 @@ class zhttp_handler:
+         if query:
+             env['QUERY_STRING'] = query
+         env['GATEWAY_INTERFACE']='CGI/1.1'
+-        env['REMOTE_ADDR']=request.channel.addr[0]
+-
++        env["REMOTE_ADDR"] = "127.0.0.1"
++        if request.channel.addr:
++            env['REMOTE_ADDR']=request.channel.addr[0]
+ 
+         # This is a really bad hack to support WebDAV
+         # clients accessing documents through GET
+@@ -428,10 +429,11 @@ class zhttp_server(http_server):
+     shutup=0
+ 
+     def __init__ (self, ip, port, resolver=None, logger_object=None,
+-                  fast_listen=True):
++                  fast_listen=True, family=None, bind_address=None, server_name=None):
+         self.shutup=1
+         self.fast_listen = fast_listen
+-        http_server.__init__(self, ip, port, resolver, logger_object)
++        http_server.__init__(self, ip, port, resolver, logger_object,
++                             family, bind_address, server_name)
+         self.shutup=0
+         self.log_info('%s server started at %s\n'
+                       '\tHostname: %s\n\tPort: %d' % (
+diff --git a/lib/python/ZServer/component.xml b/lib/python/ZServer/component.xml
+index 234ada7..8c3d203 100644
+--- a/lib/python/ZServer/component.xml
++++ b/lib/python/ZServer/component.xml
+@@ -12,6 +12,16 @@
+                datatype=".HTTPServerFactory"
+                implements="ZServer.server">
+      <key name="address" datatype="inet-binding-address"/>
++     <key name="server-name" datatype="string">
++      <description>
++        Override the SERVER_NAME.
++      </description>
++     </key>
++     <key name="bind-to" datatype="socket-address">
++      <description>
++        Bind to another host:port or even a unix domain socket path.
++      </description>
++     </key>
+      <key name="force-connection-close" datatype="boolean" default="off"/>
+      <key name="webdav-source-clients">
+        <description>
+@@ -25,7 +35,11 @@
+          immediately or only after Zope is ready to run.
+        </description>
+      </key>
+-     <key name="use-wsgi" datatype="boolean" default="off" />
++     <key name="use-wsgi" datatype="boolean" default="off">
++      <description>
++        Speak WSGI protocol or not.
++      </description>
++     </key>
+   </sectiontype>
+ 
+   <sectiontype name="webdav-source-server"
+diff --git a/lib/python/ZServer/datatypes.py b/lib/python/ZServer/datatypes.py
+index 9a015af..0f5fb62 100644
+--- a/lib/python/ZServer/datatypes.py
++++ b/lib/python/ZServer/datatypes.py
+@@ -66,6 +66,14 @@ class HTTPServerFactory(ServerFactory):
+                 "No 'address' settings found "
+                 "within the 'http-server' or 'webdav-source-server' section")
+         ServerFactory.__init__(self, section.address)
++        self.bind_address = None
++        self.family = None
++        self.server_name = None
++        if section.bind_to:
++            self.family = section.bind_to.family
++            self.bind_address = section.bind_to.address
++        if section.server_name:
++            self.server_name = section.server_name
+         self.server_class = HTTPServer.zhttp_server
+         self.force_connection_close = section.force_connection_close
+         # webdav-source-server sections won't have webdav_source_clients:
+@@ -83,7 +91,9 @@ class HTTPServerFactory(ServerFactory):
+         server = self.server_class(ip=self.ip, port=self.port,
+                                    resolver=self.dnsresolver,
+                                    fast_listen=self.fast_listen,
+-                                   logger_object=access_logger)
++                                   logger_object=access_logger,
++                                   family=self.family, bind_address=self.bind_address,
++                                   server_name=self.server_name)
+         server.install_handler(handler)
+         return server
+ 
+diff --git a/lib/python/ZServer/medusa/http_server.py b/lib/python/ZServer/medusa/http_server.py
+index a4e34d7..34ae469 100644
+--- a/lib/python/ZServer/medusa/http_server.py
++++ b/lib/python/ZServer/medusa/http_server.py
+@@ -286,9 +286,11 @@ class http_request:
+                     name = 'Unknown (bad auth string)'
+                 else:
+                     name = t[0]
+-
++        remote_host = "127.0.0.1"
++        if self.channel.addr:
++            remote_host = self.channel.addr[0]
+         self.channel.server.logger.log (
+-            self.channel.addr[0],
++            remote_host,
+             '- %s [%s] "%s" %d %d "%s" "%s"\n' % (
+                 name,
+                 self.log_date_string (time.time()),
+@@ -558,11 +560,14 @@ class http_server (asyncore.dispatcher):
+     
+     channel_class = http_channel
+     
+-    def __init__ (self, ip, port, resolver=None, logger_object=None):
++    def __init__ (self, ip, port, resolver=None, logger_object=None,
++                  family=None, bind_address=None, server_name=None):
+         self.ip = ip
+         self.port = port
+         asyncore.dispatcher.__init__ (self)
+-        self.create_socket (socket.AF_INET, socket.SOCK_STREAM)
++        if family is None:
++            family = socket.AF_INET
++        self.create_socket (family, socket.SOCK_STREAM)
+         
+         self.handlers = []
+         
+@@ -570,24 +575,25 @@ class http_server (asyncore.dispatcher):
+             logger_object = logger.file_logger (sys.stdout)
+             
+         self.set_reuse_addr()
+-        self.bind ((ip, port))
+-        
++        if bind_address is None:
++            bind_address = (ip, port)
++        self.bind (bind_address)
+         # lower this to 5 if your OS complains
+         self.listen (1024)
+-        
+-        host, port = self.socket.getsockname()
+-        if not ip:
+-            self.log_info('Computing default hostname', 'warning')
++        if family == socket.AF_INET:
++            _, port = self.socket.getsockname()
++        if not server_name:
++            if not ip:
++                self.log_info('Computing default hostname', 'warning')
++                try:
++                    ip = socket.gethostbyname(socket.gethostname())
++                except socket.error:
++                    ip = socket.gethostbyname('localhost')
+             try:
+-                ip = socket.gethostbyname(socket.gethostname())
++                self.server_name = socket.gethostbyaddr (ip)[0]
+             except socket.error:
+-                ip = socket.gethostbyname('localhost')
+-        try:
+-            self.server_name = socket.gethostbyaddr (ip)[0]
+-        except socket.error:
+-            self.log_info('Cannot do reverse lookup', 'warning')
+-            self.server_name = ip       # use the IP address as the "hostname"
+-            
++                self.log_info('Cannot do reverse lookup', 'warning')
++                self.server_name = ip       # use the IP address as the "hostname"
+         self.server_port = port
+         self.total_clients = counter()
+         self.total_requests = counter()
+diff --git a/skel/etc/zope.conf.in b/skel/etc/zope.conf.in
+index 5a82b8d..53cae40 100644
+--- a/skel/etc/zope.conf.in
++++ b/skel/etc/zope.conf.in
+@@ -981,6 +981,10 @@ default-zpublisher-encoding utf-8
+ <http-server>
+   # valid keys are "address" and "force-connection-close"
+   address localhost:8100
++
++  # This will instead serve off of the local var/server.sock:
++  # bind-to $INSTANCE/var/server.sock
++
+   # force-connection-close on
+   #
+   # You can also use the WSGI interface between ZServer and ZPublisher:
