@@ -52,7 +52,11 @@ class ZopeAT211 < Formula
       proxied_bin = "#{proxied_bin}.#{suffix}" unless suffix.nil?
       (bin / proxied_bin).write <<~SHELL
         #!/usr/bin/env sh
-        exec #{libexec}/Zope/bin/#{file} "$@"
+        ZOPE_HOME="${ZOPE_HOME:-#{opt_prefix}/libexec/Zope}"
+        if ! case "$PATH" in *"${ZOPE_HOME}"/bin*) true ;; *) false ;; esac ; then
+            export PATH="${ZOPE_HOME}/bin:${PATH}"
+        fi
+        exec "${ZOPE_HOME}/bin/"'#{file}' "$@"
       SHELL
       chmod 0555, bin / proxied_bin
     end
