@@ -14,10 +14,10 @@ class ZopeAT211 < Formula
 
   bottle do
     root_url "https://ghcr.io/v2/autumnjolitz/tap"
-    rebuild 2
-    sha256 cellar: :any_skip_relocation, arm64_tahoe:   "cdec952b8f6c11b2d935e1b342fe60df79503b61d51ee4d697ae3d6cdf6c0e52"
-    sha256 cellar: :any_skip_relocation, arm64_sequoia: "73ebf0fc7144b4677fce0144169eb5d6a35797a256ff91d0abd245e7255c7e69"
-    sha256 cellar: :any,                 x86_64_linux:  "c0c618b637e86f1103fd0e89e2a93e6328f3432e8db0dc761417e49f16516b13"
+    rebuild 3
+    sha256 cellar: :any_skip_relocation, arm64_tahoe:   "ac9b4f27cdefd7bcf19298d79369faa9a2cdbbbcdc61cb5d26819c27fae864ca"
+    sha256 cellar: :any_skip_relocation, arm64_sequoia: "8370d2f5db5f18123d839469a587f802eb6c982c6490ede10a889fed94e92e57"
+    sha256 cellar: :any,                 x86_64_linux:  "7fe7954222b3bce0e894a087bc7746b1fcba962aa26bf482cd20d28182ccf13b"
   end
 
   depends_on "python@24"
